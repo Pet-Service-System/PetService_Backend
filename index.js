@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const Account = require("./models/accounts"); // Import the Account model
+const Account = require("./models/Account"); // Import the Account model
 
 const app = express();
 app.use(cors());
@@ -16,13 +16,19 @@ mongoose.connect("mongodb+srv://minhvqse183085:mv1212@pet-management-sysem.2jvql
 
 // Login endpoint
 app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     try {
-        const account = await Account.findOne({ username, password });
+        const account = await Account.findOne({ email, password });
 
         if (account) {
-            res.json({ message: 'Login successful', user: { username: account.username, role: account.role } });
+            let redirectPage;
+            if (account.role === '1' || account.role === '2') {
+                redirectPage = 'homepage';
+            } else {
+                redirectPage = 'adminpage';
+            }
+            res.json({ message: 'Login successful', user: { email: account.email, role: account.role }, redirectPage });
         } else {
             res.status(401).json({ message: 'Invalid credentials' });
         }
