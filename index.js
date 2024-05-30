@@ -36,8 +36,31 @@ app.post('/login', async (req, res) => {
         console.error('Error during login:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+})
+
+// Reset Password endpoint
+app.post('/reset-password', async (req, res) => {
+    const { email, newPassword } = req.body;
+
+    try {
+        // Find the account by email
+        const account = await Account.findOne({ email });
+
+        if (!account) {
+            return res.status(404).json({ message: 'Account not found' });
+        }
+
+        // Update the password
+        account.password = newPassword;
+        await account.save();
+
+        res.json({ message: 'Password reset successful' });
+    } catch (error) {
+        console.error('Error during password reset:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+})
 
 app.listen(3001, () => {
     console.log('Server is running on port 3001');
-});
+})
