@@ -1,12 +1,22 @@
+const jwt = require('jsonwebtoken');
 const Account = require('../models/Account');
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const account = await Account.findOne({ email, password });
     if (account) {
-      let redirectPage = (account.role === '1' || account.role === '2') ? 'homepage' : 'adminpage';
-      res.json({ message: 'Login successful', user: { email: account.email, role: account.role }, redirectPage });
+      // Create JWT token with unique payload
+      const token = jwt.sign(
+        { id: account._id, email: account.email, role: account.role },
+        JWT_SECRET,
+        { expiresIn: JWT_EXPIRES_IN }
+      );
+
+      let redirectPage = (account.role === 'user' || account.role === 'admin') ? 'homepage' : 'adminpage';
+      res.json({ message: 'Login successful', user: { email: account.email, role: account.role }, token, redirectPage });
     } else {
       res.status(401).json({ message: 'Invalid credentials' });
     }
