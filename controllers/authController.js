@@ -7,22 +7,23 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
 
 // Register API
 exports.register = async (req, res) => {
-  const { email, password, role } = req.body;
+  const { fullname, email, password, phonenumber, address } = req.body;
   try {
     const existingAccount = await Account.findOne({ email });
     if (existingAccount) {
       return res.status(400).json({ message: 'Email already in use' });
     }
 
-    const newAccount = new Account({ email, password, role });
+    const newAccount = new Account({ fullname, email, password, phonenumber, address });
     await newAccount.save();
 
-    res.json({ message: 'Registration successful', user: { email: newAccount.email, role: newAccount.role } });
+    res.json({ message: 'Registration successful', user: { fullname: newAccount.fullname, email: newAccount.email, phonenumber: newAccount.phonenumber, address: newAccount.address } });
   } catch (error) {
     console.error('Error during registration:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
 exports.login = async (req, res) => {
