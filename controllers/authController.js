@@ -3,6 +3,28 @@ const Account = require('../models/Account');
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
 
+
+
+// Register API
+exports.register = async (req, res) => {
+  const { email, password, role } = req.body;
+  try {
+    const existingAccount = await Account.findOne({ email });
+    if (existingAccount) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    const newAccount = new Account({ email, password, role });
+    await newAccount.save();
+
+    res.json({ message: 'Registration successful', user: { email: newAccount.email, role: newAccount.role } });
+  } catch (error) {
+    console.error('Error during registration:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -24,7 +46,7 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.resetPassword = async (req, res) => {
+exports.forgetPassword = async (req, res) => {
   const { email, newPassword } = req.body;
   try {
     const account = await Account.findOne({ email });
