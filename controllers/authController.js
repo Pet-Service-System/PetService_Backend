@@ -14,8 +14,6 @@ exports.login = async (req, res) => {
         JWT_SECRET,
         { expiresIn: JWT_EXPIRES_IN }
       );
-
-      let redirectPage = (account.role === 'user' || account.role === 'admin') ? 'homepage' : 'adminpage';
       res.json({ message: 'Login successful', user: { email: account.email, role: account.role }, token, redirectPage });
     } else {
       res.status(401).json({ message: 'Invalid credentials' });
@@ -39,5 +37,33 @@ exports.resetPassword = async (req, res) => {
   } catch (error) {
     console.error('Error during password reset:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user.id; // Assuming you have user id in the token
+
+  try {
+      const account = await Account.findById(userId);
+
+      if (!account) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Directly compare the current password
+      if (currentPassword !== account.password) {
+          return res.status(400).json({ message: 'Incorrect current password' });
+      }
+
+      // Assign the new password directly
+      account.password = newPassword;
+
+      await account.save();
+
+      res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+      console.error('Error changing password:', error);
+      res.status(500).json({ message: 'Internal server error' });
   }
 };
