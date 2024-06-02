@@ -89,3 +89,8 @@ exports.changePassword = async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+exports.logout = (req, res) => {
+  // When logout, clear the token in the client side
+  res.status(200).json({ message: 'Logout successful' });
+};
