@@ -6,6 +6,7 @@ const accountSchema = new mongoose.Schema({
   password: { type: String, required: true },
   email: { type: String, required: true },
   phone: { type: String, required: true },
+  address: { type: String, required: true },
   status: { type: Number, required: true },
   role: { type: String, required: true }
 });

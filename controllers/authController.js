@@ -54,23 +54,22 @@ exports.register = async (req, res) => {
   }
 };
 
-//Login API
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    // Find the account by email
+    // Tìm tài khoản bằng email
     const account = await Account.findOne({ email });
     if (!account) {
       return res.status(401).json({ message: 'Email không tồn tại!' });
     }
 
-    // Compare the password using bcrypt
+    // So sánh mật khẩu sử dụng bcrypt
     const isMatch = await bcrypt.compare(password, account.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Email hoặc mật khẩu không chính xác!' });
     }
 
-    // Create JWT token with unique payload
+    // Tạo JWT token với thông tin payload độc nhất
     const token = jwt.sign(
       { id: account._id, email: account.email, role: account.role },
       JWT_SECRET,
@@ -83,6 +82,8 @@ exports.login = async (req, res) => {
         email: account.email, 
         role: account.role,
         fullname: account.fullname,
+        phone: account.phone,
+        address: account.address
       },
       token
     });
