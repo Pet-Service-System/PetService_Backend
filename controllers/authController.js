@@ -27,7 +27,7 @@ exports.login = async (req, res) => {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
     } else {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Cannot find account' });
     }
   } catch (error) {
     console.error('Error during login:', error);

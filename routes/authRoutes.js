@@ -3,7 +3,6 @@ const { login, register, forgetPassword, changePassword, resetPassword, logout }
 const authMiddleware = require('../middlewares/authMiddleware');
 const router = express.Router();
 
-router.use(authMiddleware);
 router.post('/login', login);
 router.post('/register', register);
 router.post('/forget-password', forgetPassword);
