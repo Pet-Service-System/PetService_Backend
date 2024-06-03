@@ -64,7 +64,23 @@ exports.changePassword = async (req, res) => {
   }
 };
 
-//logout api
+exports.forgetPassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+  try {
+    const account = await Account.findOne({ email });
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
+    account.password = newPassword;
+    await account.save();
+    res.json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.error('Error during password reset:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
 exports.logout = (req, res) => {
   // When logout, clear the token in the client side
   res.status(200).json({ message: 'Logout successful' });
