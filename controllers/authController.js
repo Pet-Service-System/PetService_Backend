@@ -105,73 +105,158 @@ exports.changePassword = async (req, res) => {
   }
 };
 
-//create random 6 digits otp
-const generateOTP = () => {
-  return crypto.randomBytes(3).toString('hex'); // Create 6 numbers OTP
-};
+// //create random 6 digits otp
+// const generateOTP = () => {
+//   return crypto.randomBytes(3).toString('hex'); // Create 6 numbers OTP
+// };
 
 
-//set up email to send otp
-const sendOtpEmail = (email, otp) => {
-  let transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-      user: 'petmanagementsystem@gmail.com',
-      pass: 'petmanagersystem'
-    }
-  });
+// //set up email to send otp
+// const sendOtpEmail = (email, otp) => {
+//   let transporter = nodemailer.createTransport({
+//     service: 'Gmail',
+//     auth: {
+//       user: 'petmanagementsystem@gmail.com',
+//       pass: 'petmanagersystem'
+//     }
+//   });
 
-  let mailOptions = {
-    from: 'petmanagementsystem',
-    to: email,
-    subject: 'Your OTP Code',
-    text: `Your OTP code is ${otp}`
-  };
+//   let mailOptions = {
+//     from: 'petmanagementsystem',
+//     to: email,
+//     subject: 'Your OTP Code',
+//     text: `Your OTP code is ${otp}`
+//   };
 
-  return transporter.sendMail(mailOptions);
-};
+//   return transporter.sendMail(mailOptions);
+// };
 
-//forget password api
-exports.forgetPassword = async (req, res) => {
+// //forget password api
+// exports.forgetPassword = async (req, res) => {
+//   const { email } = req.body;
+//   try {
+//     const account = await Account.findOne({ email });
+//     if (!account) {
+//       return res.status(404).json({ message: 'Account not found' });
+//     }
+
+//     const otp = generateOtp();
+//     otps[email] = otp;
+//     await sendOtpEmail(email, otp);
+
+//     res.json({ message: 'OTP sent to your email' });
+//   } catch (error) {
+//     console.error('Error during sending OTP:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
+
+// // reset password api
+// exports.resetPassword = async (req, res) => {
+//   const { email, otp, newPassword } = req.body;
+//   try {
+//     if (!otps[email] || otps[email] !== otp) {
+//       return res.status(400).json({ message: 'Invalid OTP' });
+//     }
+
+//     const account = await Account.findOne({ email });
+//     if (!account) {
+//       return res.status(404).json({ message: 'Account not found' });
+//     }
+
+//     account.password = newPassword;
+//     await account.save();
+
+//     delete otps[email];
+//     res.json({ message: 'Password reset successful' });
+//   } catch (error) {
+//     console.error('Error during password reset:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
+
+//ForgotPassword API
+exports.forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
     const account = await Account.findOne({ email });
     if (!account) {
-      return res.status(404).json({ message: 'Account not found' });
+      return res.status(404).json({ message: 'Email không tồn tại!' });
     }
+    
+    const secret = JWT_SECRET + account.password;
+    const token = jwt.sign({email: account.email, id: account.account_id}, secret, {
+      expiresIn: "5m",
+    })
+    const resetLink = `http://localhost:5173/reset-password/${account.account_id}/${token}`;
+    
+    // Tạo nội dung email
+    const mailOptions = {
+      from: '"PetService" <kijtei2@gmail.com>',
+      to: email,
+      subject: "Reset Password",
+      html: `<p>Chào bạn,</p>
+             <p>Vui lòng nhấp vào <a href="${resetLink}">đây</a> để đặt lại mật khẩu của bạn.</p>
+             <p>Liên kết sẽ hết hạn sau 5 phút.</p>`,
+    };
 
-    const otp = generateOtp();
-    otps[email] = otp;
-    await sendOtpEmail(email, otp);
+    // Gửi email
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      secure: false,
+      port: 587,
+      auth: {
+        user: EMAIL_USERNAME,
+        pass: EMAIL_PASSWORD,
+      },
+    });
 
-    res.json({ message: 'OTP sent to your email' });
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ message: 'Lỗi khi gửi email' });
+      }
+      console.log('Email sent:', info.response);
+      res.json({ message: 'Email gửi thành công' });
+    });
   } catch (error) {
-    console.error('Error during sending OTP:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Error during password reset:', error);
+    res.status(500).json({ message: 'Lỗi server' });
   }
 };
 
-// reset password api
+//ResetPassword API
 exports.resetPassword = async (req, res) => {
-  const { email, otp, newPassword } = req.body;
+  const { accountId, token } = req.params;
+  const { newPassword } = req.body;
+
   try {
-    if (!otps[email] || otps[email] !== otp) {
-      return res.status(400).json({ message: 'Invalid OTP' });
-    }
-
-    const account = await Account.findOne({ email });
+    // Fetch the user's account from the database
+    const account = await Account.findOne({ account_id: accountId });
     if (!account) {
-      return res.status(404).json({ message: 'Account not found' });
+      return res.status(404).json({ message: 'Tài khoản không tồn tại!' });
     }
 
-    account.password = newPassword;
-    await account.save();
+    // Verify the reset token
+    const secret = JWT_SECRET + account.password;
+    jwt.verify(token, secret, async (err, decoded) => {
+      if (err) {
+        return res.status(400).json({ message: 'Token không hợp lệ hoặc đã hết hạn!' });
+      }
 
-    delete otps[email];
-    res.json({ message: 'Password reset successful' });
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update the user's password in the database
+      account.password = hashedPassword;
+      await account.save();
+
+      // Respond with success message
+      res.json({ message: 'Mật khẩu đã được đặt lại thành công!' });
+    });
   } catch (error) {
     console.error('Error during password reset:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'Lỗi server' });
   }
 };
 
