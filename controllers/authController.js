@@ -35,6 +35,13 @@ exports.login = async (req, res) => {
   }
 };
 
+//generate accountID
+const generateAccountID = async () => {
+  const lastAccount = await Account.findOne({}, { account_id: 1 }).sort({ account_id: -1 }).exec();
+  const lastId = lastAccount ? parseInt(lastAccount.account_id.substring(1)) : 0;
+  return `A${lastId + 1}`;
+};
+
 // Register API
 exports.register = async (req, res) => {
   const { fullname, email, password, phone, address } = req.body;
