@@ -5,7 +5,8 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
-const SALT_ROUNDS = 10;
+const EMAIL_USERNAME = process.env.EMAIL_USERNAME;
+const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
 let otps = {};
 
 // Login api to authenticate the user and provide a JWT token
@@ -51,7 +52,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'Email đã tồn tại!' });
     }
     // Generate accountID
-    const accountID = generateAccountID();
+    const accountID = await generateAccountID();
     // encrypt password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
     const newAccount = new Account({ 
