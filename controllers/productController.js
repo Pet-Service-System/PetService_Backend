@@ -1,17 +1,31 @@
 const Product = require('../models/Account');
-//create product
+//Generate a new product ID
+const generateProductId = async () => {
+  const lastProduct = await Product.findOne().sort({ ProductID: -1 });
+
+  if (lastProduct && lastProduct.ProductID) {
+      const lastProductId = parseInt(lastProduct.ProductID.slice(1)); // Extract numeric part of the last ProductID
+      const newProductId = `P${("000" + (lastProductId + 1)).slice(-3)}`; // Increment the numeric part and format it to 3 digits
+      return newProductId;
+  } else {
+      return 'P001'; // Starting ID if there are no products
+  }
+};
+
+//Create product
 exports.createProduct = async (req, res) => {
-    try {
-      const { productId, productName, price, petTypeId } = req.body;
-      const product = new Product({ productId, productName, price, petTypeId });
+  try {
+      const productId = await generateProductId(); // Generate a new ProductID
+      const { productName, price, petTypeId } = req.body;
+      const product = new Product({ ProductID: productId, ProductName: productName, Price: price, Pet_type_Id: petTypeId });
       await product.save();
       res.status(201).json(product);
-    } catch (error) {
+  } catch (error) {
       res.status(500).json({ message: 'Error creating product', error });
-    }
-  };
+  }
+};
 
-// get all product
+//Get all product
   exports.getProducts = async (req, res) => {
     try {
       const products = await Product.find();
@@ -21,7 +35,7 @@ exports.createProduct = async (req, res) => {
     }
   };
 
-  // get product by id
+  //Get product by id
   exports.getProductById = async (req, res) => {
     try {
       const product = await Product.findById(req.params.id);
@@ -34,10 +48,11 @@ exports.createProduct = async (req, res) => {
     }
   };
 
-  // Update a product
+  // Update product
   exports.updateProduct = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
+    delete updateData.productId;// remove the product id to prevent updating it
   
     try {
       // Find the product by ID and update it with the new data
@@ -55,7 +70,7 @@ exports.createProduct = async (req, res) => {
   };
   
 
-  //delete product
+  //Delete product
   exports.deleteProduct = async (req, res) => {
     try {
       const product = await Product.findByIdAndDelete(req.params.id);
