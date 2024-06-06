@@ -193,13 +193,15 @@ exports.forgotPassword = async (req, res) => {
     
     // Tạo nội dung email
     const mailOptions = {
-      from: '"PetService" <kijtei2@gmail.com>',
+      from: `"PetService" <${EMAIL_USERNAME}>`,
       to: email,
-      subject: "Reset Password",
-      html: `<p>Chào bạn,</p>
-             <p>Vui lòng nhấp vào <a href="${resetLink}">đây</a> để đặt lại mật khẩu của bạn.</p>
-             <p>Liên kết sẽ hết hạn sau 5 phút.</p>`,
-    };
+      subject: "🔒 Password Reset Request",
+      html: `<p>Dear Pet Lover,</p>
+             <p>We have received a request to reset your password.</p>
+             <p>Please click <a href="${resetLink}">here</a> to reset your password. Note that this link will expire in 5 minutes for security reasons.</p>
+             <p>If you didn't request a password reset, please ignore this email.</p>
+             <p>Best regards,<br>PetService Team</p>`,
+  };
 
     // Gửi email
     const transporter = nodemailer.createTransport({
