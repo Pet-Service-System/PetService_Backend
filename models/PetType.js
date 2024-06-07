@@ -6,6 +6,6 @@ const petTypeSchema = new mongoose.Schema({
     Description: { type: String, required: true }
 });
 
-const PetType = mongoose.model('PetType', petTypeSchema);
+const PetType = mongoose.model('PetType', petTypeSchema,'PetTypes');
 
 module.exports = PetType;
