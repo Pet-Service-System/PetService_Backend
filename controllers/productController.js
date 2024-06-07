@@ -17,8 +17,8 @@ const generateProductId = async () => {
 exports.createProduct = async (req, res) => {
   try {
       const productId = await generateProductId(); // Generate a new ProductID
-      const { productName, price, petTypeId } = req.body;
-      const product = new Product({ ProductID: productId, ProductName: productName, Price: price, Pet_type_Id: petTypeId });
+      const { productName, price, petTypeId, description, imageURL } = req.body;
+      const product = new Product({ ProductID: productId, ProductName: productName, Price: price, Pet_type_Id: petTypeId, Description: description, ImageURL: imageURL });
       await product.save();
       res.status(201).json(product);
   } catch (error) {
