@@ -1,4 +1,6 @@
 const Product = require('../models/Product');
+const mongoose = require('mongoose');
+
 
 //Generate a new product ID
 const generateProductId = async () => {
@@ -36,18 +38,25 @@ exports.createProduct = async (req, res) => {
     }
   };
 
-  //Get product by id
-  exports.getProductById = async (req, res) => {
-    try {
-      const product = await Product.findById(req.params.id);
-      if (!product) {
-        return res.status(404).json({ message: 'Product not found' });
-      }
-      res.status(200).json(product);
-    } catch (error) {
-      res.status(500).json({ message: 'Error fetching product', error });
+ //Get product by id
+ exports.getProductById = async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    const product = await Product.findOne({ ProductID: productId });
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
     }
-  };
+
+    res.status(200).json(product);
+  } catch (error) {
+    // Thêm thông tin lỗi vào phản hồi
+    res.status(500).json({ message: 'Error fetching product', error: error.message });
+  }
+};
+
+
+
 
  //Get product by pet type
  exports.getProductsByPetType = async (req, res) => {
