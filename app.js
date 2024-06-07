@@ -35,9 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Catch-all handler for any request that doesn't match an API route
 app.get('*', (req, res) => {
   if (!req.url.startsWith('/api')) {
-    res.sendFile(path.join(__dirname, 'public', 'main.jsx')); // Corrected to serve the file
-  } else {
-    res.status(404).json({ message: 'API route not found' }); // Return 404 for unmatched API routes
+    res.redirect('/main.jsx'); // Redirect to main.jsx
   }
 });
 
