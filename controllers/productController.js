@@ -1,4 +1,5 @@
-const Product = require('../models/Account');
+const Product = require('../models/Product');
+
 //Generate a new product ID
 const generateProductId = async () => {
   const lastProduct = await Product.findOne().sort({ ProductID: -1 });
@@ -47,6 +48,20 @@ exports.createProduct = async (req, res) => {
       res.status(500).json({ message: 'Error fetching product', error });
     }
   };
+
+ //Get product by pet type
+ exports.getProductsByPetType = async (req, res) => {
+  try {
+    const petTypeId = req.params.petTypeId;
+    const products = await Product.find({ PetTypeId: petTypeId });
+    if (!products.length) {
+      return res.status(404).json({ message: 'No products found for this pet type' });
+    }
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching products', error });
+  }
+};
 
   // Update product
   exports.updateProduct = async (req, res) => {
