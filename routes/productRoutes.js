@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post('/', authMiddleware, checkRole(['manager']), createProduct);
 router.get('/', getProducts);
-router.get('/products/:id', getProductById);
+router.get('/:id', getProductById);
 router.patch('/:id', authMiddleware, checkRole(['manager']), updateProduct);
 router.delete('/:id', authMiddleware, checkRole(['manager']), deleteProduct);
 router.get('/petType/:petTypeId', getProductsByPetType);
