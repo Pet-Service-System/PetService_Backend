@@ -24,13 +24,4 @@ const authMiddleware = (req, res, next) => {
   });
 };
 
-// Middleware to check user roles
-const checkRole = (roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: 'Access denied. You do not have permission to access this resource.' });
-    }
-    next();
-  };
-};
-module.exports = {authMiddleware, checkRole};
+module.exports = authMiddleware;

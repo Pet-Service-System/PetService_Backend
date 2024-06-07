@@ -4,7 +4,7 @@ const path = require('path');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const errorMiddleware = require('./middlewares/errorMiddleware');
-const {authMiddleware} = require('./middlewares/authMiddleware'); 
+const authMiddleware = require('./middlewares/authMiddleware'); 
 const productRoutes = require('./routes/productRoutes');
 
 const dotenv = require('dotenv');
