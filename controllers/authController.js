@@ -14,7 +14,7 @@ let otps = {};
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const account = await Account.findOne({ email });
+    const account = await Account.findOne({ email }); 
     if (account) {
       const isMatch = await bcrypt.compare(password, account.password);
       if (isMatch) {
@@ -135,7 +135,7 @@ exports.register = async (req, res) => {
 
 //change password api
 exports.changePassword = async (req, res) => {
-  const {  currentPassword, newPassword } = req.body; 
+const {  currentPassword, newPassword } = req.body; 
   const account_id = req.user.id; // get id from token stored in localStorage
   try {
     // Find account by _id
