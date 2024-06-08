@@ -5,7 +5,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   if (!authHeader) {
-    return res.status(401).json({ message: 'No token provided' });
+    return res.status(401).json({ message: 'No authHeader provided' });
   }
 
   const token = authHeader.split(' ')[1]; // Ensure the token is in the format "Bearer <token>"

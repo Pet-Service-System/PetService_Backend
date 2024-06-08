@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const errorMiddleware = require('./middlewares/errorMiddleware');
 const {authMiddleware} = require('./middlewares/authMiddleware'); 
 const productRoutes = require('./routes/productRoutes');
+const accountRoutes = require('./routes/accountRoutes');
 
 const dotenv = require('dotenv');
 
@@ -25,6 +26,12 @@ app.use('/api/auth', authRoutes);
 
 // Product Routes
 app.use('/api/products', productRoutes);
+
+// Product Routes
+app.use('/api/accounts', accountRoutes); ;
+
+// Account Routes
+
 
 // Apply authMiddleware to protected routes
 app.use('/protected', authMiddleware);
