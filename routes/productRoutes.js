@@ -8,6 +8,6 @@ router.post('/', authMiddleware, checkRole(['manager']), createProduct);
 router.get('/', getProducts);
 router.get('/:id', getProductById);
 router.patch('/:id', authMiddleware, checkRole(['manager']), updateProduct);
-router.delete('/:id', authMiddleware, checkRole(['manager']), deleteProduct);
+router.delete('/:id',  deleteProduct);
 router.get('/petType/:petTypeId', getProductsByPetType);
 module.exports = router;
