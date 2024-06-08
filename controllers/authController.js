@@ -20,7 +20,7 @@ exports.login = async (req, res) => {
       if (isMatch) {
         // Create JWT token with unique payload
         const token = jwt.sign(
-          { id: account._id, email: account.email, role: account.role },
+          { id: account._id, email: account.email, fullname: account.fullname, role: account.role },
           JWT_SECRET,
           { expiresIn: JWT_EXPIRES_IN }
         );
