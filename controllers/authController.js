@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const Account = require('../models/Account');
 const crypto = require('crypto');
@@ -36,12 +37,48 @@ exports.login = async (req, res) => {
   }
 };
 
-//generate accountID
 const generateAccountID = async () => {
-  const lastAccount = await Account.findOne({}, { account_id: 1 }).sort({ account_id: -1 }).exec();
-  const lastId = lastAccount ? parseInt(lastAccount.account_id.substring(1)) : 0;
-  return `A${lastId + 1}`;
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    // Tìm kiếm tài khoản cuối cùng dựa trên account_id
+    const lastAccount = await Account.findOne({}, { account_id: 1 }).sort({ account_id: -1 }).session(session).exec();
+    let lastId = 0;
+
+    if (lastAccount && lastAccount.account_id) {
+      const idPart = lastAccount.account_id.substring(1);
+      if (/^\d+$/.test(idPart)) {
+        lastId = parseInt(idPart);
+      } else {
+        console.error(`Invalid account_id format found: ${lastAccount.account_id}`);
+        throw new Error('Invalid last account ID format');
+      }
+    }
+
+    const newId = lastId + 1;
+    const newAccountId = `A${newId.toString().padStart(3, '0')}`;
+
+    await session.commitTransaction();
+    return newAccountId;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
 };
+
+
+    // Setup email transporter
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      secure: false,
+      port: 587,
+      auth: {
+        user: EMAIL_USERNAME,
+        pass: EMAIL_PASSWORD,
+      },
+    });
 
 // Register API
 exports.register = async (req, res) => {
@@ -68,6 +105,27 @@ exports.register = async (req, res) => {
     await newAccount.save();
 
     res.json({ message: 'Registration successful', user: { accountID: newAccount.account_id, fullname: newAccount.fullname, email: newAccount.email, phone: newAccount.phone, address: newAccount.address } });
+       // Tạo nội dung email
+       const mailOptions = {
+        from: '"PetService" <petservicesswp391@gmail.com>',
+        to: email,
+        subject: "Chào mừng đến với PetService!",
+        html: `<p>Chào bạn ${fullname},</p>
+               <p>Cảm ơn bạn đã đăng ký tài khoản tại PetService. Chúng tôi rất vui mừng chào đón bạn đến với cộng đồng yêu thú cưng của chúng tôi.</p>
+               <p>Hãy truy cập vào tài khoản của bạn để khám phá nhiều dịch vụ và thông tin hữu ích dành cho thú cưng của bạn.</p>
+               <p>Chúc bạn có những trải nghiệm tuyệt vời tại PetService!</p>
+               <p>Thân ái,</p>
+               <p>Đội ngũ PetService</p>`,
+      };
+  
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Error sending email:', error);
+          return res.status(500).json({ message: 'Error sending email' });
+        }
+        console.log('Email sent:', info.response);
+        res.json({ message: 'Email sent successfully' });
+      });
   } catch (error) {
     console.error('Error during registration:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -106,75 +164,6 @@ const {  currentPassword, newPassword } = req.body;
   }
 };
 
-// //create random 6 digits otp
-// const generateOTP = () => {
-//   return crypto.randomBytes(3).toString('hex'); // Create 6 numbers OTP
-// };
-
-
-// //set up email to send otp
-// const sendOtpEmail = (email, otp) => {
-//   let transporter = nodemailer.createTransport({
-//     service: 'Gmail',
-//     auth: {
-//       user: 'petmanagementsystem@gmail.com',
-//       pass: 'petmanagersystem'
-//     }
-//   });
-
-//   let mailOptions = {
-//     from: 'petmanagementsystem',
-//     to: email,
-//     subject: 'Your OTP Code',
-//     text: `Your OTP code is ${otp}`
-//   };
-
-//   return transporter.sendMail(mailOptions);
-// };
-
-// //forget password api
-// exports.forgetPassword = async (req, res) => {
-//   const { email } = req.body;
-//   try {
-//     const account = await Account.findOne({ email });
-//     if (!account) {
-//       return res.status(404).json({ message: 'Account not found' });
-//     }
-
-//     const otp = generateOtp();
-//     otps[email] = otp;
-//     await sendOtpEmail(email, otp);
-
-//     res.json({ message: 'OTP sent to your email' });
-//   } catch (error) {
-//     console.error('Error during sending OTP:', error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// };
-
-// // reset password api
-// exports.resetPassword = async (req, res) => {
-//   const { email, otp, newPassword } = req.body;
-//   try {
-//     if (!otps[email] || otps[email] !== otp) {
-//       return res.status(400).json({ message: 'Invalid OTP' });
-//     }
-
-//     const account = await Account.findOne({ email });
-//     if (!account) {
-//       return res.status(404).json({ message: 'Account not found' });
-//     }
-
-//     account.password = newPassword;
-//     await account.save();
-
-//     delete otps[email];
-//     res.json({ message: 'Password reset successful' });
-//   } catch (error) {
-//     console.error('Error during password reset:', error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// };
 
 //ForgotPassword API
 exports.forgotPassword = async (req, res) => {
@@ -193,13 +182,15 @@ exports.forgotPassword = async (req, res) => {
     
     // Tạo nội dung email
     const mailOptions = {
-      from: '"PetService" <kijtei2@gmail.com>',
+      from: `"PetService" <${EMAIL_USERNAME}>`,
       to: email,
-      subject: "Reset Password",
-      html: `<p>Chào bạn,</p>
-             <p>Vui lòng nhấp vào <a href="${resetLink}">đây</a> để đặt lại mật khẩu của bạn.</p>
-             <p>Liên kết sẽ hết hạn sau 5 phút.</p>`,
-    };
+      subject: "🔒 Yêu Cầu Đặt Lại Mật Khẩu",
+      html: `<p>Chào Bạn Yêu Thú Cưng,</p>
+             <p>Chúng tôi đã nhận được yêu cầu đặt lại mật khẩu của bạn.</p>
+             <p>Vui lòng nhấp vào <a href="${resetLink}">đây</a> để đặt lại mật khẩu của bạn. Lưu ý rằng liên kết này sẽ hết hạn sau 5 phút vì lý do bảo mật.</p>
+             <p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>
+             <p>Trân trọng,<br>Đội Ngũ PetService</p>`,
+  };
 
     // Gửi email
     const transporter = nodemailer.createTransport({
