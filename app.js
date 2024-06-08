@@ -26,6 +26,9 @@ app.use('/api/auth', authRoutes);
 // Product Routes
 app.use('/api/products', productRoutes);
 
+// Account Routes
+
+
 // Apply authMiddleware to protected routes
 app.use('/protected', authMiddleware);
 
