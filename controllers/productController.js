@@ -15,7 +15,7 @@ const generateProductId = async () => {
   }
 };
 
-//Create product
+//Create product (manager only)
 exports.createProduct = async (req, res) => {
   try {
       const productId = await generateProductId(); // Generate a new ProductID
@@ -72,7 +72,7 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-  // Update product
+  // Update product (manager only)
   exports.updateProduct = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
@@ -80,7 +80,7 @@ exports.createProduct = async (req, res) => {
   
     try {
       // Find the product by ID and update it with the new data
-      const product = await Product.findByIdAndUpdate(id, updateData, { new: true }); // The { new: true } option returns the updated document
+      const product = await Product.findOneAndUpdate({ ProductID: id }, updateData, { new: true }); // The { new: true } option returns the updated document
   
       if (!product) {
         return res.status(404).json({ message: 'Product not found' });
@@ -94,10 +94,10 @@ exports.createProduct = async (req, res) => {
   };
   
 
-  //Delete product
+  //Delete product (manager only)
   exports.deleteProduct = async (req, res) => {
     try {
-      const product = await Product.findByIdAndDelete(req.params.id);
+      const product = await Product.findOneAndDelete({ ProductID: req.params.id });
       if (!product) {
         return res.status(404).json({ message: 'Product not found' });
       }
