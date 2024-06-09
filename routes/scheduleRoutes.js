@@ -1,6 +1,6 @@
 const express = require('express');
 const { getSchedules, createSchedule } = require('../controllers/scheduleController');
-const authMiddleware = require('../middleware/authMiddleware');
+const {authMiddleware} = require('../middlewares/authMiddleware');
 const router = express.Router();
 
 router.get('/schedules', authMiddleware, getSchedules);
