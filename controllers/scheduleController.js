@@ -32,8 +32,8 @@ exports.createSchedule = async (req, res) => {
     // Ensure timeSlots contain arrays of employeeIds and employeeNames
     const formattedTimeSlots = timeSlots.map(slot => ({
       ...slot,
-      employeeIds: slot.employeeIds || [],
-      employeeNames: slot.employeeNames || []
+      employeeIds: listId || [],
+      employeeNames: listName || []
     }));
 
     const schedule = new Schedule({
