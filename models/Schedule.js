@@ -16,6 +16,6 @@ const scheduleSchema = new Schema({
   timeSlots: [timeSlotSchema]
 });
 
-const Schedule = mongoose.model('Schedule', scheduleSchema);
+const Schedule = mongoose.model('Schedule', scheduleSchema, 'Schedules');
 
 module.exports = Schedule;

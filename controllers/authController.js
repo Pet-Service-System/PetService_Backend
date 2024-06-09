@@ -24,7 +24,8 @@ exports.login = async (req, res) => {
           JWT_SECRET,
           { expiresIn: JWT_EXPIRES_IN }
         );
-        return res.json({ message: 'Login successful', user: { id: account._id, email: account.email, role: account.role, fullname: account.fullname }, token });
+        return res.json({ message: 'Login successful', user: { id: account._id, email: account.email, role: account.role, fullname: account.fullname,  phone: account.phone, 
+          address: account.address }, token });
       } else {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
