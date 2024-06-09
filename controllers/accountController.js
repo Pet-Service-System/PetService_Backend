@@ -49,7 +49,36 @@ exports.getAccount = async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   };
-  
+
+   // Get Account by Role (admin)
+// Get Account by Role (admin)
+exports.getAccountByRole = async (req, res) => {
+  const role = req.params.role; // Assuming the role is provided in the request params
+
+  try {
+    let accounts;
+
+    if (role) {
+      // Find accounts by specified role
+      accounts = await Account.find({ role: role });
+    } else {
+      // Find accounts by default roles
+      accounts = await Account.find({ role: { $in: ['Sale Staff', 'Caretaker Staff'] } });
+    }
+
+    if (accounts.length === 0) {
+      return res.status(404).json({ message: 'No accounts found for the specified role!' });
+    }
+
+    res.json({ accounts });
+  } catch (error) {
+    console.error('Error getting accounts by role:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
   // Update Account API 
 exports.updateAccount = async (req, res) => {
     const accountId = req.user.id; // user's account ID is stored in the request
