@@ -50,7 +50,6 @@ exports.getAccount = async (req, res) => {
     }
   };
 
-   // Get Account by Role (admin)
 // Get Account by Role (admin)
 exports.getAccountByRole = async (req, res) => {
   const role = req.params.role; // Assuming the role is provided in the request params
@@ -79,35 +78,8 @@ exports.getAccountByRole = async (req, res) => {
 
 
 
-  // Update Account API 
-exports.updateAccount = async (req, res) => {
-    const accountId = req.user.id; // user's account ID is stored in the request
-    const updates = req.body; 
-  
-    try {
-      // Find the account by ID
-      const account = await Account.findById(accountId);
-  
-      if (!account) {
-        return res.status(404).json({ message: 'Invalid Account' });
-      }
-  
-      // Apply updates to the account object
-      Object.keys(updates).forEach((key) => {
-        account[key] = updates[key];
-      });
-  
-      // Save the updated account
-      await account.save();
-  
-      res.json({ message: 'Update account successfully', user: account });
-    } catch (error) {
-      console.error('Error while updating account', error);
-      res.status(500).json({ message: 'Internal Server Error' });
-    }
-  };
 
-  // Update an account by ID (admin)
+  // Update an account by ID 
 exports.updateAccountById = async (req, res) => {
     const accountId = req.params.id;
     const updates = req.body;
