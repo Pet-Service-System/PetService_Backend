@@ -8,7 +8,8 @@ const {authMiddleware} = require('./middlewares/authMiddleware');
 const productRoutes = require('./routes/productRoutes');
 const accountRoutes = require('./routes/accountRoutes');
 const scheduleRoutes = require('./routes/scheduleRoutes');
-
+const petRoutes = require('./routes/petRoutes'); 
+const serviceRoutes = require('./routes/serviceRoutes'); 
 
 const dotenv = require('dotenv');
 
