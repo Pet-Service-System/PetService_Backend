@@ -13,3 +13,4 @@ router.patch('/:id', authMiddleware, checkRole(['admin']), updateAccountById);
 router.delete('/me', authMiddleware, checkRole(['admin']), deleteAccount);
 
 module.exports = router;
+

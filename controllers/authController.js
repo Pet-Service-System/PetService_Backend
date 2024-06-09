@@ -14,7 +14,7 @@ let otps = {};
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const account = await Account.findOne({ email });
+    const account = await Account.findOne({ email }); 
     if (account) {
       const isMatch = await bcrypt.compare(password, account.password);
       if (isMatch) {
@@ -135,7 +135,7 @@ exports.register = async (req, res) => {
 
 //change password api
 exports.changePassword = async (req, res) => {
-  const {  currentPassword, newPassword } = req.body; 
+const {  currentPassword, newPassword } = req.body; 
   const account_id = req.user.id; // get id from token stored in localStorage
   try {
     // Find account by _id
@@ -171,7 +171,7 @@ exports.forgotPassword = async (req, res) => {
   try {
     const account = await Account.findOne({ email });
     if (!account) {
-      return res.status(404).json({ message: 'Email không tồn tại!' });
+      return res.status(404).json({ message: 'Email doesnt exist' });
     }
     
     const secret = JWT_SECRET + account.password;
@@ -206,14 +206,14 @@ exports.forgotPassword = async (req, res) => {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error('Error sending email:', error);
-        return res.status(500).json({ message: 'Lỗi khi gửi email' });
+        return res.status(500).json({ message: 'Errors when sending emails' });
       }
       console.log('Email sent:', info.response);
-      res.json({ message: 'Email gửi thành công' });
+      res.json({ message: 'Email sent successfully' });
     });
   } catch (error) {
     console.error('Error during password reset:', error);
-    res.status(500).json({ message: 'Lỗi server' });
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
@@ -226,14 +226,14 @@ exports.resetPassword = async (req, res) => {
     // Fetch the user's account from the database
     const account = await Account.findOne({ account_id: accountId });
     if (!account) {
-      return res.status(404).json({ message: 'Tài khoản không tồn tại!' });
+      return res.status(404).json({ message: 'Account doesnt exist!' });
     }
 
     // Verify the reset token
     const secret = JWT_SECRET + account.password;
     jwt.verify(token, secret, async (err, decoded) => {
       if (err) {
-        return res.status(400).json({ message: 'Token không hợp lệ hoặc đã hết hạn!' });
+        return res.status(400).json({ message: 'Invalid or expired tokens!' });
       }
 
       // Hash the new password
@@ -244,11 +244,11 @@ exports.resetPassword = async (req, res) => {
       await account.save();
 
       // Respond with success message
-      res.json({ message: 'Mật khẩu đã được đặt lại thành công!' });
+      res.json({ message: 'The password has been reset successfully!' });
     });
   } catch (error) {
     console.error('Error during password reset:', error);
-    res.status(500).json({ message: 'Lỗi server' });
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
