@@ -1,11 +1,11 @@
 const Schedule = require('../models/Schedule');
 const { format, parseISO } = require('date-fns'); 
+const {getAccountById} = require('../controllers/accountController');
 
 // get schedule api
 exports.getSchedules = async (req, res) => {
-  const { account_id, fullname } = req.body;
   try {
-    const schedules = await Schedule.find({ employeeId: account_id });
+    const schedules = await Schedule.find();
     const formattedSchedules = schedules.map(schedule => ({
       ...schedule.toObject(),
       weekStart: format(schedule.weekStart, 'yyyy-MM-dd'),
@@ -20,16 +20,30 @@ exports.getSchedules = async (req, res) => {
 
 // create schedule api
 exports.createSchedule = async (req, res) => {
-  const { title, weekStart, weekEnd, timeSlots } = req.body;
-  const schedule = new Schedule({
-    title,
-    weekStart: parseISO(weekStart), // Ensure dates are parsed correctly
-    weekEnd: parseISO(weekEnd),
-    timeSlots,
-    employeeId: req.user.id,
-    employeeName: req.user.name
-  });
+  const listId = req.body.id; 
+  const listNamePromises = listId.map(id => getAccountById(id));
+
   try {
+    const accounts = await Promise.all(listNamePromises);
+    const listName = accounts.map(account => account.fullname);
+
+    const { title, weekStart, weekEnd, role, timeSlots } = req.body;
+
+    // Ensure timeSlots contain arrays of employeeIds and employeeNames
+    const formattedTimeSlots = timeSlots.map(slot => ({
+      ...slot,
+      employeeIds: slot.employeeIds || [],
+      employeeNames: slot.employeeNames || []
+    }));
+
+    const schedule = new Schedule({
+      title,
+      weekStart: parseISO(weekStart), // Ensure dates are parsed correctly
+      weekEnd: parseISO(weekEnd),
+      role,
+      timeSlots: formattedTimeSlots
+    });
+
     await schedule.save();
     res.send({
       ...schedule.toObject(),
