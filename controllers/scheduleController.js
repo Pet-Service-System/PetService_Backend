@@ -1,57 +1,62 @@
 const Schedule = require('../models/Schedule');
-const { format, parseISO } = require('date-fns'); 
-const {getAccountById} = require('../controllers/accountController');
 
-// get schedule api
-exports.getSchedules = async (req, res) => {
+// Get all schedules api
+exports.getSchedule = async (req, res) => {
   try {
     const schedules = await Schedule.find();
-    const formattedSchedules = schedules.map(schedule => ({
-      ...schedule.toObject(),
-      weekStart: format(schedule.weekStart, 'yyyy-MM-dd'),
-      weekEnd: format(schedule.weekEnd, 'yyyy-MM-dd')
-    }));
-    res.send(formattedSchedules);
+    res.json(schedules);
   } catch (error) {
-    console.error('Error fetching schedules:', error); // Log the detailed error
-    res.status(500).json({ message: 'Error fetching schedules', error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
-// create schedule api
-exports.createSchedule = async (req, res) => {
-  const listId = req.body.id; 
-  const listNamePromises = listId.map(id => getAccountById(id));
-
+// Get schedules by role api
+exports.getScheduleByRole = async (req, res) => {
   try {
-    const accounts = await Promise.all(listNamePromises);
-    const listName = accounts.map(account => account.fullname);
-
-    const { title, weekStart, weekEnd, role, timeSlots } = req.body;
-
-    // Ensure timeSlots contain arrays of employeeIds and employeeNames
-    const formattedTimeSlots = timeSlots.map(slot => ({
-      ...slot,
-      employeeIds: listId || [],
-      employeeNames: listName || []
-    }));
-
-    const schedule = new Schedule({
-      title,
-      weekStart: parseISO(weekStart), // Ensure dates are parsed correctly
-      weekEnd: parseISO(weekEnd),
-      role,
-      timeSlots: formattedTimeSlots
-    });
-
-    await schedule.save();
-    res.send({
-      ...schedule.toObject(),
-      weekStart: format(schedule.weekStart, 'yyyy-MM-dd'),
-      weekEnd: format(schedule.weekEnd, 'yyyy-MM-dd')
-    });
+    const role = req.user.role; // Extract role from JWT token
+    const schedules = await Schedule.find({ 'slots.employees': { $elemMatch: { role: role } } });
+    res.json(schedules);
   } catch (error) {
-    console.error('Error creating schedule:', error); // Log the detailed error
-    res.status(500).json({ message: 'Error creating schedule', error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
+
+// assign employee to specific slots api
+exports.assignEmployeeToSlots = async (req, res) => {
+  try {
+    const { day, slots, accountId , fullname} = req.body; 
+
+    // Find the schedule for the specified day
+    let schedule = await Schedule.findOne({ day: day });
+
+    if (!schedule) {
+      return res.status(404).json({ message: 'Schedule not found' });
+    }
+
+    // Loop through the slots to update employee assignments
+    for (const slot of slots) {
+      const existingSlot = schedule.slots.find(s => s.start_time === slot.start_time && s.end_time === slot.end_time);
+      if (!existingSlot) {
+        return res.status(400).json({ message: `Slot with start time ${slot.start_time} and end time ${slot.end_time} not found in schedule` });
+      }
+      
+      // Check if the employee is already assigned to this slot
+      const employeeIndex = existingSlot.employees.findIndex(emp => emp.account_id === accountId);
+      if (employeeIndex !== -1) {
+        return res.status(400).json({ message: `Employee with account ID ${accountId} is already assigned to this slot` });
+      }
+
+      // Assign the employee to the slot
+      existingSlot.employees.push({ account_id: accountId, fullname: fullname });
+    }
+
+    // Save the updated schedule
+    await schedule.save();
+
+    res.status(200).json({ message: 'Employee assigned to slots successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+

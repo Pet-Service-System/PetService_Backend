@@ -1,19 +1,19 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
 
-const timeSlotSchema = new Schema({
-  start: { type: String, required: true },
-  end: { type: String, required: true },
-  employeeIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account', required: true }],
-  employeeNames: [{ type: String, required: true }]
+const slotSchema = new mongoose.Schema({
+  start_time: { type: String, required: true },
+  end_time: { type: String, required: true },
+  employees: [
+    {
+      account_id: { type: String, required: true },
+      fullname: { type: String, required: true }
+    }
+  ]
 });
 
-const scheduleSchema = new Schema({
-  title: { type: String, required: true },
-  weekStart: { type: Date, required: true },
-  weekEnd: { type: Date, required: true },
-  role: { type: String, required: true },
-  timeSlots: [timeSlotSchema]
+const scheduleSchema = new mongoose.Schema({
+  day: { type: String, required: true },
+  slots: [slotSchema]
 });
 
 const Schedule = mongoose.model('Schedule', scheduleSchema, 'Schedules');
