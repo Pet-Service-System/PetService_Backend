@@ -24,28 +24,4 @@ const authMiddleware = (req, res, next) => {
   });
 };
 
-// Middleware to check user roles
-const verifyRole = (req, res, next) => {
-  const token = req.headers.authorization; // Assuming the token is included in the Authorization header
-  if (!token) {
-    return res.status(401).json({ message: 'No token provided' });
-  }
-
-  // Verify JWT token
-  jwt.verify(token, 'your_secret_key', (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
-
-    // Check user's role
-    if (decoded.role !== 'Sales Staff' && decoded.role !== 'Caretaker Staff') {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-
-    // Store user's role in req object for further use
-    req.userRole = decoded.role;
-    next();
-  });
-};
-
-module.exports = {authMiddleware, verifyRole}
+module.exports = {authMiddleware}
