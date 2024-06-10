@@ -1,9 +1,16 @@
 const express = require('express');
-const { getSchedules, createSchedule } = require('../controllers/scheduleController');
-const {authMiddleware} = require('../middlewares/authMiddleware');
+const { getSchedule, getScheduleByRole, assignEmployeeToSlots } = require('../controllers/scheduleController');
+const {authMiddleware, verifyRole} = require('../middlewares/authMiddleware');
 const router = express.Router();
 
-router.get('/', getSchedules);
-router.post('/', authMiddleware, createSchedule);
+// Get all schedules
+router.get('/', authMiddleware, verifyRole, getSchedule);
+
+// Get schedules by role
+router.get('/role/:role', authMiddleware, verifyRole, getScheduleByRole);
+
+// Assign employee to specific slots
+router.post('/assign', authMiddleware, verifyRole, assignEmployeeToSlots);
+
 
 module.exports = router;
