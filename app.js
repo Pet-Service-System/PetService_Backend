@@ -30,9 +30,6 @@ app.use('/api/auth', authRoutes);
 // Product Routes
 app.use('/api/products', productRoutes);
 
-// Product Routes
-app.use('/api/accounts', accountRoutes); ;
-
 // Account Routes
 app.use('/api/accounts', accountRoutes);
 

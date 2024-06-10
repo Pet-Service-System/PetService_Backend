@@ -101,7 +101,7 @@ exports.register = async (req, res) => {
       phone: phone, 
       address: address,
       status: 1, 
-      role: 'customer' 
+      role: 'Customer' 
     });
     await newAccount.save();
 
