@@ -24,6 +24,4 @@ const authMiddleware = (req, res, next) => {
   });
 };
 
-// Middleware to check user roles
-
 module.exports = {authMiddleware}

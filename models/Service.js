@@ -9,4 +9,4 @@ const serviceSchema = new mongoose.Schema({
     Status: { type: String }
 });
 
-module.exports = mongoose.model('Service', serviceSchema);
+module.exports = mongoose.model('Service', serviceSchema, 'Services');
