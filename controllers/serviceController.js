@@ -22,7 +22,7 @@ exports.createService = async (req, res) => {
       ServiceID: serviceID,
       ServiceName: serviceName,
       Description: description,
-      Image: image,
+      Image_URL: image,
       Price: price,
       Status: status,
     });
@@ -66,7 +66,7 @@ exports.updateService = async (req, res) => {
     const { serviceName, description, image, price, status } = req.body;
     service.ServiceName = serviceName || service.ServiceName;
     service.Description = description || service.Description;
-    service.Image = image || service.Image;
+    service.Image_URL = image || service.Image_URL;
     service.Price = price || service.Price;
     service.Status = status || service.Status;
 
