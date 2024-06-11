@@ -17,14 +17,14 @@ const generateServiceID = async () => {
 exports.createService = async (req, res) => {
   try {
     const serviceID = await generateServiceID();
-    const { serviceName, description, image, price, status } = req.body;
+    const { ServiceName, Description, ImageURL, Price, Status } = req.body;
     const newService = new Service({
       ServiceID: serviceID,
-      ServiceName: serviceName,
-      Description: description,
-      Image_URL: image,
-      Price: price,
-      Status: status,
+      ServiceName: ServiceName,
+      Description: Description,
+      ImageURL: ImageURL,
+      Price: Price,
+      Status: Status,
     });
     await newService.save();
     res.status(201).json(newService); // Thêm status 201 để báo tạo thành công
@@ -59,19 +59,21 @@ exports.getServiceById = async (req, res) => {
 
 // Update a service
 exports.updateService = async (req, res) => {
+  const { id } = req.params;
+  const updateData = req.body;
+  delete updateData.serviceId; 
   try {
-    const service = await Service.findOne({ ServiceID: req.params.id });
-    if (!service) return res.status(404).json({ message: 'Service not found' });
+    const service = await Service.findOneAndUpdate(
+      { ServiceID: id },
+      updateData,
+      { new: true }
+    );
 
-    const { serviceName, description, image, price, status } = req.body;
-    service.ServiceName = serviceName || service.ServiceName;
-    service.Description = description || service.Description;
-    service.Image_URL = image || service.Image_URL;
-    service.Price = price || service.Price;
-    service.Status = status || service.Status;
+    if (!service) {
+      return res.status(404).json({ message: 'Service not found' });
+    }
 
-    await service.save();
-    res.status(200).json({ message: 'Service updated successfully', service }); // Thêm status 200 để báo thành công
+    res.status(200).json({ message: 'Service updated successfully', service });
   } catch (error) {
     console.error('Error updating service:', error);
     res.status(500).json({ message: 'Internal server error' });
