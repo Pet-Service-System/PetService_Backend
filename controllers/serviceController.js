@@ -17,14 +17,14 @@ const generateServiceID = async () => {
 exports.createService = async (req, res) => {
   try {
     const serviceID = await generateServiceID();
-    const { serviceName, description, image, price, status } = req.body;
+    const { ServiceName, Description, ImageURL, Price, Status } = req.body;
     const newService = new Service({
       ServiceID: serviceID,
-      ServiceName: serviceName,
-      Description: description,
-      Image_URL: image,
-      Price: price,
-      Status: status,
+      ServiceName: ServiceName,
+      Description: Description,
+      ImageURL: ImageURL,
+      Price: Price,
+      Status: Status,
     });
     await newService.save();
     res.status(201).json(newService); // Thêm status 201 để báo tạo thành công
