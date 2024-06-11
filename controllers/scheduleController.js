@@ -24,7 +24,8 @@ exports.getScheduleByRole = async (req, res) => {
 // assign employee to specific slots api
 exports.assignEmployeeToSlots = async (req, res) => {
   try {
-    const { day, slots, accountId , fullname} = req.body; 
+    const { day, slots, accountId , fullname, role} = req.body; 
+    console.log(req.body);
 
     // Find the schedule for the specified day
     let schedule = await Schedule.findOne({ day: day });
@@ -46,8 +47,10 @@ exports.assignEmployeeToSlots = async (req, res) => {
         return res.status(400).json({ message: `Employee with account ID ${accountId} is already assigned to this slot` });
       }
 
+      const employee = {account_id: accountId, fullname: fullname, role: role};
       // Assign the employee to the slot
-      existingSlot.employees.push({ account_id: accountId, fullname: fullname });
+      existingSlot.employees.push(employee); 
+      console.log(existingSlot.employees);
     }
 
     // Save the updated schedule

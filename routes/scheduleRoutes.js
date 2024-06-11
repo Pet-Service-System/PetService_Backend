@@ -4,7 +4,7 @@ const {authMiddleware} = require('../middlewares/authMiddleware');
 const router = express.Router();
 
 // Get all schedules
-router.get('/', getSchedule);
+router.get('/', authMiddleware, getSchedule);
 
 // Get schedules by role
 router.get('/role/:role', authMiddleware, getScheduleByRole);

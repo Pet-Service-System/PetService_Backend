@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const Account = require('../models/Account');
-const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
@@ -20,11 +19,11 @@ exports.login = async (req, res) => {
       if (isMatch) {
         // Create JWT token with unique payload
         const token = jwt.sign(
-          { id: account._id, email: account.email, fullname: account.fullname, role: account.role },
+          { id: account.account_id, email: account.email, fullname: account.fullname, role: account.role },
           JWT_SECRET,
           { expiresIn: JWT_EXPIRES_IN }
         );
-        return res.json({ message: 'Login successful', user: { id: account._id, email: account.email, role: account.role, fullname: account.fullname,  phone: account.phone, 
+        return res.json({ message: 'Login successful', user: { id: account.account_id, email: account.email, role: account.role, fullname: account.fullname,  phone: account.phone, 
           address: account.address }, token });
       } else {
         return res.status(401).json({ message: 'Invalid credentials' });
