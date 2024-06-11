@@ -6,10 +6,11 @@ const slotSchema = new mongoose.Schema({
   employees: [
     {
       account_id: { type: String, required: true },
-      fullname: { type: String, required: true }
+      fullname: { type: String, required: true },
+      role: { type: String, required: true },
     }
   ]
-});
+}, { versionKey: false });
 
 const scheduleSchema = new mongoose.Schema({
   day: { type: String, required: true },

@@ -63,7 +63,7 @@ exports.getAccountByRole = async (req, res) => {
       accounts = await Account.find({ role: role });
     } else {
       // Find accounts by default roles
-      accounts = await Account.find({ role: { $in: ['Sale Staff', 'Caretaker Staff'] } });
+      accounts = await Account.find({ role: { $in: ['Sales Staff', 'Caretaker Staff'] } });
     }
 
     if (accounts.length === 0) {
