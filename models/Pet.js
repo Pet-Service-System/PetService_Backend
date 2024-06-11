@@ -9,4 +9,4 @@ const petSchema = new mongoose.Schema({
     PetTypeID: { type: mongoose.Schema.Types.String, ref: 'PetType', required: true }
 });
 
-module.exports = mongoose.model('Pet', petSchema);
+module.exports = mongoose.model('Pet', petSchema, 'Pets');
