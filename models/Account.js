@@ -12,6 +12,6 @@ const accountSchema = new mongoose.Schema({
 }, { versionKey: false });
 
 // Specify the collection name as the third argument to mongoose.model
-const Account = mongoose.model('Account', accountSchema, 'Users'); 
+const Account = mongoose.model('Account', accountSchema, 'Accounts'); 
 
 module.exports = Account;
