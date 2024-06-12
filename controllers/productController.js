@@ -20,7 +20,7 @@ exports.createProduct = async (req, res) => {
   try {
       const productId = await generateProductId(); // Generate a new ProductID
       const { productName, price, petTypeId, description, imageURL } = req.body;
-      const product = new Product({ ProductID: productId, ProductName: productName, Price: price, PetTypeId: petTypeId, Description: description, ImageURL: imageURL });
+      const product = new Product({ ProductID: productId, ProductName: productName, Price: price, PetTypeID: petTypeId, Description: description, ImageURL: imageURL, Status: 'Available' });
       await product.save();
       res.status(201).json(product);
   } catch (error) {
@@ -62,7 +62,7 @@ exports.createProduct = async (req, res) => {
  exports.getProductsByPetType = async (req, res) => {
   try {
     const petTypeId = req.params.petTypeId;
-    const products = await Product.find({ PetTypeId: petTypeId });
+    const products = await Product.find({ PetTypeID: petTypeId });
     if (!products.length) {
       return res.status(404).json({ message: 'No products found for this pet type' });
     }

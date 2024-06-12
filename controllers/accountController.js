@@ -1,6 +1,7 @@
 const Account = require('../models/Account');
 
-// Get all accounts (admin)
+
+// Get all accounts API (admin)
 exports.getAllAccounts = async (req, res) => {
     try {
       const accounts = await Account.find();
@@ -19,7 +20,7 @@ exports.getAccount = async (req, res) => {
     try {
       // Find the account by ID
       const account = await Account.findById(accountId);
-  
+
       if (!account) {
         return res.status(404).json({ message: 'Account not found!' });
       }
@@ -62,7 +63,7 @@ exports.getAccountByRole = async (req, res) => {
       accounts = await Account.find({ role: role });
     } else {
       // Find accounts by default roles
-      accounts = await Account.find({ role: { $in: ['Sale Staff', 'Caretaker Staff'] } });
+      accounts = await Account.find({ role: { $in: ['Sales Staff', 'Caretaker Staff'] } });
     }
 
     if (accounts.length === 0) {
