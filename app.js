@@ -10,6 +10,7 @@ const accountRoutes = require('./routes/accountRoutes');
 const scheduleRoutes = require('./routes/scheduleRoutes');
 const petRoutes = require('./routes/petRoutes'); 
 const serviceRoutes = require('./routes/serviceRoutes'); 
+const hotelRoutes = require('./routes/hotelRoutes');
 
 const dotenv = require('dotenv');
 
@@ -38,6 +39,9 @@ app.use('/api/pets', petRoutes);
 
 // Use service routes
 app.use('/api/services', serviceRoutes); 
+
+// Use hotel routes
+app.use('/api/hotels', hotelRoutes);
 
 // Work Schedule Routes
 app.use('/api/schedules', scheduleRoutes);

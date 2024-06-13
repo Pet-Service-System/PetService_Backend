@@ -1,38 +1,47 @@
 const Pet = require('../models/Pet');
 const PetType = require('../models/PetType');
 
-// Generate a new petID
+// Generate a new petID and ensure it's unique
 const generatePetID = async () => {
-  const lastPet = await Pet.findOne().sort({ PetID: -1 });
+  let isUnique = false;
+  let newPetId;
 
-  if (lastPet && lastPet.PetID) {
+  while (!isUnique) {
+    // Generate a new petID
+    const lastPet = await Pet.findOne().sort({ PetID: -1 });
+
+    if (lastPet && lastPet.PetID) {
       const lastPetId = parseInt(lastPet.PetID.slice(2)); 
-      const newPetId = `PT${("00000" + (lastPetId + 1)).slice(-5)}`;
-      return newPetId;
-  } else {
-      return 'PT00001'; // Starting ID if there are no pets
+      newPetId = `PT${("00000" + (lastPetId + 1)).slice(-5)}`;
+    } else {
+      newPetId = 'PT00001'; // Starting ID if there are no pets
+    }
+
+    // Check if the generated petID already exists
+    const existingPet = await Pet.findOne({ PetID: newPetId });
+    if (!existingPet) {
+      isUnique = true;
+    }
   }
+
+  return newPetId;
 };
+
+
 
 // Create a pet
 exports.createPet = async (req, res) => {
   try {
     const petID = await generatePetID(); 
-    const { petName, gender, status, accountId, petTypeId } = req.body;
-
-    // Check if petTypeId exists in PetTypes collection
-    const petType = await PetType.findById(petTypeId);
-    if (!petType) {
-      return res.status(400).json({ message: 'Invalid pet type ID' });
-    }
+    const { PetName, Gender, Status, AccountID, PetTypeID } = req.body;
 
     const newPet = new Pet({
       PetID: petID, 
-      PetName: petName,
-      Gender: gender,
-      Status: status,
-      AccountID: accountId,
-      PetTypeID: petTypeId,
+      PetName: PetName,
+      Gender: Gender,
+      Status: Status,
+      AccountID: AccountID,
+      PetTypeID: PetTypeID,
     });
     await newPet.save();
     res.status(201).json(newPet);
@@ -45,7 +54,7 @@ exports.createPet = async (req, res) => {
 // Get all pets
 exports.getAllPets = async (req, res) => {
   try {
-    const pets = await Pet.find().populate('PetTypeID', 'TypeName Description');
+    const pets = await Pet.find();
     res.status(200).json(pets);
   } catch (error) {
     console.error('Error fetching pets:', error);
@@ -56,7 +65,7 @@ exports.getAllPets = async (req, res) => {
 // Get a pet by ID
 exports.getPetById = async (req, res) => {
   try {
-    const pet = await Pet.findOne({ PetID: req.params.id }).populate('PetTypeID', 'TypeName Description');
+    const pet = await Pet.findOne({ PetID: req.params.id });
     if (!pet) return res.status(404).json({ message: 'Pet not found' });
     res.status(200).json(pet);
   } catch (error) {
@@ -65,33 +74,20 @@ exports.getPetById = async (req, res) => {
   }
 };
 
-// Update a pet
+// Update pet (manager only)
 exports.updatePet = async (req, res) => {
+  const { id } = req.params;
+  const updateData = req.body;
+  delete updateData.PetID; 
+
   try {
-    const pet = await Pet.findOne({ PetID: req.params.id });
-    if (!pet) return res.status(404).json({ message: 'Pet not found' });
+    const pet = await Pet.findOneAndUpdate({ PetID: id }, updateData, { new: true }); // The { new: true } option returns the updated document
 
-    const { PetName, Gender, Status, PetTypeID } = req.body;
-
-    // Check if PetTypeID exists in the PetTypes collection if it's being updated
-    if (PetTypeID) {
-      try {
-        const petType = await PetType.findById(PetTypeID);
-        if (!petType) return res.status(400).json({ message: 'Invalid pet type ID' });
-      } catch (error) {
-        return res.status(400).json({ message: 'Invalid pet type ID' });
-      }
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet not found' });
     }
 
-    // Update pet object
-    pet.PetName = PetName || pet.PetName;
-    pet.Gender = Gender || pet.Gender;
-    pet.Status = Status || pet.Status;
-    pet.PetTypeID = PetTypeID || pet.PetTypeID;
-
-    // Save updated pet
-    await pet.save();
-    res.status(200).json({ message: 'Pet updated successfully', pet });
+    res.json({ message: 'Pet updated successfully', pet });
   } catch (error) {
     console.error('Error updating pet:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -119,8 +115,7 @@ exports.getPetsByAccountId = async (req, res) => {
       return res.status(400).json({ message: 'Account ID is missing' });
     }
 
-    const pets = await Pet.find({ AccountID: account_id }).populate('PetTypeID', 'TypeName');
-
+    const pets = await Pet.find({ AccountID: account_id });
     res.status(200).json(pets);
   } catch (error) {
     console.error('Error fetching pets:', error);

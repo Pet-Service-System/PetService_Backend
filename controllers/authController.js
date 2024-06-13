@@ -136,10 +136,10 @@ exports.register = async (req, res) => {
 //change password api
 exports.changePassword = async (req, res) => {
 const {  currentPassword, newPassword } = req.body; 
-  const account_id = req.user.id; // get id from token stored in localStorage
+  const AccountID = req.user.id; // get id from token stored in localStorage
   try {
     // Find account by _id
-    const account = await Account.findById(account_id);
+    const account = await Account.findOne({AccountID: AccountID});
     if (!account) {
       console.log('User not found');
       return res.status(404).json({ message: 'User not found' });
