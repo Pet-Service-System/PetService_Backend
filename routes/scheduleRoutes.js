@@ -1,5 +1,5 @@
 const express = require('express');
-const { getSchedule, getScheduleByRole, assignEmployeeToSlots } = require('../controllers/scheduleController');
+const { getSchedule, getScheduleByRole, assignEmployeeToSlots, removeEmployeeFromSlot } = require('../controllers/scheduleController');
 const {authMiddleware} = require('../middlewares/authMiddleware');
 const router = express.Router();
 
@@ -12,5 +12,7 @@ router.get('/role/:role', authMiddleware, getScheduleByRole);
 // Assign employee to specific slots
 router.post('/assign', authMiddleware, assignEmployeeToSlots);
 
+// Remove employee from specific slot
+router.post('/schedules/remove', removeEmployeeFromSlot);
 
 module.exports = router;
