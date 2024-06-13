@@ -115,8 +115,7 @@ exports.getPetsByAccountId = async (req, res) => {
       return res.status(400).json({ message: 'Account ID is missing' });
     }
 
-    const pets = await Pet.find({ AccountID: account_id }).populate('PetTypeID', 'TypeName');
-
+    const pets = await Pet.find({ AccountID: account_id });
     res.status(200).json(pets);
   } catch (error) {
     console.error('Error fetching pets:', error);
