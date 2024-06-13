@@ -48,6 +48,20 @@ exports.getOrderById = async (req, res) => {
   }
 };
 
+// Get an order by account ID
+exports.getOrderByAccountId = async (req, res) => {
+  try {
+    const order = await Order.find({ AccountID: req.params.id });
+    if (order) {
+      res.status(200).json(order);
+    } else {
+      res.status(404).json({ message: 'Order not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Update an order by ID (Partial Update)
 exports.updateOrderById = async (req, res) => {
   try {

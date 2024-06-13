@@ -5,7 +5,7 @@ const slotSchema = new mongoose.Schema({
   end_time: { type: String, required: true },
   employees: [
     {
-      account_id: { type: String, required: true },
+      AccountID: { type: String, required: true },
       fullname: { type: String, required: true },
       role: { type: String, required: true },
     }

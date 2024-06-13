@@ -19,11 +19,11 @@ exports.login = async (req, res) => {
       if (isMatch) {
         // Create JWT token with unique payload
         const token = jwt.sign(
-          { id: account.account_id, email: account.email, fullname: account.fullname, role: account.role },
+          { id: account.AccountID, email: account.email, fullname: account.fullname, role: account.role },
           JWT_SECRET,
           { expiresIn: JWT_EXPIRES_IN }
         );
-        return res.json({ message: 'Login successful', user: { id: account.account_id, email: account.email, role: account.role, fullname: account.fullname,  phone: account.phone, 
+        return res.json({ message: 'Login successful', user: { id: account.AccountID, email: account.email, role: account.role, fullname: account.fullname,  phone: account.phone, 
           address: account.address }, token });
       } else {
         return res.status(401).json({ message: 'Invalid credentials' });
@@ -41,16 +41,16 @@ const generateAccountID = async () => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    // Tìm kiếm tài khoản cuối cùng dựa trên account_id
-    const lastAccount = await Account.findOne({}, { account_id: 1 }).sort({ account_id: -1 }).session(session).exec();
+    // Tìm kiếm tài khoản cuối cùng dựa trên AccountID
+    const lastAccount = await Account.findOne({}, { AccountID: 1 }).sort({ AccountID: -1 }).session(session).exec();
     let lastId = 0;
 
-    if (lastAccount && lastAccount.account_id) {
-      const idPart = lastAccount.account_id.substring(1);
+    if (lastAccount && lastAccount.AccountID) {
+      const idPart = lastAccount.AccountID.substring(1);
       if (/^\d+$/.test(idPart)) {
         lastId = parseInt(idPart);
       } else {
-        console.error(`Invalid account_id format found: ${lastAccount.account_id}`);
+        console.error(`Invalid AccountID format found: ${lastAccount.AccountID}`);
         throw new Error('Invalid last account ID format');
       }
     }
@@ -93,7 +93,7 @@ exports.register = async (req, res) => {
     // encrypt password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
     const newAccount = new Account({ 
-      account_id: accountID,
+      AccountID: accountID,
       fullname: fullname, 
       email: email,
       password: hashedPassword, // save encrypted password
@@ -104,7 +104,7 @@ exports.register = async (req, res) => {
     });
     await newAccount.save();
 
-    res.json({ message: 'Registration successful', user: { accountID: newAccount.account_id, fullname: newAccount.fullname, email: newAccount.email, phone: newAccount.phone, address: newAccount.address } });
+    res.json({ message: 'Registration successful', user: { accountID: newAccount.AccountID, fullname: newAccount.fullname, email: newAccount.email, phone: newAccount.phone, address: newAccount.address } });
        // Tạo nội dung email
        const mailOptions = {
         from: '"PetService" <petservicesswp391@gmail.com>',
@@ -175,10 +175,10 @@ exports.forgotPassword = async (req, res) => {
     }
     
     const secret = JWT_SECRET + account.password;
-    const token = jwt.sign({email: account.email, id: account.account_id}, secret, {
+    const token = jwt.sign({email: account.email, id: account.AccountID}, secret, {
       expiresIn: "5m",
     })
-    const resetLink = `http://localhost:5173/reset-password/${account.account_id}/${token}`;
+    const resetLink = `http://localhost:5173/reset-password/${account.AccountID}/${token}`;
     
     // Tạo nội dung email
     const mailOptions = {
@@ -224,7 +224,7 @@ exports.resetPassword = async (req, res) => {
 
   try {
     // Fetch the user's account from the database
-    const account = await Account.findOne({ account_id: accountId });
+    const account = await Account.findOne({ AccountID: accountId });
     if (!account) {
       return res.status(404).json({ message: 'Account doesnt exist!' });
     }
