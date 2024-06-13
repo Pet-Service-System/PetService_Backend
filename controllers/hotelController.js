@@ -38,7 +38,7 @@ exports.getHotelById = async (req, res) => {
 // Cập nhật một khách sạn theo ID
 exports.updateHotel = async (req, res) => {
     const updates = Object.keys(req.body);
-    const allowedUpdates = ['HotelName', 'HotelType', 'Price'];
+    const allowedUpdates = ['HotelName', 'Description', 'Price'];
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
 
     if (!isValidOperation) {
