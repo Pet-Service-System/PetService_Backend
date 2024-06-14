@@ -15,7 +15,7 @@ const slotSchema = new mongoose.Schema({
 const scheduleSchema = new mongoose.Schema({
   day: { type: String, required: true },
   slots: [slotSchema]
-});
+}, { versionKey: false });
 
 const Schedule = mongoose.model('Schedule', scheduleSchema, 'Schedules');
 

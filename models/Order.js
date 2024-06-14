@@ -14,6 +14,7 @@ const OrderDetailsSchema = new mongoose.Schema({
 const orderSchema = new mongoose.Schema({
     OrderID: { type: String, required: true, unique: true },
     OrderDate: { type: Date, default: Date.now },
+    phone: { type: String, required: true },
     Address: { type: String, required: true },
     Status: { type: String, required: true },
     OrderDetails: [OrderDetailsSchema],

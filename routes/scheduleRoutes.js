@@ -13,6 +13,6 @@ router.get('/role/:role', authMiddleware, getScheduleByRole);
 router.post('/assign', authMiddleware, assignEmployeeToSlots);
 
 // Remove employee from specific slot
-router.post('/schedules/remove', removeEmployeeFromSlot);
+router.post('/remove', removeEmployeeFromSlot);
 
 module.exports = router;
