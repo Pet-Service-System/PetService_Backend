@@ -1,4 +1,4 @@
-const BookingHotel = require('../models/bookingHotel');
+const BookingHotel = require('../models/HotelBooking');
 
 // Helper function to generate BookingDetailID
 const generateBookingDetailID = async () => {

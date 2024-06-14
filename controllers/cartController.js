@@ -1,6 +1,6 @@
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
-const HotelBooking = require('../models/bookingHotel');
+const HotelBooking = require('../models/HotelBooking');
 const SpaService = require('../models/SpaService'); 
 
 exports.createCart = async (req, res) => {
