@@ -20,5 +20,5 @@ const hotelBookingSchema = new Schema({
   BookingDetails: [bookingDetailSchema],
 });
 
-const BookingHotel = mongoose.model('HotelBooking', hotelBookingSchema);
+const BookingHotel = mongoose.model('HotelBooking', hotelBookingSchema, 'HotelBookings');
 module.exports = BookingHotel;
