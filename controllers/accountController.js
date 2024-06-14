@@ -86,7 +86,7 @@ exports.updateAccountById = async (req, res) => {
     const updates = req.body;
   
     try {
-      const account = await Account.findById(accountId);
+      const account = await Account.findOne({AccountID: accountId});
   
       if (!account) {
         return res.status(404).json({ message: 'Account not found!' });

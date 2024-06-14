@@ -10,6 +10,7 @@ const accountRoutes = require('./routes/accountRoutes');
 const scheduleRoutes = require('./routes/scheduleRoutes');
 const petRoutes = require('./routes/petRoutes'); 
 const serviceRoutes = require('./routes/serviceRoutes'); 
+const orderRoutes = require('./routes/orderRoutes');
 const hotelRoutes = require('./routes/hotelRoutes');
 
 const dotenv = require('dotenv');
@@ -45,6 +46,9 @@ app.use('/api/hotels', hotelRoutes);
 
 // Work Schedule Routes
 app.use('/api/schedules', scheduleRoutes);
+
+// Order Routes
+app.use('/api/orders', orderRoutes);
 
 // Apply authMiddleware to protected routes
 app.use('/protected', authMiddleware);
