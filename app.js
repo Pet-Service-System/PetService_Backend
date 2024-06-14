@@ -13,6 +13,8 @@ const serviceRoutes = require('./routes/serviceRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const hotelRoutes = require('./routes/hotelRoutes');
 const hotelBookingRoutes = require('./routes/hotelBookingRoutes');
+const spaBookingRoutes = require('./routes/spaBookingRoutes');
+const cartRoutes = require('./routes/cartRoutes');
 
 const dotenv = require('dotenv');
 
@@ -53,6 +55,12 @@ app.use('/api/orders', orderRoutes);
 
 // Hotel booking Routes
 app.use('/api/hotel-bookings', hotelBookingRoutes);
+
+// Spa booking Routes
+app.use('/api/Spa-bookings', hotelBookingRoutes);
+
+// Cart Routes
+app.use('/api/carts', cartRoutes);
 
 // Apply authMiddleware to protected routes
 app.use('/protected', authMiddleware);

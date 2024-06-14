@@ -1,4 +1,4 @@
-const Service = require('../models/Service');
+const Service = require('../models/SpaService');
 
 // Generate a new serviceID
 const generateServiceID = async () => {
