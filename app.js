@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
+const passport = require('./config/passport');
 const authRoutes = require('./routes/authRoutes');
 const errorMiddleware = require('./middlewares/errorMiddleware');
 const {authMiddleware} = require('./middlewares/authMiddleware'); 
@@ -14,7 +15,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const hotelRoutes = require('./routes/hotelRoutes');
 const hotelBookingRoutes = require('./routes/hotelBookingRoutes');
 const spaBookingRoutes = require('./routes/spaBookingRoutes');
-const cartRoutes = require('./routes/cartRoutes');
+
 
 const dotenv = require('dotenv');
 
@@ -28,6 +29,7 @@ connectDB();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(passport.initialize());
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -59,8 +61,6 @@ app.use('/api/Hotel-bookings', hotelBookingRoutes);
 // Spa booking Routes
 app.use('/api/Spa-bookings', spaBookingRoutes);
 
-// Cart Routes
-app.use('/api/carts', cartRoutes);
 
 // Apply authMiddleware to protected routes
 app.use('/protected', authMiddleware);
