@@ -1,8 +1,8 @@
-const Service = require('../models/SpaService');
+const SpaService = require('../models/SpaService');
 
 // Generate a new serviceID
 const generateServiceID = async () => {
-  const lastService = await Service.findOne().sort({ ServiceID: -1 });
+  const lastService = await SpaService.findOne().sort({ ServiceID: -1 });
 
   if (lastService && lastService.ServiceID) {
       const lastServiceId = parseInt(lastService.ServiceID.slice(1)); 
@@ -18,7 +18,7 @@ exports.createService = async (req, res) => {
   try {
     const serviceID = await generateServiceID();
     const { ServiceName, Description, ImageURL, Price, Status } = req.body;
-    const newService = new Service({
+    const newService = new SpaService({
       ServiceID: serviceID,
       ServiceName: ServiceName,
       Description: Description,
@@ -37,7 +37,7 @@ exports.createService = async (req, res) => {
 // Get all services
 exports.getAllServices = async (req, res) => {
   try {
-    const services = await Service.find();
+    const services = await SpaService.find();
     res.status(200).json(services); // Thêm status 200 để báo thành công
   } catch (error) {
     console.error('Error fetching services:', error);
@@ -48,7 +48,7 @@ exports.getAllServices = async (req, res) => {
 // Get a service by ID
 exports.getServiceById = async (req, res) => {
   try {
-    const service = await Service.findOne({ ServiceID: req.params.id });
+    const service = await SpaService.findOne({ ServiceID: req.params.id });
     if (!service) return res.status(404).json({ message: 'Service not found' });
     res.status(200).json(service); // Thêm status 200 để báo thành công
   } catch (error) {
@@ -63,7 +63,7 @@ exports.updateService = async (req, res) => {
   const updateData = req.body;
   delete updateData.serviceId; 
   try {
-    const service = await Service.findOneAndUpdate(
+    const service = await SpaService.findOneAndUpdate(
       { ServiceID: id },
       updateData,
       { new: true }
@@ -83,7 +83,7 @@ exports.updateService = async (req, res) => {
 // Delete a service
 exports.deleteService = async (req, res) => {
   try {
-    const service = await Service.findOneAndDelete({ ServiceID: req.params.id });
+    const service = await SpaService.findOneAndDelete({ ServiceID: req.params.id });
     if (!service) return res.status(404).json({ message: 'Service not found' });
 
     res.status(200).json({ message: 'Service deleted successfully' }); // Thêm status 200 để báo thành công

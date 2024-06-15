@@ -1,8 +1,8 @@
-const BookingHotel = require('../models/bookingHotel');
+const HotelBooking = require('../models/HotelBooking');
 
 // Helper function to generate BookingDetailID
 const generateBookingDetailID = async () => {
-  const lastBooking = await BookingHotel.findOne().sort({ BookingDetailID: -1 }).exec();
+  const lastBooking = await HotelBooking.findOne().sort({ BookingDetailID: -1 }).exec();
   if (lastBooking) {
     const lastIdNum = parseInt(lastBooking.BookingDetailID.substring(2), 10);
     const newIdNum = lastIdNum + 1;
@@ -15,7 +15,7 @@ const generateBookingDetailID = async () => {
 exports.createBooking = async (req, res) => {
   try {
     const BookingId = await generateBookingDetailID();
-    const newBooking = new BookingHotel({
+    const newBooking = new HotelBooking({
       BookingDetailID: BookingId,
       Status: req.body.Status,
       Duration: new Date(req.body.Duration),
@@ -36,7 +36,7 @@ exports.createBooking = async (req, res) => {
 // get all bookings api
 exports.getAllBookings = async (req, res) => {
   try {
-    const bookings = await BookingHotel.find();
+    const bookings = await HotelBooking.find();
     res.json(bookings);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -46,7 +46,7 @@ exports.getAllBookings = async (req, res) => {
 // get a booking by id
 exports.getBookingById = async (req, res) => {
   try {
-    const booking = await BookingHotel.findOne({ BookingDetailID: req.params.id });
+    const booking = await HotelBooking.findOne({ BookingDetailID: req.params.id });
     if (booking) {
       res.json(booking);
     } else {
@@ -60,7 +60,7 @@ exports.getBookingById = async (req, res) => {
 // update a booking
 exports.updateBooking = async (req, res) => {
   try {
-    const result = await BookingHotel.updateOne(
+    const result = await HotelBooking.updateOne(
       { BookingDetailID: req.params.id },
       { $set: req.body }
     );
@@ -77,7 +77,7 @@ exports.updateBooking = async (req, res) => {
 // delete a booking
 exports.deleteBooking = async (req, res) => {
   try {
-    const result = await BookingHotel.deleteOne({ BookingDetailID: req.params.id });
+    const result = await HotelBooking.deleteOne({ BookingDetailID: req.params.id });
     if (result.deletedCount > 0) {
       res.json({ message: 'Booking deleted' });
     } else {

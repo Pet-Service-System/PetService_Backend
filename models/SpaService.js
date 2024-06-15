@@ -9,6 +9,6 @@ const serviceSchema = new mongoose.Schema({
     Status: { type: String }
 });
 
-const Service = mongoose.model('SpaService', serviceSchema, 'SpaServices');
+const SpaService = mongoose.model('SpaService', serviceSchema, 'SpaServices');
 
-module.exports = Service;
+module.exports = SpaService;
