@@ -1,6 +1,6 @@
 const HotelService = require('../models/HotelService'); 
 
-// Tạo một khách sạn mới
+// Create a new hotel
 exports.createHotel = async (req, res) => {
     const hotel = new HotelService(req.body);
     try {
@@ -11,7 +11,7 @@ exports.createHotel = async (req, res) => {
     }
 };
 
-// Lấy danh sách các khách sạn
+// Get a list of hotels
 exports.getHotels = async (req, res) => {
     try {
         const hotels = await HotelService.find({});
@@ -21,7 +21,7 @@ exports.getHotels = async (req, res) => {
     }
 };
 
-// Lấy một khách sạn theo ID
+// Get a hotel by ID
 exports.getHotelById = async (req, res) => {
     const _id = req.params.id;
     try {
@@ -35,7 +35,7 @@ exports.getHotelById = async (req, res) => {
     }
 };
 
-// Cập nhật một khách sạn theo ID
+// Update a hotel by ID
 exports.updateHotel = async (req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = ['HotelName', 'Description', 'Price'];
@@ -59,7 +59,7 @@ exports.updateHotel = async (req, res) => {
     }
 };
 
-// Xóa một khách sạn theo ID
+// Delete a hotel by ID
 exports.deleteHotel = async (req, res) => {
     try {
         const hotel = await HotelService.findByIdAndDelete(req.params.id);
