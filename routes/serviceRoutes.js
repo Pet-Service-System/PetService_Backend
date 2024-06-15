@@ -1,5 +1,5 @@
 const express = require('express');
-const { createService, getAllServices, getServiceById, updateService, deleteService } = require('../controllers/serviceController');
+const { createService, getAllServices, getServiceById, updateService, deleteService } = require('../controllers/spaServiceController');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
 const router = express.Router();

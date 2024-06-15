@@ -6,7 +6,7 @@ const bookingDetailSchema = new Schema({
   CheckInDate: { type: Date, required: true },
   CheckOutDate: { type: Date, required: true },
   TotalPrice: { type: Number, required: true },
-  HotelID: { type: String, required: true, ref: 'Hotel' }
+  HotelID: { type: String, required: true, ref: 'HotelService' }
 });
 
 const hotelBookingSchema = new Schema({

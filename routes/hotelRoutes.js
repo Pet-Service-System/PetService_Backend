@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const hotelController = require('../controllers/hotelController');
+const hotelController = require('../controllers/hotelServiceController');
 
 router.post('/hotels', hotelController.createHotel);
 router.get('/hotels', hotelController.getHotels);

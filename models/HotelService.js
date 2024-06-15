@@ -10,6 +10,6 @@ const hotelSchema = new mongoose.Schema({
     }
 });
 
-const Hotel = mongoose.model('Hotel', hotelSchema, 'Hotels');
+const HotelService = mongoose.model('HotelService', hotelSchema, 'HotelSevices');
 
-module.exports = Hotel;
+module.exports = HotelService;

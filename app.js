@@ -54,10 +54,10 @@ app.use('/api/schedules', scheduleRoutes);
 app.use('/api/orders', orderRoutes);
 
 // Hotel booking Routes
-app.use('/api/hotel-bookings', hotelBookingRoutes);
+app.use('/api/Hotel-bookings', hotelBookingRoutes);
 
 // Spa booking Routes
-app.use('/api/Spa-bookings', hotelBookingRoutes);
+app.use('/api/Spa-bookings', spaBookingRoutes);
 
 // Cart Routes
 app.use('/api/carts', cartRoutes);
