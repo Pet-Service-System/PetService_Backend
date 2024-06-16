@@ -13,7 +13,6 @@ const hotelBookingSchema = new Schema({
   BookingDetailID: { type: String, required: true, unique: true },
   Status: { type: String, required: true },
   Duration: { type: Date, required: true },
-  Feedback: { type: String },
   CreateDate: { type: Date, required: true },
   AccountID: { type: String, required: true, ref: 'Account' },
   PetID: { type: String, required: true },
