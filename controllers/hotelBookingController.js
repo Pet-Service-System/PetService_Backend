@@ -19,7 +19,6 @@ exports.createBooking = async (req, res) => {
       BookingDetailID: BookingId,
       Status: req.body.Status,
       Duration: new Date(req.body.Duration),
-      Feedback: req.body.Feedback,
       CreateDate: new Date(),
       AccountID: req.body.AccountID,
       PetID: req.body.PetID,
