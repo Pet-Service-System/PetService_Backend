@@ -56,6 +56,20 @@ exports.getBookingById = async (req, res) => {
   }
 };
 
+// get a booking by account id
+exports.getHotelBookingsByAccountID = async (req, res) => {
+  try {
+    const hotelBookings = await HotelBooking.find({ AccountID: req.params.accountId });
+    if (hotelBookings.length === 0) {
+      return res.status(404).json({ error: 'No Spa Bookings found for this AccountID' });
+    }
+    res.status(200).json(hotelBookings);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
 // update a booking
 exports.updateBooking = async (req, res) => {
   try {

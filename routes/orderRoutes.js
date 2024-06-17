@@ -13,7 +13,7 @@ router.get('/', authMiddleware, getAllOrders);
 router.get('/:id', authMiddleware, getOrderById);
 
 // Get an order by account ID
-router.get('/:id', authMiddleware, getOrderByAccountId);
+router.get('/account/:accountId', authMiddleware, getOrderByAccountId);
 
 // Update an order by ID 
 router.put('/:id', authMiddleware, updateOrderById);

@@ -1,5 +1,5 @@
 const express = require('express');
-const { login, register, forgotPassword, changePassword, resetPassword, logout, googleAuthCallback } = require('../controllers/authController');
+const { login, register, forgotPassword, changePassword, resetPassword, logout, googleAuth, googleAuthCallback } = require('../controllers/authController');
 const {authMiddleware, checkToken} = require('../middlewares/authMiddleware');
 const router = express.Router();
 
@@ -13,6 +13,8 @@ router.post('/check-token', authMiddleware, checkToken);
 router.post('/logout', logout);
 
 // Google Auth
-router.post('/google', googleAuthCallback);
+router.get('/google', googleAuth); 
+
+router.get('/google/callback', googleAuthCallback);
 
 module.exports = router;
