@@ -37,7 +37,7 @@ exports.getAllOrders = async (req, res) => {
 // Get an order by ID
 exports.getOrderById = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findOne({ ProductID: req.params.productId });
     if (order) {
       res.status(200).json(order);
     } else {
@@ -51,7 +51,7 @@ exports.getOrderById = async (req, res) => {
 // Get an order by account ID
 exports.getOrderByAccountId = async (req, res) => {
   try {
-    const order = await Order.find({ AccountID: req.params.id });
+    const order = await Order.find({ AccountID: req.params.accountId });
     if (order) {
       res.status(200).json(order);
     } else {
