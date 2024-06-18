@@ -27,7 +27,7 @@ exports.getCommentsByProductId = async (req, res) => {
     const { ProductID } = req.params;
   
     try {
-      const comments = await Comment.find({ ProductID });
+      const comments = await Comment.find({ ProductID: ProductID });
       if (comments.length === 0) {
         return res.status(404).json({ message: 'No comments found for this product' });
       }

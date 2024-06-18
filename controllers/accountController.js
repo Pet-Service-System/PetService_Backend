@@ -38,7 +38,7 @@ exports.getAccount = async (req, res) => {
   
     try {
       // Find the account by ID
-      const account = await Account.findById(accountId);
+      const account = await Account.findOne({AccountID: accountId});
   
       if (!account) {
         return res.status(404).json({ message: 'Account not found!' });

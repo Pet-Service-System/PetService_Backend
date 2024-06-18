@@ -3,7 +3,7 @@ const {createComment, getCommentsByProductId, updateComment, deleteComment} = re
 const router = express.Router();
 
 router.post('/', createComment);
-router.get('/comments/product/:ProductID', getCommentsByProductId);
+router.get('/product/:ProductID', getCommentsByProductId);
 router.put('/:CommentID', updateComment);
 router.delete('/:CommentID', deleteComment);
 

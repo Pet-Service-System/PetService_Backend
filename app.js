@@ -28,10 +28,12 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors({
+var corsOptions = {
   origin: 'http://localhost:5173',
-  credentials: true, 
-}));
+  optionsSuccessStatus: 200 // For legacy browser support
+}
+app.use(cors(corsOptions));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
