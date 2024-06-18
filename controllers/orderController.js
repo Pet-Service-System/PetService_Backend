@@ -37,7 +37,7 @@ exports.getAllOrders = async (req, res) => {
 // Get an order by ID
 exports.getOrderById = async (req, res) => {
   try {
-    const order = await Order.findOne({ ProductID: req.params.productId });
+    const order = await Order.findOne({ OrderID: req.params.id });
     if (order) {
       res.status(200).json(order);
     } else {
