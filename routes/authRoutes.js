@@ -12,9 +12,6 @@ router.post('/reset-password', resetPassword);
 router.post('/check-token', authMiddleware, checkToken);
 router.post('/logout', logout);
 
-// Google Auth
-router.get('/google', googleAuth); 
 
-router.get('/google/callback', googleAuthCallback);
 
 module.exports = router;
