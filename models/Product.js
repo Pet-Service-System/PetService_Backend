@@ -6,6 +6,7 @@ const productSchema = new mongoose.Schema({
   Price: { type: Number, required: true },
   PetTypeID : { type: String, required: true, ref: 'PetType' },
   Description: { type: String, required: true },
+  Quantity: {type: Number, required: true},
   ImageURL: { type: String, required: true },
   Status: { type: String, required: true }
 }, { versionKey: false });
