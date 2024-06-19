@@ -20,7 +20,7 @@ exports.createProduct = async (req, res) => {
   try {
       const productId = await generateProductId(); // Generate a new ProductID
       const { productName, price, petTypeId, description, imageURL } = req.body;
-      const product = new Product({ ProductID: productId, ProductName: productName, Price: price, PetTypeID: petTypeId, Description: description, ImageURL: imageURL, Status: 'Available' });
+      const product = new Product({ ProductID: productId, ProductName: productName, Price: price, PetTypeID: petTypeId, Description: description, Quantity: quantity, ImageURL: imageURL, Status: 'Available' });
       await product.save();
       res.status(201).json(product);
   } catch (error) {
