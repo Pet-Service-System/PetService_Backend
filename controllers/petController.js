@@ -27,21 +27,21 @@ const generatePetID = async () => {
   return newPetId;
 };
 
-
-
 // Create a pet
 exports.createPet = async (req, res) => {
   try {
     const petID = await generatePetID(); 
-    const { PetName, Gender, Status, AccountID, PetTypeID } = req.body;
+    const { PetName, Gender, Status, AccountID, PetTypeID, Weight, Age } = req.body;
 
     const newPet = new Pet({
       PetID: petID, 
-      PetName: PetName,
-      Gender: Gender,
-      Status: Status,
-      AccountID: AccountID,
-      PetTypeID: PetTypeID,
+      PetName,
+      Gender,
+      Status,
+      AccountID,
+      PetTypeID,
+      Weight,
+      Age
     });
     await newPet.save();
     res.status(201).json(newPet);
@@ -106,10 +106,11 @@ exports.deletePet = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 // Get all pets by account_id
 exports.getPetsByAccountId = async (req, res) => {
   try {
-    const account_id = req.params.account_id; // accountId từ request URL
+    const account_id = req.params.account_id; // accountId from request URL
 
     if (!account_id) {
       return res.status(400).json({ message: 'Account ID is missing' });
