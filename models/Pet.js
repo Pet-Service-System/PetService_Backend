@@ -6,7 +6,9 @@ const petSchema = new mongoose.Schema({
     Gender: { type: String, required: true },
     Status: { type: String, required: true },
     AccountID: { type: String, required: true },
-    PetTypeID: { type: mongoose.Schema.Types.String, ref: 'PetType', required: true }
+    PetTypeID: { type: mongoose.Schema.Types.String, ref: 'PetType', required: true },
+    Weight: { type: Number, required: true },
+    Age: { type: Number, required: true }
 });
 
 const Pet = mongoose.model('Pet', petSchema, 'Pets');
