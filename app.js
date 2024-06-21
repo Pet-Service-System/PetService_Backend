@@ -17,6 +17,7 @@ const hotelBookingRoutes = require('./routes/hotelBookingRoutes');
 const spaBookingRoutes = require('./routes/spaBookingRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 
+const paymentRoutes = require('./routes/paymentVNPayRoutes');
 
 const dotenv = require('dotenv');
 
@@ -70,6 +71,9 @@ app.use('/api/Spa-bookings', spaBookingRoutes);
 
 // Comment Routes
 app.use('/api/comments', commentRoutes);
+
+// VNPayment method
+app.use('/api/paymentVNPay', paymentRoutes);
 
 // Apply authMiddleware to protected routes
 app.use('/protected', authMiddleware);

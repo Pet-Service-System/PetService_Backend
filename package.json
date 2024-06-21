@@ -12,8 +12,11 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "config": "^3.3.11",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "date-fns": "^3.6.0",
+    "dateformat": "^5.0.3",
     "dotenv": "^16.4.5",
     "dotnet": "^1.1.4",
     "express": "^4.19.2",
@@ -23,6 +26,7 @@
     "nodemailer": "^6.9.13",
     "nodemon": "^3.1.1",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "querystring": "^0.2.1"
   }
 }
