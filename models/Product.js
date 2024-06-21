@@ -7,7 +7,7 @@ const productSchema = new mongoose.Schema({
   PetTypeID : { type: String, required: true, ref: 'PetType' },
   Description: { type: String, required: true },
   Quantity: {type: Number, required: true},
-  ImageURL: { type: String, required: true },
+  Image: { type: Object, required: true },
   Status: { type: String, required: true }
 }, { versionKey: false });
 

@@ -29,7 +29,7 @@ exports.getSpaBookings = async (req, res) => {
 // get spa booking by id
 exports.getSpaBookingById = async (req, res) => {
   try {
-    const spaBooking = await SpaBooking.findById(req.params.id);
+    const spaBooking = await SpaBooking.find({BookingDetailID:req.params.id});
     if (!spaBooking) {
       return res.status(404).json({ error: 'Spa Booking not found' });
     }

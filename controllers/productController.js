@@ -1,5 +1,6 @@
 const Product = require('../models/Product');
 const mongoose = require('mongoose');
+const cloudinary = require('../config/cloudinary');
 
 
 //Generate a new product ID
@@ -19,10 +20,18 @@ const generateProductId = async () => {
 exports.createProduct = async (req, res) => {
   try {
       const productId = await generateProductId(); // Generate a new ProductID
-      const { productName, price, petTypeId, description, imageURL } = req.body;
-      const product = new Product({ ProductID: productId, ProductName: productName, Price: price, PetTypeID: petTypeId, Description: description, Quantity: quantity, ImageURL: imageURL, Status: 'Available' });
-      await product.save();
-      res.status(201).json(product);
+      const { productName, price, petTypeId, description, image } = req.body;
+      if(image){
+        const uploadRes = await cloudinary.uploader.upload(image, {
+          upload_preset: "online-shop"
+        });
+
+        if(uploadRes){
+          const product = new Product({ ProductID: productId, ProductName: productName, Price: price, PetTypeID: petTypeId, Description: description, Quantity: quantity, Image: uploadRes, Status: 'Available' });
+        }
+        const savedProduct = await product.save();
+        res.status(201).json(savedProduct);
+      }  
   } catch (error) {
       res.status(500).json({ message: 'Error creating product', error });
   }
@@ -54,9 +63,6 @@ exports.createProduct = async (req, res) => {
     res.status(500).json({ message: 'Error fetching product', error: error.message });
   }
 };
-
-
-
 
  //Get product by pet type
  exports.getProductsByPetType = async (req, res) => {
