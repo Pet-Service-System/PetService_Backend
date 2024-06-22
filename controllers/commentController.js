@@ -21,7 +21,7 @@ exports.createComment = async (req, res) => {
   }
 };
 
-// Read a comment by CommentID
+
 // Get comments by ProductID
 exports.getCommentsByProductId = async (req, res) => {
     const { ProductID } = req.params;

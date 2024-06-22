@@ -25,6 +25,7 @@ exports.login = async (req, res) => {
           JWT_SECRET,
           { expiresIn: JWT_EXPIRES_IN }
         );
+        console.log(token);
         return res.json({ message: 'Login successful', user: { id: account.AccountID, email: account.email, role: account.role, fullname: account.fullname,  phone: account.phone, 
           address: account.address }, token });
       } else {
