@@ -1,0 +1,7 @@
+{
+    "vnp_TmnCode": "YOUR_TMN_CODE",
+    "vnp_HashSecret": "YOUR_HASH_SECRET",
+    "vnp_Url": "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
+    "vnp_ReturnUrl": "http://yourwebsite.com/vnpay_return"
+  }
+  
