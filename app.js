@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const bodyParser = require('body-parser');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const errorMiddleware = require('./middlewares/errorMiddleware');
@@ -30,12 +29,12 @@ connectDB();
 // Middleware
 var corsOptions = {
   origin: 'http://localhost:5173',
-  optionsSuccessStatus: 200 // For legacy browser support
+  optionsSuccessStatus: 200 
 }
 app.use(cors(corsOptions));
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 
 // Routes
