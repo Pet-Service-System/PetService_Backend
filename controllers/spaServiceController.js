@@ -17,12 +17,13 @@ const generateServiceID = async () => {
 exports.createService = async (req, res) => {
   try {
     const serviceID = await generateServiceID();
-    const { ServiceName, Description, ImageURL, Price, Status } = req.body;
+    const { ServiceName, Description, ImageURL, PetTypeID, Price, Status } = req.body;
     const newService = new SpaService({
       ServiceID: serviceID,
       ServiceName: ServiceName,
       Description: Description,
       ImageURL: ImageURL,
+      PetTypeID: PetTypeID,
       Price: Price,
       Status: Status,
     });
