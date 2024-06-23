@@ -87,26 +87,32 @@ exports.deleteComment = async (req, res) => {
   }
 };
 
-// Calculate and update average rating for a product
-const updateAverageRating = async (ProductID) => {
+// Add a new comment detail
+exports.addCommentDetail = async (req, res) => {
+  const { ProductID } = req.params;
+  const { AccountID, Rating, Comment } = req.body;
+
+  if (!AccountID || !Rating || !Comment) {
+    return res.status(400).json({ message: 'Invalid input data' });
+  }
+
   try {
-    const comments = await Comment.find({ ProductID });
-    if (comments.length === 0) return;
+    const comment = await Comment.findOne({ProductID: ProductID });
 
-    let totalRating = 0;
-    let ratingCount = 0;
+    if (!comment) {
+      return res.status(404).json({ message: 'Comment not found' });
+    }
 
-    comments.forEach(comment => {
-      comment.CommentDetails.forEach(detail => {
-        totalRating += detail.Rating;
-        ratingCount += 1;
-      });
-    });
+    const newCommentDetail = { AccountID, Rating, Comment };
+    comment.CommentDetails.push(newCommentDetail);
+    await comment.save();
 
-    const averageRating = totalRating / ratingCount;
+    // Update average rating for the product
+    await updateAverageRating(comment.ProductID);
 
-    await Product.findOneAndUpdate({ ProductID }, { averageRating }, { new: true });
+    res.status(201).json({ message: 'Comment detail added successfully', comment });
   } catch (error) {
-    console.error('Error updating average rating:', error);
+    console.error('Error adding comment detail:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };

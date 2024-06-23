@@ -69,7 +69,7 @@ exports.updateService = async (req, res) => {
   delete updateData.serviceId; 
   try {
     if (req.file && req.file.path) {
-      const service = await service.findOne({ ProductID: id });
+      const service = await SpaService.findOne({ ServiceID: id });
 
       if (!service) {
         return res.status(404).json({ message: 'Service not found' });
