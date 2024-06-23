@@ -39,7 +39,7 @@ exports.createService = async (req, res) => {
     console.error('Error creating service:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-
+};
 // Get all services
 exports.getAllServices = async (req, res) => {
   try {
