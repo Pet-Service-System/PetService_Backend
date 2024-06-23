@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
-const Account = require('./models/Account');
-const HotelBooking = require('./models/HotelBooking');
-const Order = require('./models/Order');
-const Pet = require('./models/Pet');
-const Product = require('./models/Product');
-const SpaService = require('./models/SpaService');
-const HotelService = require('./models/HotelService');
+const Account = require('../models/Account');
+const HotelBooking = require('../models/HotelBooking');
+const Order = require('../models/Order');
+const Pet = require('../models/Pet');
+const Product = require('../models/Product');
+const SpaService = require('../models/SpaService');
+const HotelService = require('../models/HotelService');
 
 const idGenerators = {
   generateAccountID: async () => {
@@ -129,5 +129,27 @@ const idGenerators = {
 
 
 };
+
+generateOrderDetailsID: async () => {
+  const lastOrderDetail = await OrderDetails.findOne().sort({ OrderDetailsID: -1 });
+  if (lastOrderDetail && lastOrderDetail.OrderDetailsID) {
+    const lastOrderDetailId = parseInt(lastOrderDetail.OrderDetailsID.slice(2));
+    const newOrderDetailId = `OD${("000" + (lastOrderDetailId + 1)).slice(-4)}`;
+    return newOrderDetailId;
+  } else {
+    return 'OD0001';
+  }
+};
+
+generatespaBookingID: async () => {
+  const lastspaBooking = await SpaBooking.findOne().sort({ spaBookingID: -1 });
+  if (lastspaBooking && lastspaBooking.spaBookingID) {
+    const lastspaBookingId = parseInt(lastspaBooking.spaBookingID.slice(2));
+    const newspaBookingId = `SB${("000" + (lastspaBookingId + 1)).slice(-4)}`;
+    return newspaBookingId;
+  } else {
+    return 'SB0001';
+  }   
+},
 
 module.exports = idGenerators;

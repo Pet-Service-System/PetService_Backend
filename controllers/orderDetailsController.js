@@ -1,11 +1,10 @@
 const OrderDetails = require('../models/OrderDetails');
-
+const idGenerators =  require('../utils/utils');
 // Create a new order detail
 exports.createOrderDetail = async (req, res) => {
   try {
     // Generate a new OrderDetailsID
-    const lastOrderDetail = await OrderDetails.findOne().sort({ OrderDetailsID: -1 });
-    const newId = lastOrderDetail ? `OD${String(parseInt(lastOrderDetail.OrderDetailsID.substring(2)) + 1).padStart(3, '0')}` : 'OD001';
+    const newId = await idGenerators.generateOrderDetailsID();
 
     // Create new order detail
     const orderDetail = new OrderDetails({ ...req.body, OrderDetailsID: newId });

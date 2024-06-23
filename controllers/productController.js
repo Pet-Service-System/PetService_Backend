@@ -1,25 +1,12 @@
 const Product = require('../models/Product');
 const mongoose = require('mongoose');
 const cloudinary = require('../config/cloudinary');
-
-
-//Generate a new product ID
-const generateProductId = async () => {
-  const lastProduct = await Product.findOne().sort({ ProductID: -1 });
-
-  if (lastProduct && lastProduct.ProductID) {
-      const lastProductId = parseInt(lastProduct.ProductID.slice(1)); // Extract numeric part of the last ProductID
-      const newProductId = `P${("000" + (lastProductId + 1)).slice(-3)}`; // Increment the numeric part and format it to 3 digits
-      return newProductId;
-  } else {
-      return 'P001'; // Starting ID if there are no products
-  }
-};
+const idGenerators =  require('../utils/utils');
 
 //Create product (manager only)
 exports.createProduct = async (req, res) => {
   try {
-    const productId = await generateProductId(); // Generate a new ProductID
+    const productId = await idGenerators.generateProductId(); 
     const { productName, price, quantity, petTypeId, description, status } = req.body;
 
     let productData = {
