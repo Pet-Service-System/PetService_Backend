@@ -29,16 +29,16 @@ exports.createService = async (req, res) => {
     });
 
     if (req.file && req.file.path) {
-      newService.ImageURL = req.file.path;
+      const result = await cloudinary.uploader.upload(req.file.path); // Upload image to Cloudinary
+      newService.ImageURL = result.secure_url; // Save the URL from Cloudinary
     }
 
     await newService.save();
-    res.status(201).json(newService); // Thêm status 201 để báo tạo thành công
+    res.status(201).json(newService);
   } catch (error) {
     console.error('Error creating service:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-};
 
 // Get all services
 exports.getAllServices = async (req, res) => {
@@ -67,7 +67,7 @@ exports.getServiceById = async (req, res) => {
 exports.updateService = async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
-  delete updateData.serviceId; 
+  delete updateData.serviceId;
   try {
     if (req.file && req.file.path) {
       const service = await SpaService.findOne({ ServiceID: id });
@@ -76,15 +76,15 @@ exports.updateService = async (req, res) => {
         return res.status(404).json({ message: 'Service not found' });
       }
 
-      // Delete the old image from Cloudinary if it exists
       if (service.ImageURL) {
-        const publicId = service.ImageURL.split('/').pop().split('.')[0]; // Extract the public ID from the URL
+        const publicId = service.ImageURL.split('/').pop().split('.')[0];
         await cloudinary.uploader.destroy(publicId);
       }
 
-      // Update the image URL with the new one
-      updateData.ImageURL = req.file.path;
+      const result = await cloudinary.uploader.upload(req.file.path);
+      updateData.ImageURL = result.secure_url;
     }
+
     const service = await SpaService.findOneAndUpdate(
       { ServiceID: id },
       updateData,
