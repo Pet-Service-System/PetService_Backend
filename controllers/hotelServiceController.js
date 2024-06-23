@@ -1,9 +1,12 @@
 const HotelService = require('../models/HotelService'); 
+const idGenerators =  require('../utils/utils');
 
 // Create a new hotel
 exports.createHotel = async (req, res) => {
-    const hotel = new HotelService(req.body);
+ 
+    const { HotelName, Description, Price } = req.body;
     try {
+        const hotel = new HotelService({HotelID: await idGenerators.generateHotelID(), HotelName: HotelName, Description: Description, Price: Price });
         await HotelService.save();
         res.status(201).send(hotel);
     } catch (e) {
