@@ -9,7 +9,7 @@ const productRoutes = require('./routes/productRoutes');
 const accountRoutes = require('./routes/accountRoutes');
 const scheduleRoutes = require('./routes/scheduleRoutes');
 const petRoutes = require('./routes/petRoutes'); 
-const serviceRoutes = require('./routes/serviceRoutes'); 
+const spaServiceRoutes = require('./routes/spaServiceRoutes'); 
 const orderRoutes = require('./routes/orderRoutes');
 const hotelRoutes = require('./routes/hotelRoutes');
 const hotelBookingRoutes = require('./routes/hotelBookingRoutes');
@@ -19,7 +19,7 @@ const commentRoutes = require('./routes/commentRoutes');
 
 const dotenv = require('dotenv');
 
-dotenv.config();
+require('dotenv').config();
 
 const app = express();
 
@@ -50,7 +50,7 @@ app.use('/api/accounts', accountRoutes);
 app.use('/api/pets', petRoutes); 
 
 // Use service routes
-app.use('/api/services', serviceRoutes); 
+app.use('/api/spaServiceRoutes', spaServiceRoutes); 
 
 // Use hotel routes
 app.use('/api/hotels', hotelRoutes);
