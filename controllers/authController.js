@@ -9,6 +9,7 @@ const EMAIL_USERNAME = process.env.EMAIL_USERNAME;
 const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const idGenerators =  require('../utils/utils');
 
 
 // Login api to authenticate the user and provide a JWT token
@@ -40,37 +41,6 @@ exports.login = async (req, res) => {
   }
 };
 
-const generateAccountID = async () => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  try {
-    // Tìm kiếm tài khoản cuối cùng dựa trên AccountID
-    const lastAccount = await Account.findOne({}, { AccountID: 1 }).sort({ AccountID: -1 }).session(session).exec();
-    let lastId = 0;
-
-    if (lastAccount && lastAccount.AccountID) {
-      const idPart = lastAccount.AccountID.substring(1);
-      if (/^\d+$/.test(idPart)) {
-        lastId = parseInt(idPart);
-      } else {
-        console.error(`Invalid AccountID format found: ${lastAccount.AccountID}`);
-        throw new Error('Invalid last account ID format');
-      }
-    }
-
-    const newId = lastId + 1;
-    const newAccountId = `A${newId.toString().padStart(3, '0')}`;
-
-    await session.commitTransaction();
-    return newAccountId;
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  } finally {
-    session.endSession();
-  }
-};
-
 
     // Setup email transporter
     const transporter = nodemailer.createTransport({
@@ -92,7 +62,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'Email đã tồn tại!' });
     }
     // Generate accountID
-    const accountID = await generateAccountID();
+    const accountID = await idGenerators.generateAccountID();
     // encrypt password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
     const newAccount = new Account({ 

@@ -1,23 +1,10 @@
 const SpaService = require('../models/SpaService');
 const cloudinary = require('../config/cloudinary');
-
-// Generate a new serviceID
-const generateServiceID = async () => {
-  const lastService = await SpaService.findOne().sort({ ServiceID: -1 });
-
-  if (lastService && lastService.ServiceID) {
-      const lastServiceId = parseInt(lastService.ServiceID.slice(1)); 
-      const newServiceId = `S${("000" + (lastServiceId + 1)).slice(-3)}`;
-      return newServiceId;
-  } else {
-      return 'S001'; // Starting ID if there are no services
-  }
-};
-
+const idGenerators =  require('../utils/utils');
 // Create a service
 exports.createService = async (req, res) => {
   try {
-    const serviceID = await generateServiceID();
+    const serviceID = await idGenerators.generateServiceID();
     const { ServiceName, Description, PetTypeID, Price, Status } = req.body;
     let newService = new SpaService({
       ServiceID: serviceID,

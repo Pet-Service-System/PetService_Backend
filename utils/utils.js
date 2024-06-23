@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
-const Account = require('./models/Account'); // Replace with your Account model
-const HotelBooking = require('./models/HotelBooking'); // Replace with your HotelBooking model
-const Order = require('./models/Order'); // Replace with your Order model
-const Pet = require('./models/Pet'); // Replace with your Pet model
-const Product = require('./models/Product'); // Replace with your Product model
-const SpaService = require('./models/SpaService'); // Replace with your SpaService model
+const Account = require('../models/Account');
+const HotelBooking = require('../models/HotelBooking');
+const Order = require('../models/Order');
+const Pet = require('../models/Pet');
+const Product = require('../models/Product');
+const SpaService = require('../models/SpaService');
+const HotelService = require('../models/HotelService');
 
 const idGenerators = {
   generateAccountID: async () => {
@@ -113,6 +114,42 @@ const idGenerators = {
       return 'S001';
     }
   },
+
+  generateHotelID: async () => {
+    const lastHotel = await HotelService.findOne().sort({ HotelID: -1 });
+  
+    if (lastHotel && lastHotel.HotelID) {
+      const lastHotelId = parseInt(lastHotel.HotelID.slice(2));
+      const newHotelId = `HT${("000" + (lastHotelId + 1)).slice(-4)}`;
+      return newHotelId;
+    } else {
+      return 'HT0001';
+    }
+  },
+
+
 };
+
+generateOrderDetailsID: async () => {
+  const lastOrderDetail = await OrderDetails.findOne().sort({ OrderDetailsID: -1 });
+  if (lastOrderDetail && lastOrderDetail.OrderDetailsID) {
+    const lastOrderDetailId = parseInt(lastOrderDetail.OrderDetailsID.slice(2));
+    const newOrderDetailId = `OD${("000" + (lastOrderDetailId + 1)).slice(-4)}`;
+    return newOrderDetailId;
+  } else {
+    return 'OD0001';
+  }
+};
+
+generatespaBookingID: async () => {
+  const lastspaBooking = await SpaBooking.findOne().sort({ spaBookingID: -1 });
+  if (lastspaBooking && lastspaBooking.spaBookingID) {
+    const lastspaBookingId = parseInt(lastspaBooking.spaBookingID.slice(2));
+    const newspaBookingId = `SB${("000" + (lastspaBookingId + 1)).slice(-4)}`;
+    return newspaBookingId;
+  } else {
+    return 'SB0001';
+  }   
+},
 
 module.exports = idGenerators;
