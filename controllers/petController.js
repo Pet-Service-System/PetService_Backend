@@ -5,7 +5,7 @@ const { generatePetID } = require('../utils/utils');
 // Create a pet
 exports.createPet = async (req, res) => {
   try {
-    const petID = await generatePetID(); 
+    const petID = await idGenerators.generatePetID(); 
     const { PetName, Gender, Status, AccountID, PetTypeID, Weight, Age } = req.body;
 
     const newPet = new Pet({

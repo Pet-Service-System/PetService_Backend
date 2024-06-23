@@ -3,10 +3,11 @@ const mongoose = require('mongoose');
 const { generateProductId } = require('../utils/utils');
 const cloudinary = require('../config/cloudinary');
 
+
 //Create product (manager only)
 exports.createProduct = async (req, res) => {
   try {
-    const productId = await generateProductId(); // Generate a new ProductID
+    const productId = await idGenerators.generateProductId(); 
     const { productName, price, quantity, petTypeId, description, status } = req.body;
 
     let productData = {

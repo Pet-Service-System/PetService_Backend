@@ -3,10 +3,11 @@ const { generateOrderID } = require('../utils/utils');
 PAYPAL_CLIENT_ID=process.env.PAYPAL_CLIENT_ID;
 PAYPAL_SECRET=process.env.PAYPAL_SECRET;
 
+
 // Create a new order
 exports.createOrder = async (req, res) => {
   try {
-    const newOrderID = await generateOrderID();
+    const newOrderID = await idGenerators.generateOrderID();
     const newOrder = new Order({ ...req.body, OrderID: newOrderID });
     const savedOrder = await newOrder.save();
     res.status(201).json(savedOrder);

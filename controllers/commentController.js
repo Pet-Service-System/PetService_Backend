@@ -7,7 +7,6 @@ const { generateCommentID } = require('../utils/utils');
 // Create a new comment
 exports.createComment = async (req, res) => {
   const { ProductID, CommentDetails } = req.body;
-
   try {
       // Generate unique comment ID
       const CommentID = await generateCommentID();

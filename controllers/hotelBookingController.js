@@ -1,10 +1,11 @@
 const HotelBooking = require('../models/HotelBooking');
 const { generateBookingDetailID } = require('../utils/utils');
+const idGenerators =  require('../utils/utils');
 
 //create a new hotel booking api
 exports.createBooking = async (req, res) => {
   try {
-    const BookingId = await generateBookingDetailID();
+    const BookingId = await idGenerators.generateBookingDetailID();
     const newBooking = new HotelBooking({
       BookingDetailID: BookingId,
       Status: req.body.Status,

@@ -1,11 +1,10 @@
 const SpaService = require('../models/SpaService');
 const cloudinary = require('../config/cloudinary');
 const { generateServiceID } = require('../utils/utils');
-
 // Create a service
 exports.createService = async (req, res) => {
   try {
-    const serviceID = await generateServiceID();
+    const serviceID = await idGenerators.generateServiceID();
     const { ServiceName, Description, PetTypeID, Price, Status } = req.body;
     let newService = new SpaService({
       ServiceID: serviceID,

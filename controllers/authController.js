@@ -10,6 +10,7 @@ const EMAIL_USERNAME = process.env.EMAIL_USERNAME;
 const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const idGenerators =  require('../utils/utils');
 
 
 // Login api to authenticate the user and provide a JWT token
@@ -40,7 +41,6 @@ exports.login = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
-
     // Setup email transporter
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
@@ -61,7 +61,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'Email đã tồn tại!' });
     }
     // Generate accountID
-    const accountID = await generateAccountID();
+    const accountID = await idGenerators.generateAccountID();
     // encrypt password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
     const newAccount = new Account({
