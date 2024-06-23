@@ -1,4 +1,7 @@
 const Order = require('../models/Order');
+PAYPAL_CLIENT_ID=process.env.PAYPAL_CLIENT_ID;
+PAYPAL_SECRET=process.env.PAYPAL_SECRET;
+
 
 
 const generateOrderID = async () => {
@@ -93,3 +96,4 @@ exports.deleteOrderById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+

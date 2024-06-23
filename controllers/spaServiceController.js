@@ -1,7 +1,6 @@
 const SpaService = require('../models/SpaService');
 const cloudinary = require('../config/cloudinary');
 
-
 // Generate a new serviceID
 const generateServiceID = async () => {
   const lastService = await SpaService.findOne().sort({ ServiceID: -1 });

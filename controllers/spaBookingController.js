@@ -1,35 +1,38 @@
 const SpaBooking = require('../models/SpaBooking');
 
-// create a new spa booking
+// Create a new spa booking
 exports.createSpaBooking = async (req, res) => {
   try {
+    // Generate a new BookingDetailID
     const lastBooking = await SpaBooking.findOne().sort({ BookingDetailID: -1 });
     const newId = lastBooking ? `SB${String(parseInt(lastBooking.BookingDetailID.substring(2)) + 1).padStart(3, '0')}` : 'SB001';
 
-    const totalPrice = req.body.BookingDetails.reduce((acc, detail) => acc + detail.Price, 0);
-
-    const spaBooking = new SpaBooking({ ...req.body, BookingDetailID: newId, TotalPrice: totalPrice });
+    // Create new spa booking
+    const spaBooking = new SpaBooking({ ...req.body, BookingDetailID: newId });
     await spaBooking.save();
+    
     res.status(201).json(spaBooking);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// get all spa bookings
+// Get all spa bookings
 exports.getSpaBookings = async (req, res) => {
   try {
-    const spaBookings = await SpaBooking.find();
+    // Populate references
+    const spaBookings = await SpaBooking.find().populate('AccountID PetID BookingDetails.ServiceID');
     res.status(200).json(spaBookings);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// get spa booking by id
+// Get spa booking by ID
 exports.getSpaBookingById = async (req, res) => {
   try {
-    const spaBooking = await SpaBooking.findOne({BookingDetailID:req.params.id});
+    // Populate references
+    const spaBooking = await SpaBooking.findOne({ BookingDetailID: req.params.id }).populate('AccountID PetID BookingDetails.ServiceID');
     if (!spaBooking) {
       return res.status(404).json({ error: 'Spa Booking not found' });
     }
@@ -39,10 +42,11 @@ exports.getSpaBookingById = async (req, res) => {
   }
 };
 
-// get spa bookings by account id
+// Get spa bookings by Account ID
 exports.getSpaBookingsByAccountID = async (req, res) => {
   try {
-    const spaBookings = await SpaBooking.find({ AccountID: req.params.accountId });
+    // Populate references
+    const spaBookings = await SpaBooking.find({ AccountID: req.params.accountId }).populate('AccountID PetID BookingDetails.ServiceID');
     if (spaBookings.length === 0) {
       return res.status(404).json({ error: 'No Spa Bookings found for this AccountID' });
     }
@@ -52,21 +56,26 @@ exports.getSpaBookingsByAccountID = async (req, res) => {
   }
 };
 
-// update spa booking
+// Update spa booking
 exports.updateSpaBooking = async (req, res) => {
   try {
-    const totalPrice = req.body.BookingDetails.reduce((acc, detail) => acc + detail.Price, 0);
-    const spaBooking = await SpaBooking.findByIdAndUpdate(req.params.id, { ...req.body, TotalPrice: totalPrice }, { new: true });
+    // Create an object that excludes BookingDetailID
+    const { BookingDetailID, ...updateData } = req.body;
+
+    // Perform the update without BookingDetailID
+    const spaBooking = await SpaBooking.findByIdAndUpdate(req.params.id, updateData, { new: true }).populate('AccountID PetID BookingDetails.ServiceID');
+    
     if (!spaBooking) {
       return res.status(404).json({ error: 'Spa Booking not found' });
     }
+    
     res.status(200).json(spaBooking);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// delete spa booking
+// Delete spa booking
 exports.deleteSpaBooking = async (req, res) => {
   try {
     const spaBooking = await SpaBooking.findByIdAndDelete(req.params.id);
