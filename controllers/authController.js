@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const Account = require('../models/Account');
 const nodemailer = require('nodemailer');
+const { generateAccountID } = require('../utils/utils');
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
 const EMAIL_USERNAME = process.env.EMAIL_USERNAME;
@@ -40,38 +41,6 @@ exports.login = async (req, res) => {
   }
 };
 
-const generateAccountID = async () => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  try {
-    // Tìm kiếm tài khoản cuối cùng dựa trên AccountID
-    const lastAccount = await Account.findOne({}, { AccountID: 1 }).sort({ AccountID: -1 }).session(session).exec();
-    let lastId = 0;
-
-    if (lastAccount && lastAccount.AccountID) {
-      const idPart = lastAccount.AccountID.substring(1);
-      if (/^\d+$/.test(idPart)) {
-        lastId = parseInt(idPart);
-      } else {
-        console.error(`Invalid AccountID format found: ${lastAccount.AccountID}`);
-        throw new Error('Invalid last account ID format');
-      }
-    }
-
-    const newId = lastId + 1;
-    const newAccountId = `A${newId.toString().padStart(3, '0')}`;
-
-    await session.commitTransaction();
-    return newAccountId;
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  } finally {
-    session.endSession();
-  }
-};
-
-
     // Setup email transporter
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
@@ -95,40 +64,40 @@ exports.register = async (req, res) => {
     const accountID = await generateAccountID();
     // encrypt password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newAccount = new Account({ 
+    const newAccount = new Account({
       AccountID: accountID,
-      fullname: fullname, 
+      fullname: fullname,
       email: email,
       password: hashedPassword, // save encrypted password
-      phone: phone, 
+      phone: phone,
       address: address,
-      status: 1, 
-      role: 'Customer' 
+      status: 1,
+      role: 'Customer'
     });
     await newAccount.save();
 
     res.json({ message: 'Registration successful', user: { accountID: newAccount.AccountID, fullname: newAccount.fullname, email: newAccount.email, phone: newAccount.phone, address: newAccount.address } });
-       // Tạo nội dung email
-       const mailOptions = {
-        from: '"PetService" <petservicesswp391@gmail.com>',
-        to: email,
-        subject: "Chào mừng đến với PetService!",
-        html: `<p>Chào bạn ${fullname},</p>
-               <p>Cảm ơn bạn đã đăng ký tài khoản tại PetService. Chúng tôi rất vui mừng chào đón bạn đến với cộng đồng yêu thú cưng của chúng tôi.</p>
-               <p>Hãy truy cập vào tài khoản của bạn để khám phá nhiều dịch vụ và thông tin hữu ích dành cho thú cưng của bạn.</p>
-               <p>Chúc bạn có những trải nghiệm tuyệt vời tại PetService!</p>
-               <p>Thân ái,</p>
-               <p>Đội ngũ PetService</p>`,
-      };
-  
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.error('Error sending email:', error);
-          return res.status(500).json({ message: 'Error sending email' });
-        }
-        console.log('Email sent:', info.response);
-        res.json({ message: 'Email sent successfully' });
-      });
+    // Tạo nội dung email
+    const mailOptions = {
+      from: '"PetService" <petservicesswp391@gmail.com>',
+      to: email,
+      subject: "Chào mừng đến với PetService!",
+      html: `<p>Chào bạn ${fullname},</p>
+             <p>Cảm ơn bạn đã đăng ký tài khoản tại PetService. Chúng tôi rất vui mừng chào đón bạn đến với cộng đồng yêu thú cưng của chúng tôi.</p>
+             <p>Hãy truy cập vào tài khoản của bạn để khám phá nhiều dịch vụ và thông tin hữu ích dành cho thú cưng của bạn.</p>
+             <p>Chúc bạn có những trải nghiệm tuyệt vời tại PetService!</p>
+             <p>Thân ái,</p>
+             <p>Đội ngũ PetService</p>`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ message: 'Error sending email' });
+      }
+      console.log('Email sent:', info.response);
+      res.json({ message: 'Email sent successfully' });
+    });
   } catch (error) {
     console.error('Error during registration:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -262,7 +231,7 @@ exports.logout = (req, res) => {
 
 
 exports.googleAuth = async (req, res) => {
-  const { token: googleToken } = req.body ;
+  const { token: googleToken } = req.body;
 
   try {
     const ticket = await client.verifyIdToken({
@@ -294,7 +263,7 @@ exports.googleAuth = async (req, res) => {
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
-    return res.json({ message: 'Login successful', user: {  id: account.AccountID, email: account.email, role: account.role, fullname: account.fullname, phone: account.phone, address: account.address },
+    return res.json({ message: 'Login successful', user: { id: account.AccountID, email: account.email, role: account.role, fullname: account.fullname, phone: account.phone, address: account.address },
       token: jwtToken
     });
   } catch (error) {

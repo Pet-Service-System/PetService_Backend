@@ -1,31 +1,6 @@
 const Pet = require('../models/Pet');
 const PetType = require('../models/PetType');
-
-// Generate a new petID and ensure it's unique
-const generatePetID = async () => {
-  let isUnique = false;
-  let newPetId;
-
-  while (!isUnique) {
-    // Generate a new petID
-    const lastPet = await Pet.findOne().sort({ PetID: -1 });
-
-    if (lastPet && lastPet.PetID) {
-      const lastPetId = parseInt(lastPet.PetID.slice(2)); 
-      newPetId = `PT${("00000" + (lastPetId + 1)).slice(-5)}`;
-    } else {
-      newPetId = 'PT00001'; // Starting ID if there are no pets
-    }
-
-    // Check if the generated petID already exists
-    const existingPet = await Pet.findOne({ PetID: newPetId });
-    if (!existingPet) {
-      isUnique = true;
-    }
-  }
-
-  return newPetId;
-};
+const { generatePetID } = require('../utils/utils');
 
 // Create a pet
 exports.createPet = async (req, res) => {

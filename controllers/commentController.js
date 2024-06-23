@@ -2,22 +2,26 @@ const Comment = require('../models/Comment');
 const Product = require('../models/Product');  
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const { generateCommentID } = require('../utils/utils');
 
 // Create a new comment
 exports.createComment = async (req, res) => {
-  const { CommentID, ProductID, CommentDetails } = req.body;
+  const { ProductID, CommentDetails } = req.body;
 
   try {
-    const newComment = new Comment({ CommentID, ProductID, CommentDetails });
-    await newComment.save();
+      // Generate unique comment ID
+      const CommentID = await generateCommentID();
 
-    // Update average rating for the product
-    await updateAverageRating(ProductID);
+      const newComment = new Comment({ CommentID, ProductID, CommentDetails });
+      await newComment.save();
 
-    res.status(201).json({ message: 'Comment created successfully', comment: newComment });
+      // Update average rating for the product
+      await updateAverageRating(ProductID);
+
+      res.status(201).json({ message: 'Comment created successfully', comment: newComment });
   } catch (error) {
-    console.error('Error creating comment:', error);
-    res.status(500).json({ message: 'Internal server error' });
+      console.error('Error creating comment:', error);
+      res.status(500).json({ message: 'Internal server error' });
   }
 };
 

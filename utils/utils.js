@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
-const Account = require('./models/Account');
-const HotelBooking = require('./models/HotelBooking');
-const Order = require('./models/Order');
-const Pet = require('./models/Pet');
-const Product = require('./models/Product');
-const SpaService = require('./models/SpaService');
-const HotelService = require('./models/HotelService');
+const Account = require('../models/Account');
+const HotelBooking = require('../models/HotelBooking');
+const Order = require('../models/Order');
+const Pet = require('../models/Pet');
+const Product = require('../models/Product');
+const SpaService = require('../models/SpaService');
+const HotelService = require('../models/HotelService'); 
 
 const idGenerators = {
   generateAccountID: async () => {
@@ -53,8 +53,9 @@ const idGenerators = {
       const lastIdNum = parseInt(lastBooking.BookingDetailID.substring(2), 10);
       const newIdNum = lastIdNum + 1;
       return `HB${newIdNum.toString().padStart(3, '0')}`;
-    }
+    } else {
     return 'HB001';
+    }
   },
 
   generateOrderID: async () => {
@@ -125,6 +126,13 @@ const idGenerators = {
     } else {
       return 'HT0001';
     }
+  },
+
+
+  generateOrderDetailsID: async () => {
+    const lastOrderDetail = await OrderDetails.findOne().sort({ OrderDetailsID: -1 });
+    const newId = lastOrderDetail ? `OD${String(parseInt(lastOrderDetail.OrderDetailsID.substring(2)) + 1).padStart(3, '0')}` : 'OD001';
+    return newId;
   },
 
 

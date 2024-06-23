@@ -1,16 +1,13 @@
 const OrderDetails = require('../models/OrderDetails');
+const { generateOrderDetailsID } = require('../utils/utils').default;
+
 
 // Create a new order detail
 exports.createOrderDetail = async (req, res) => {
   try {
-    // Generate a new OrderDetailsID
-    const lastOrderDetail = await OrderDetails.findOne().sort({ OrderDetailsID: -1 });
-    const newId = lastOrderDetail ? `OD${String(parseInt(lastOrderDetail.OrderDetailsID.substring(2)) + 1).padStart(3, '0')}` : 'OD001';
-
-    // Create new order detail
-    const orderDetail = new OrderDetails({ ...req.body, OrderDetailsID: newId });
+    const newOrderDetailsID = await generateOrderDetailsID();
+    const orderDetail = new OrderDetails({ ...req.body, OrderDetailsID: newOrderDetailsID });
     await orderDetail.save();
-    
     res.status(201).json(orderDetail);
   } catch (err) {
     res.status(500).json({ error: err.message });
