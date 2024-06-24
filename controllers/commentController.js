@@ -6,7 +6,7 @@ const { Schema } = mongoose;
 // Create a new comment
 exports.createComment = async (req, res) => {
   const { CommentID, ProductID, CommentDetails } = req.body;
-  
+
   try {
     const newComment = new Comment({ CommentID, ProductID, CommentDetails });
     await newComment.save();
