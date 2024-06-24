@@ -10,6 +10,6 @@ const OrderDetailsSchema = new mongoose.Schema({
   }]
 }, { versionKey: false },
 );
-const OrderDetails = mongoose.model('OrderDetails', orderSchema, 'OrderDetails');
+const OrderDetails = mongoose.model('OrderDetails', OrderDetailsSchema, 'OrderDetails');
   
 module.exports = OrderDetails;
