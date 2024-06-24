@@ -1,5 +1,5 @@
 const HotelBooking = require('../models/HotelBooking');
-const idGenerators =  require('../utils/utils');
+
 // Helper function to generate BookingDetailID
 const generateBookingDetailID = async () => {
   const lastBooking = await HotelBooking.findOne().sort({ BookingDetailID: -1 }).exec();
@@ -14,7 +14,7 @@ const generateBookingDetailID = async () => {
 //create a new hotel booking api
 exports.createBooking = async (req, res) => {
   try {
-    const BookingId = await idGenerators.generateBookingDetailID();
+    const BookingId = await generateBookingDetailID();
     const newBooking = new HotelBooking({
       BookingDetailID: BookingId,
       Status: req.body.Status,
