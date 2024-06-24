@@ -15,6 +15,7 @@ const hotelRoutes = require('./routes/hotelRoutes');
 const hotelBookingRoutes = require('./routes/hotelBookingRoutes');
 const spaBookingRoutes = require('./routes/spaBookingRoutes');
 const commentRoutes = require('./routes/commentRoutes');
+const orderDetailsRoutes = require('./routes/orderDetailsRoutes');
 
 
 const dotenv = require('dotenv');
@@ -60,6 +61,9 @@ app.use('/api/schedules', scheduleRoutes);
 
 // Order Routes
 app.use('/api/orders', orderRoutes);
+
+// Order Details Routes
+app.use('/api/order-details', orderDetailsRoutes);
 
 // Hotel booking Routes
 app.use('/api/Hotel-bookings', hotelBookingRoutes);

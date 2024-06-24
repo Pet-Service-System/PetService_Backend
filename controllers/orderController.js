@@ -69,7 +69,7 @@ exports.getOrderByAccountId = async (req, res) => {
 exports.updateOrderById = async (req, res) => {
   try {
     const updatedOrder = await Order.findByIdAndUpdate(
-      req.params.id,
+      { OrderID: req.params.id },
       { $set: req.body },
       { new: true }
     );
