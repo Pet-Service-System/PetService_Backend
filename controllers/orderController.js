@@ -1,12 +1,24 @@
 const Order = require('../models/Order');
 PAYPAL_CLIENT_ID=process.env.PAYPAL_CLIENT_ID;
 PAYPAL_SECRET=process.env.PAYPAL_SECRET;
-const idGenerators =  require('../utils/utils');
+
+
+
+const generateOrderID = async () => {
+  const lastOrder = await Order.findOne().sort({ OrderID: -1 });
+  if (lastOrder) {
+    const lastOrderID = lastOrder.OrderID;
+    const orderNumber = parseInt(lastOrderID.replace('Order', ''), 10) + 1;
+    return `Order${orderNumber.toString().padStart(3, '0')}`;
+  } else {
+    return 'Order001';
+  }
+};
 
 // Create a new order
 exports.createOrder = async (req, res) => {
   try {
-    const newOrderID = await idGenerators.generateOrderID();
+    const newOrderID = await generateOrderID();
     const newOrder = new Order({ ...req.body, OrderID: newOrderID });
     const savedOrder = await newOrder.save();
     res.status(201).json(savedOrder);
