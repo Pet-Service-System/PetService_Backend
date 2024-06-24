@@ -63,7 +63,11 @@ exports.updateSpaBooking = async (req, res) => {
     const { BookingDetailID, ...updateData } = req.body;
 
     // Perform the update without BookingDetailID
-    const spaBooking = await SpaBooking.findOneAndUpdate(req.params.id, updateData, { new: true });
+    const spaBooking = await SpaBooking.findOneAndUpdate(
+      { BookingDetailID: req.params.id },
+      { $set: req.body },
+      { new: true }
+    );
     
     if (!spaBooking) {
       return res.status(404).json({ error: 'Spa Booking not found' });
