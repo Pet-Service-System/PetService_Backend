@@ -32,7 +32,7 @@ exports.getSpaBookings = async (req, res) => {
 exports.getSpaBookingById = async (req, res) => {
   try {
     // Populate references
-    const spaBooking = await SpaBooking.findOne({ BookingDetailID: req.params.id }).populate('AccountID PetID BookingDetails.ServiceID');
+    const spaBooking = await SpaBooking.findOne({ BookingDetailID: req.params.id });
     if (!spaBooking) {
       return res.status(404).json({ error: 'Spa Booking not found' });
     }
@@ -46,7 +46,7 @@ exports.getSpaBookingById = async (req, res) => {
 exports.getSpaBookingsByAccountID = async (req, res) => {
   try {
     // Populate references
-    const spaBookings = await SpaBooking.find({ AccountID: req.params.accountId }).populate('AccountID PetID BookingDetails.ServiceID');
+    const spaBookings = await SpaBooking.find({ AccountID: req.params.accountId });
     if (spaBookings.length === 0) {
       return res.status(404).json({ error: 'No Spa Bookings found for this AccountID' });
     }
