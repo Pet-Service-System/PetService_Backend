@@ -18,9 +18,10 @@ exports.createBooking = async (req, res) => {
     const newBooking = new HotelBooking({
       BookingDetailID: BookingId,
       Status: req.body.Status,
-      Duration: new Date(req.body.Duration),
       CreateDate: new Date(),
       AccountID: req.body.AccountID,
+      Name: req.body.Name,
+      Phone: req.body.Phone,
       PetID: req.body.PetID,
       BookingDetails: req.body.BookingDetails
     });

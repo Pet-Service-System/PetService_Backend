@@ -12,9 +12,10 @@ const bookingDetailSchema = new Schema({
 const hotelBookingSchema = new Schema({
   BookingDetailID: { type: String, required: true, unique: true },
   Status: { type: String, required: true },
-  Duration: { type: Date, required: true },
   CreateDate: { type: Date, required: true },
   AccountID: { type: String, required: true, ref: 'Account' },
+  Name:  { type: String, required: true },
+  Phone: { type: Number, required: true },
   PetID: { type: String, required: true },
   BookingDetails: [bookingDetailSchema],
 });
