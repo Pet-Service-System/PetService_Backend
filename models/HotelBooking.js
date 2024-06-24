@@ -17,6 +17,7 @@ const hotelBookingSchema = new Schema({
   Name:  { type: String, required: true },
   Phone: { type: Number, required: true },
   PetID: { type: String, required: true },
+  Feedback: { type: String },
   BookingDetails: [bookingDetailSchema],
 });
 

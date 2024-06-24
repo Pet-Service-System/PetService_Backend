@@ -23,6 +23,7 @@ exports.createBooking = async (req, res) => {
       Name: req.body.Name,
       Phone: req.body.Phone,
       PetID: req.body.PetID,
+      Feedback: req.body.Feedback,
       BookingDetails: req.body.BookingDetails
     });
 

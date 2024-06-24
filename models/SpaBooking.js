@@ -13,6 +13,7 @@ const spaBookingSchema = new Schema({
   BookingDetailID: { type: String, required: true, unique: true },
   Status: { type: String, required: true },
   CreateDate: { type: Date, required: true },
+  Feedback: { type: String },
   AccountID: { type: String, required: true, ref: 'Account' },
   Name:  { type: String, required: true },
   Phone: { type: Number, required: true },
