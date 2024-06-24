@@ -68,7 +68,7 @@ exports.getOrderByAccountId = async (req, res) => {
 // Update an order by ID (Partial Update)
 exports.updateOrderById = async (req, res) => {
   try {
-    const updatedOrder = await Order.findByIdAndUpdate(
+    const updatedOrder = await Order.findOneAndUpdate(
       { OrderID: req.params.id },
       { $set: req.body },
       { new: true }
