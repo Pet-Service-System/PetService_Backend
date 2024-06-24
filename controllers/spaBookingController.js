@@ -1,10 +1,11 @@
 const SpaBooking = require('../models/SpaBooking');
-const idGenerators =  require('../utils/utils');
+
 // Create a new spa booking
 exports.createSpaBooking = async (req, res) => {
   try {
     // Generate a new BookingDetailID
-    const newId = await idGenerators.generatespaBookingID();
+    const lastBooking = await SpaBooking.findOne().sort({ BookingDetailID: -1 });
+    const newId = lastBooking ? `SB${String(parseInt(lastBooking.BookingDetailID.substring(2)) + 1).padStart(3, '0')}` : 'SB001';
 
     // Create new spa booking
     const spaBooking = new SpaBooking({ ...req.body, BookingDetailID: newId });
