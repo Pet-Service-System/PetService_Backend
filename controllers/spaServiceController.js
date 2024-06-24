@@ -1,10 +1,23 @@
 const SpaService = require('../models/SpaService');
 const cloudinary = require('../config/cloudinary');
-const idGenerators =  require('../utils/utils');
+
+// Generate a new serviceID
+const generateServiceID = async () => {
+  const lastService = await SpaService.findOne().sort({ ServiceID: -1 });
+
+  if (lastService && lastService.ServiceID) {
+      const lastServiceId = parseInt(lastService.ServiceID.slice(1)); 
+      const newServiceId = `S${("000" + (lastServiceId + 1)).slice(-3)}`;
+      return newServiceId;
+  } else {
+      return 'S001'; // Starting ID if there are no services
+  }
+};
+
 // Create a service
 exports.createService = async (req, res) => {
   try {
-    const serviceID = await idGenerators.generateServiceID();
+    const serviceID = await generateServiceID();
     const { ServiceName, Description, PetTypeID, Price, Status } = req.body;
     let newService = new SpaService({
       ServiceID: serviceID,
@@ -16,17 +29,17 @@ exports.createService = async (req, res) => {
     });
 
     if (req.file && req.file.path) {
-      const result = await cloudinary.uploader.upload(req.file.path); // Upload image to Cloudinary
-      newService.ImageURL = result.secure_url; // Save the URL from Cloudinary
+      newService.ImageURL = req.file.path;
     }
 
     await newService.save();
-    res.status(201).json(newService);
+    res.status(201).json(newService); // Thêm status 201 để báo tạo thành công
   } catch (error) {
     console.error('Error creating service:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 // Get all services
 exports.getAllServices = async (req, res) => {
   try {
@@ -54,7 +67,7 @@ exports.getServiceById = async (req, res) => {
 exports.updateService = async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
-  delete updateData.serviceId;
+  delete updateData.serviceId; 
   try {
     if (req.file && req.file.path) {
       const service = await SpaService.findOne({ ServiceID: id });
@@ -63,15 +76,15 @@ exports.updateService = async (req, res) => {
         return res.status(404).json({ message: 'Service not found' });
       }
 
+      // Delete the old image from Cloudinary if it exists
       if (service.ImageURL) {
-        const publicId = service.ImageURL.split('/').pop().split('.')[0];
+        const publicId = service.ImageURL.split('/').pop().split('.')[0]; // Extract the public ID from the URL
         await cloudinary.uploader.destroy(publicId);
       }
 
-      const result = await cloudinary.uploader.upload(req.file.path);
-      updateData.ImageURL = result.secure_url;
+      // Update the image URL with the new one
+      updateData.ImageURL = req.file.path;
     }
-
     const service = await SpaService.findOneAndUpdate(
       { ServiceID: id },
       updateData,
