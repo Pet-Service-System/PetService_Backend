@@ -50,7 +50,7 @@ app.use('/api/accounts', accountRoutes);
 app.use('/api/pets', petRoutes); 
 
 // Use service routes
-app.use('/api/spaServiceRoutes', spaServiceRoutes); 
+app.use('/api/services', spaServiceRoutes); 
 
 // Use hotel routes
 app.use('/api/hotels', hotelRoutes);
