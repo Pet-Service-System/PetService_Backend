@@ -1,40 +1,14 @@
 const Pet = require('../models/Pet');
-const PetType = require('../models/PetType');
-
-// Generate a new petID and ensure it's unique
-const generatePetID = async () => {
-  let isUnique = false;
-  let newPetId;
-
-  while (!isUnique) {
-    // Generate a new petID
-    const lastPet = await Pet.findOne().sort({ PetID: -1 });
-
-    if (lastPet && lastPet.PetID) {
-      const lastPetId = parseInt(lastPet.PetID.slice(2)); 
-      newPetId = `PT${("00000" + (lastPetId + 1)).slice(-5)}`;
-    } else {
-      newPetId = 'PT00001'; // Starting ID if there are no pets
-    }
-
-    // Check if the generated petID already exists
-    const existingPet = await Pet.findOne({ PetID: newPetId });
-    if (!existingPet) {
-      isUnique = true;
-    }
-  }
-
-  return newPetId;
-};
+const { generatePetID } = require('../utils/idGenerators');
 
 // Create a pet
 exports.createPet = async (req, res) => {
   try {
-    const petID = await generatePetID(); 
+    const petID = await generatePetID(); // Generate a new unique PetID
     const { PetName, Gender, Status, AccountID, PetTypeID, Weight, Age } = req.body;
 
     const newPet = new Pet({
-      PetID: petID, 
+      PetID: petID, // Assign the generated PetID
       PetName,
       Gender,
       Status,
@@ -43,6 +17,7 @@ exports.createPet = async (req, res) => {
       Weight,
       Age
     });
+
     await newPet.save();
     res.status(201).json(newPet);
   } catch (error) {
@@ -78,7 +53,7 @@ exports.getPetById = async (req, res) => {
 exports.updatePet = async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
-  delete updateData.PetID; 
+  delete updateData.PetID; // Ensure PetID is not updated
 
   try {
     const pet = await Pet.findOneAndUpdate({ PetID: id }, updateData, { new: true }); // The { new: true } option returns the updated document

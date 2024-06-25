@@ -1,19 +1,7 @@
 const Order = require('../models/Order');
 PAYPAL_CLIENT_ID=process.env.PAYPAL_CLIENT_ID;
 PAYPAL_SECRET=process.env.PAYPAL_SECRET;
-
-
-
-const generateOrderID = async () => {
-  const lastOrder = await Order.findOne().sort({ OrderID: -1 });
-  if (lastOrder) {
-    const lastOrderID = lastOrder.OrderID;
-    const orderNumber = parseInt(lastOrderID.replace('Order', ''), 10) + 1;
-    return `Order${orderNumber.toString().padStart(3, '0')}`;
-  } else {
-    return 'Order001';
-  }
-};
+const { generateOrderID } = require('../utils/idGenerators');
 
 // Create a new order
 exports.createOrder = async (req, res) => {
@@ -86,7 +74,7 @@ exports.updateOrderById = async (req, res) => {
 // Delete an order by ID
 exports.deleteOrderById = async (req, res) => {
   try {
-    const deletedOrder = await Order.findOneAndDelete({OrderID: req.params.id});
+    const deletedOrder = await Order.findOneAndDelete({ OrderID: req.params.id });
     if (deletedOrder) {
       res.status(200).json({ message: 'Order deleted' });
     } else {
@@ -96,4 +84,3 @@ exports.deleteOrderById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-

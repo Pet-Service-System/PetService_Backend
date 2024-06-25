@@ -1,80 +1,64 @@
 const Comment = require('../models/Comment');
-const Product = require('../models/Product');  
+const Product = require('../models/Product');
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+// Import generateCommentID from utils/idGenerators
+const { generateCommentID } = require('../utils/idGenerators');
 
-const generateCommentID = async () => {
-  try {
-    const latestComment = await Comment.findOne().sort({ CommentID: -1 });
-
-    if (!latestComment) {
-      return 'C001';
-    } else {
-      const currentCommentID = latestComment.CommentID;
-      const numericPart = parseInt(currentCommentID.slice(1));
-      const newNumericPart = numericPart + 1;
-      const newCommentID = `C${newNumericPart.toString().padStart(3, '0')}`;
-      return newCommentID;
-    }
-  } catch (error) {
-    console.error('Error generating CommentID:', error);
-    throw error;
-  }
-};
 // Create a new comment
 exports.createComment = async (req, res) => {
-  const { ProductID, AccountID, Rating,  CommentContent} = req.body;
-  const comment = await Comment.findOne({ AccountID: AccountID, ProductID: ProductID });
-    if (!comment) {
+  const { ProductID, AccountID, Rating, CommentContent } = req.body;
+  
   try {
+    const comment = await Comment.findOne({ AccountID: AccountID, ProductID: ProductID });
+
+    if (!comment) {
       const newComment = new Comment({
         CommentID: await generateCommentID(),
         ProductID,
-        AccountID, 
-        Rating, 
-        CommentContent
-      }); 
-    await newComment.save();
+        AccountID,
+        Rating,
+        CommentContent,
+      });
+      await newComment.save();
 
-    res.status(201).json({ message: 'Comment created successfully', comment: newComment });
+      res.status(201).json({ message: 'Comment created successfully', comment: newComment });
+    } else {
+      res.status(404).json({ message: 'You can only create a comment once' });
+    }
   } catch (error) {
     console.error('Error creating comment:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-} else {
-  res.status(404).json({ message: 'You can only create a comment once' });
-}
 };
-
 
 // Get comments by ProductID
 exports.getCommentsByProductId = async (req, res) => {
-    const { ProductID } = req.params;
-  
-    try {
-      const comments = await Comment.find({ ProductID: ProductID });
-      if (comments.length === 0) {
-        return res.status(404).json({ message: 'No comments found for this product' });
-      }
-  
-      res.json({ comments });
-    } catch (error) {
-      console.error('Error fetching comments:', error);
-      res.status(500).json({ message: 'Internal server error' });
+  const { ProductID } = req.params;
+
+  try {
+    const comments = await Comment.find({ ProductID: ProductID });
+    if (comments.length === 0) {
+      return res.status(404).json({ message: 'No comments found for this product' });
     }
-  };
-  
+
+    res.json({ comments });
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 // Update a comment by CommentID
 exports.updateComment = async (req, res) => {
   const { CommentID } = req.params;
-  const { ProductID, CommentDetails } = req.body;
+  const { ProductID, CommentContent } = req.body;
 
   try {
     const updatedComment = await Comment.findOneAndUpdate(
       { CommentID: CommentID },
-      { ProductID, Rating, CommentContent },
+      { ProductID, CommentContent },
       { new: true }
     );
 
@@ -94,7 +78,7 @@ exports.deleteComment = async (req, res) => {
   const { CommentID } = req.params;
 
   try {
-    const comment = await Comment.findOneAndDelete({CommentID: CommentID });
+    const comment = await Comment.findOneAndDelete({ CommentID: CommentID });
 
     if (!comment) {
       return res.status(404).json({ message: 'Comment not found' });
@@ -120,7 +104,7 @@ exports.addCommentDetail = async (req, res) => {
   }
 
   try {
-    const comment = await Comment.findOne({ProductID: ProductID });
+    const comment = await Comment.findOne({ ProductID: ProductID });
 
     if (!comment) {
       return res.status(404).json({ message: 'Comment not found' });
