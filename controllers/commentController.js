@@ -3,22 +3,45 @@ const Product = require('../models/Product');
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+
+  // Check if customer has commented or not
+  const checkCommented = async (AccountID) => {
+    try {
+      const comment = await Comment.findOne({ AccountID: AccountID });
+  
+      if (!comment) {
+        return true;  // No comment found
+      } else {
+        return false; // Comment found
+      }
+    } catch (error) {
+      console.error('Error fetching comment:', error);
+      return false; // Error occurred
+    }
+  }
+
 // Create a new comment
 exports.createComment = async (req, res) => {
-  const { CommentID, ProductID, CommentDetails } = req.body;
-
+  const { CommentID, ProductID, AccountID, Rating,  CommentContent} = req.body;
+    if (checkCommented(AccountID)) {
   try {
-    const newComment = new Comment({ CommentID, ProductID, CommentDetails });
+      const newComment = new Comment({
+        CommentID,
+        ProductID,
+        AccountID, 
+        Rating, 
+        CommentContent
+      }); 
     await newComment.save();
-
-    // Update average rating for the product
-    await updateAverageRating(ProductID);
 
     res.status(201).json({ message: 'Comment created successfully', comment: newComment });
   } catch (error) {
     console.error('Error creating comment:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
+} else {
+  res.status(404).json({ message: 'You can only create a comment once' });
+}
 };
 
 
@@ -47,17 +70,14 @@ exports.updateComment = async (req, res) => {
 
   try {
     const updatedComment = await Comment.findOneAndUpdate(
-      { CommentID },
-      { ProductID, CommentDetails },
+      { CommentID: CommentID },
+      { ProductID, Rating, CommentContent },
       { new: true }
     );
 
     if (!updatedComment) {
       return res.status(404).json({ message: 'Comment not found' });
     }
-
-    // Update average rating for the product
-    await updateAverageRating(ProductID);
 
     res.json({ message: 'Comment updated successfully', comment: updatedComment });
   } catch (error) {
@@ -71,7 +91,7 @@ exports.deleteComment = async (req, res) => {
   const { CommentID } = req.params;
 
   try {
-    const comment = await Comment.findOneAndDelete({ CommentID });
+    const comment = await Comment.findOneAndDelete({CommentID: CommentID });
 
     if (!comment) {
       return res.status(404).json({ message: 'Comment not found' });
@@ -106,9 +126,6 @@ exports.addCommentDetail = async (req, res) => {
     const newCommentDetail = { AccountID, Rating, Comment };
     comment.CommentDetails.push(newCommentDetail);
     await comment.save();
-
-    // Update average rating for the product
-    await updateAverageRating(comment.ProductID);
 
     res.status(201).json({ message: 'Comment detail added successfully', comment });
   } catch (error) {
