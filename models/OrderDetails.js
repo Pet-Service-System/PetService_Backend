@@ -7,7 +7,8 @@ const OrderDetailsSchema = new mongoose.Schema({
     ProductID: { type: String, required: true, ref: 'Product' },
     Price: { type: Number, required: true },
     Quantity: { type: Number, required: true },
-  }]
+  }],
+  TotalPrice: { type: Number, required: true }
 }, { versionKey: false },
 );
 const OrderDetails = mongoose.model('OrderDetails', OrderDetailsSchema, 'OrderDetails');
