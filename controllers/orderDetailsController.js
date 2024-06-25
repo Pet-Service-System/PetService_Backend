@@ -43,7 +43,7 @@ exports.getOrderDetailById = async (req, res) => {
 // Get order details by OrderID
 exports.getOrderDetailsByOrderId = async (req, res) => {
   try {
-    const orderDetails = await OrderDetails.findOne({ OrderID: req.params.orderId }).populate('OrderID OrderDetails.ProductID');
+    const orderDetails = await OrderDetails.findOne({ OrderID: req.params.orderId });
     if (orderDetails.length === 0) {
       return res.status(404).json({ error: 'No Order Details found for this OrderID' });
     }
@@ -60,7 +60,7 @@ exports.updateOrderDetail = async (req, res) => {
     const { OrderDetailsID, ...updateData } = req.body;
 
     // Perform the update without OrderDetailsID
-    const orderDetail = await OrderDetails.findByIdAndUpdate(req.params.id, updateData, { new: true }).populate('OrderID OrderDetails.ProductID');
+    const orderDetail = await OrderDetails.findOneAndUpdate({OrderDetailsID: req.params.id}, updateData, { new: true });
     
     if (!orderDetail) {
       return res.status(404).json({ error: 'Order Detail not found' });

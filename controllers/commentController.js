@@ -4,29 +4,32 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 
-  // Check if customer has commented or not
-  const checkCommented = async (AccountID) => {
-    try {
-      const comment = await Comment.findOne({ AccountID: AccountID });
-  
-      if (!comment) {
-        return true;  // No comment found
-      } else {
-        return false; // Comment found
-      }
-    } catch (error) {
-      console.error('Error fetching comment:', error);
-      return false; // Error occurred
-    }
-  }
+const generateCommentID = async () => {
+  try {
+    const latestComment = await Comment.findOne().sort({ CommentID: -1 });
 
+    if (!latestComment) {
+      return 'C001';
+    } else {
+      const currentCommentID = latestComment.CommentID;
+      const numericPart = parseInt(currentCommentID.slice(1));
+      const newNumericPart = numericPart + 1;
+      const newCommentID = `C${newNumericPart.toString().padStart(3, '0')}`;
+      return newCommentID;
+    }
+  } catch (error) {
+    console.error('Error generating CommentID:', error);
+    throw error;
+  }
+};
 // Create a new comment
 exports.createComment = async (req, res) => {
-  const { CommentID, ProductID, AccountID, Rating,  CommentContent} = req.body;
-    if (checkCommented(AccountID)) {
+  const { ProductID, AccountID, Rating,  CommentContent} = req.body;
+  const comment = await Comment.findOne({ AccountID: AccountID, ProductID: ProductID });
+    if (!comment) {
   try {
       const newComment = new Comment({
-        CommentID,
+        CommentID: await generateCommentID(),
         ProductID,
         AccountID, 
         Rating, 

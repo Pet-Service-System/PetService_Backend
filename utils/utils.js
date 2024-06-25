@@ -1,11 +1,9 @@
 const mongoose = require('mongoose');
 const Account = require('../models/Account');
-const HotelBooking = require('../models/HotelBooking');
 const Order = require('../models/Order');
 const Pet = require('../models/Pet');
 const Product = require('../models/Product');
 const SpaService = require('../models/SpaService');
-const HotelService = require('../models/HotelService');
 
 const idGenerators = {
   generateAccountID: async () => {
