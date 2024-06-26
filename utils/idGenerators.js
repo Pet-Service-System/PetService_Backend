@@ -5,6 +5,8 @@ const Pet = require('../models/Pet');
 const Product = require('../models/Product');
 const SpaService = require('../models/SpaService');
 const OrderDetails = require('../models/OrderDetails');
+const SpaBookingDetails = require('../models/SpaBookingDetails');
+const SpaBooking = require('../models/SpaBooking')
 
 const idGenerators = {
   generateAccountID: async () => {
@@ -126,7 +128,7 @@ const idGenerators = {
     }
   },
 
-  generateBookingDetailID: async () => {
+  generateSpaBookingID: async () => {
     let isUnique = false;
     let newId;
 
@@ -161,6 +163,30 @@ const idGenerators = {
     } else {
       return 'OD001';
     }
+  },
+
+  generateSpaBookingDetailsID: async () => {
+    let isUnique = false;
+    let newId;
+
+    while (!isUnique) {
+      // Generate a new BookingDetailsID
+      const lastBookingDetails = await SpaBookingDetails.findOne().sort({ BookingDetailsID: -1 });
+
+      if (lastBookingDetails && lastBookingDetails.BookingDetailsID) {
+        const lastId = parseInt(lastBookingDetails.BookingDetailsID.slice(3));
+        newId = `SBD${("000" + (lastId + 1)).slice(-3)}`;
+      } else {
+        newId = 'SBD001'; // Starting ID if there are no booking details
+      }
+
+      // Check if the generated BookingDetailsID already exists
+      const existingBookingDetails = await SpaBookingDetails.findOne({ BookingDetailsID: newId });
+      if (!existingBookingDetails) {
+        isUnique = true;
+      }
+    }
+
   }
 
 
