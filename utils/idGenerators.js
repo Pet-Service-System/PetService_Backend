@@ -60,9 +60,9 @@ const idGenerators = {
     if (lastOrder) {
       const lastOrderID = lastOrder.OrderID;
       const orderNumber = parseInt(lastOrderID.replace('Order', ''), 10) + 1;
-      return `Order${orderNumber.toString().padStart(3, '0')}`;
+      return `O${orderNumber.toString().padStart(3, '0')}`;
     } else {
-      return 'Order001';
+      return 'O001';
     }
   },
 

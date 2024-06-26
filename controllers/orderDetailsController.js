@@ -43,7 +43,7 @@ exports.getOrderDetailById = async (req, res) => {
 // Get order details by OrderID
 exports.getOrderDetailsByOrderId = async (req, res) => {
   try {
-    const orderDetails = await OrderDetails.findOne({ OrderID: req.params.orderId };
+    const orderDetails = await OrderDetails.findOne({ OrderID: req.params.orderId });
     if (orderDetails.length === 0) {
       return res.status(404).json({ error: 'No Order Details found for this OrderID' });
     }
