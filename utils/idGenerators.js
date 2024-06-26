@@ -4,6 +4,7 @@ const Order = require('../models/Order');
 const Pet = require('../models/Pet');
 const Product = require('../models/Product');
 const SpaService = require('../models/SpaService');
+const OrderDetails = require('../models/OrderDetails');
 
 const idGenerators = {
   generateAccountID: async () => {
@@ -59,7 +60,7 @@ const idGenerators = {
     const lastOrder = await Order.findOne().sort({ OrderID: -1 });
     if (lastOrder) {
       const lastOrderID = lastOrder.OrderID;
-      const orderNumber = parseInt(lastOrderID.replace('Order', ''), 10) + 1;
+      const orderNumber = parseInt(lastOrderID.replace('O', ''), 10) + 1;
       return `O${orderNumber.toString().padStart(3, '0')}`;
     } else {
       return 'O001';
@@ -125,41 +126,42 @@ const idGenerators = {
     }
   },
 
-  generateOrderDetailsID: async () => {
-    const lastOrderDetail = await OrderDetails.findOne().sort({ OrderDetailsID: -1 });
-    if (lastOrderDetail && lastOrderDetail.OrderDetailsID) {
-      const lastOrderDetailId = parseInt(lastOrderDetail.OrderDetailsID.slice(2));
-      const newOrderDetailId = `OD${("000" + (lastOrderDetailId + 1)).slice(-4)}`;
-      return newOrderDetailId;
-    } else {
-      return 'OD0001';
-    }
-  },
-
   generateBookingDetailID: async () => {
     let isUnique = false;
     let newId;
-  
+
     while (!isUnique) {
       // Generate a new BookingDetailID
       const lastBooking = await SpaBooking.findOne().sort({ BookingDetailID: -1 });
-  
+
       if (lastBooking && lastBooking.BookingDetailID) {
         const lastId = parseInt(lastBooking.BookingDetailID.slice(2));
         newId = `SB${("000" + (lastId + 1)).slice(-3)}`;
       } else {
         newId = 'SB001'; // Starting ID if there are no bookings
       }
-  
+
       // Check if the generated BookingDetailID already exists
       const existingBooking = await SpaBooking.findOne({ BookingDetailID: newId });
       if (!existingBooking) {
         isUnique = true;
       }
     }
-  
+
     return newId;
   },
+
+  generateOrderDetailsID: async () => {
+    const lastOrderDetails = await OrderDetails.findOne().sort({ OrderDetailsID: -1 });
+
+    if (lastOrderDetails && lastOrderDetails.OrderDetailsID) {
+      const lastOrderDetailsID = parseInt(lastOrderDetails.OrderDetailsID.slice(2));
+      const newOrderDetailsID = `OD${("000" + (lastOrderDetailsID + 1)).slice(-3)}`;
+      return newOrderDetailsID;
+    } else {
+      return 'OD001';
+    }
+  }
 
 
 };
