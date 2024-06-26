@@ -39,8 +39,8 @@ const idGenerators = {
     const lastComment = await Comment.findOne().sort({ CommentID: -1 }).exec();
     if (lastComment) {
       const lastCommentID = lastComment.CommentID;
-      const commentNumber = parseInt(lastCommentID.replace('Comment', ''), 10) + 1;
-      return `Comment${commentNumber.toString().padStart(3, '0')}`;
+      const commentNumber = parseInt(lastCommentID.replace('C', ''), 10) + 1;
+      return `C${commentNumber.toString().padStart(3, '0')}`;
     } else {
       return 'C001';
     }
