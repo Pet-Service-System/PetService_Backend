@@ -1,16 +1,12 @@
 const SpaBooking = require('../models/SpaBooking');
+const { generateBookingDetailID } = require('../utils/idGenerators');
 
 // Create a new spa booking
 exports.createSpaBooking = async (req, res) => {
   try {
-    // Generate a new BookingDetailID
-    const lastBooking = await SpaBooking.findOne().sort({ BookingDetailID: -1 });
-    const newId = lastBooking ? `SB${String(parseInt(lastBooking.BookingDetailID.substring(2)) + 1).padStart(3, '0')}` : 'SB001';
-
-    // Create new spa booking
+    const newId = await generateBookingDetailID(); // Generate a new unique BookingDetailID
     const spaBooking = new SpaBooking({ ...req.body, BookingDetailID: newId });
     await spaBooking.save();
-    
     res.status(201).json(spaBooking);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -68,11 +64,11 @@ exports.updateSpaBooking = async (req, res) => {
       { $set: req.body },
       { new: true }
     );
-    
+
     if (!spaBooking) {
       return res.status(404).json({ error: 'Spa Booking not found' });
     }
-    
+
     res.status(200).json(spaBooking);
   } catch (err) {
     res.status(500).json({ error: err.message });

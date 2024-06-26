@@ -115,7 +115,7 @@ const idGenerators = {
 
   generateHotelID: async () => {
     const lastHotel = await HotelService.findOne().sort({ HotelID: -1 });
-  
+
     if (lastHotel && lastHotel.HotelID) {
       const lastHotelId = parseInt(lastHotel.HotelID.slice(2));
       const newHotelId = `HT${("000" + (lastHotelId + 1)).slice(-4)}`;
@@ -125,29 +125,43 @@ const idGenerators = {
     }
   },
 
+  generateOrderDetailsID: async () => {
+    const lastOrderDetail = await OrderDetails.findOne().sort({ OrderDetailsID: -1 });
+    if (lastOrderDetail && lastOrderDetail.OrderDetailsID) {
+      const lastOrderDetailId = parseInt(lastOrderDetail.OrderDetailsID.slice(2));
+      const newOrderDetailId = `OD${("000" + (lastOrderDetailId + 1)).slice(-4)}`;
+      return newOrderDetailId;
+    } else {
+      return 'OD0001';
+    }
+  },
+
+  generateBookingDetailID: async () => {
+    let isUnique = false;
+    let newId;
+  
+    while (!isUnique) {
+      // Generate a new BookingDetailID
+      const lastBooking = await SpaBooking.findOne().sort({ BookingDetailID: -1 });
+  
+      if (lastBooking && lastBooking.BookingDetailID) {
+        const lastId = parseInt(lastBooking.BookingDetailID.slice(2));
+        newId = `SB${("000" + (lastId + 1)).slice(-3)}`;
+      } else {
+        newId = 'SB001'; // Starting ID if there are no bookings
+      }
+  
+      // Check if the generated BookingDetailID already exists
+      const existingBooking = await SpaBooking.findOne({ BookingDetailID: newId });
+      if (!existingBooking) {
+        isUnique = true;
+      }
+    }
+  
+    return newId;
+  },
+
 
 };
-
-generateOrderDetailsID: async () => {
-  const lastOrderDetail = await OrderDetails.findOne().sort({ OrderDetailsID: -1 });
-  if (lastOrderDetail && lastOrderDetail.OrderDetailsID) {
-    const lastOrderDetailId = parseInt(lastOrderDetail.OrderDetailsID.slice(2));
-    const newOrderDetailId = `OD${("000" + (lastOrderDetailId + 1)).slice(-4)}`;
-    return newOrderDetailId;
-  } else {
-    return 'OD0001';
-  }
-};
-
-generatespaBookingID: async () => {
-  const lastspaBooking = await SpaBooking.findOne().sort({ spaBookingID: -1 });
-  if (lastspaBooking && lastspaBooking.spaBookingID) {
-    const lastspaBookingId = parseInt(lastspaBooking.spaBookingID.slice(2));
-    const newspaBookingId = `SB${("000" + (lastspaBookingId + 1)).slice(-4)}`;
-    return newspaBookingId;
-  } else {
-    return 'SB0001';
-  }   
-},
 
 module.exports = idGenerators;

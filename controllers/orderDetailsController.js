@@ -1,11 +1,11 @@
 const OrderDetails = require('../models/OrderDetails');
+const { generateOrderDetailsID } = require('../utils/idGenerators');
 
 // Create a new order detail
 exports.createOrderDetail = async (req, res) => {
   try {
     // Generate a new OrderDetailsID
-    const lastOrderDetail = await OrderDetails.findOne().sort({ OrderDetailsID: -1 });
-    const newId = lastOrderDetail ? `OD${String(parseInt(lastOrderDetail.OrderDetailsID.substring(2)) + 1).padStart(3, '0')}` : 'OD001';
+    const newId = await generateOrderDetailsID();
 
     // Create new order detail
     const orderDetail = new OrderDetails({ ...req.body, OrderDetailsID: newId });
@@ -20,7 +20,7 @@ exports.createOrderDetail = async (req, res) => {
 // Get all order details
 exports.getOrderDetails = async (req, res) => {
   try {
-    const orderDetails = await OrderDetails.find().populate('OrderID OrderDetails.ProductID');
+    const orderDetails = await OrderDetails.find();
     res.status(200).json(orderDetails);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -43,7 +43,7 @@ exports.getOrderDetailById = async (req, res) => {
 // Get order details by OrderID
 exports.getOrderDetailsByOrderId = async (req, res) => {
   try {
-    const orderDetails = await OrderDetails.findOne({ OrderID: req.params.orderId });
+    const orderDetails = await OrderDetails.findOne({ OrderID: req.params.orderId };
     if (orderDetails.length === 0) {
       return res.status(404).json({ error: 'No Order Details found for this OrderID' });
     }
@@ -60,7 +60,7 @@ exports.updateOrderDetail = async (req, res) => {
     const { OrderDetailsID, ...updateData } = req.body;
 
     // Perform the update without OrderDetailsID
-    const orderDetail = await OrderDetails.findOneAndUpdate({OrderDetailsID: req.params.id}, updateData, { new: true });
+    const orderDetail = await OrderDetails.findOneAndUpdate({ OrderDetailsID: req.params.id }, updateData, { new: true });
     
     if (!orderDetail) {
       return res.status(404).json({ error: 'Order Detail not found' });
@@ -75,7 +75,7 @@ exports.updateOrderDetail = async (req, res) => {
 // Delete order detail
 exports.deleteOrderDetail = async (req, res) => {
   try {
-    const orderDetail = await OrderDetails.findByIdAndDelete(req.params.id);
+    const orderDetail = await OrderDetails.findOneAndDelete({OrderDetailsID: req.params.id});
     if (!orderDetail) {
       return res.status(404).json({ error: 'Order Detail not found' });
     }

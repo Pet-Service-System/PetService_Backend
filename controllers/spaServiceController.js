@@ -1,18 +1,6 @@
 const SpaService = require('../models/SpaService');
+const { generateServiceID } = require('../utils/idGenerators');
 const cloudinary = require('../config/cloudinary');
-
-// Generate a new serviceID
-const generateServiceID = async () => {
-  const lastService = await SpaService.findOne().sort({ ServiceID: -1 });
-
-  if (lastService && lastService.ServiceID) {
-      const lastServiceId = parseInt(lastService.ServiceID.slice(1)); 
-      const newServiceId = `S${("000" + (lastServiceId + 1)).slice(-3)}`;
-      return newServiceId;
-  } else {
-      return 'S001'; // Starting ID if there are no services
-  }
-};
 
 // Create a service
 exports.createService = async (req, res) => {
@@ -33,7 +21,7 @@ exports.createService = async (req, res) => {
     }
 
     await newService.save();
-    res.status(201).json(newService); // Thêm status 201 để báo tạo thành công
+    res.status(201).json(newService);
   } catch (error) {
     console.error('Error creating service:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -44,7 +32,7 @@ exports.createService = async (req, res) => {
 exports.getAllServices = async (req, res) => {
   try {
     const services = await SpaService.find();
-    res.status(200).json(services); // Thêm status 200 để báo thành công
+    res.status(200).json(services);
   } catch (error) {
     console.error('Error fetching services:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -56,7 +44,7 @@ exports.getServiceById = async (req, res) => {
   try {
     const service = await SpaService.findOne({ ServiceID: req.params.id });
     if (!service) return res.status(404).json({ message: 'Service not found' });
-    res.status(200).json(service); // Thêm status 200 để báo thành công
+    res.status(200).json(service);
   } catch (error) {
     console.error('Error fetching service:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -67,7 +55,8 @@ exports.getServiceById = async (req, res) => {
 exports.updateService = async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
-  delete updateData.serviceId; 
+  delete updateData.serviceId; // Ensure ServiceID is not updated accidentally
+
   try {
     if (req.file && req.file.path) {
       const service = await SpaService.findOne({ ServiceID: id });
@@ -85,6 +74,7 @@ exports.updateService = async (req, res) => {
       // Update the image URL with the new one
       updateData.ImageURL = req.file.path;
     }
+
     const service = await SpaService.findOneAndUpdate(
       { ServiceID: id },
       updateData,
@@ -108,7 +98,7 @@ exports.deleteService = async (req, res) => {
     const service = await SpaService.findOneAndDelete({ ServiceID: req.params.id });
     if (!service) return res.status(404).json({ message: 'Service not found' });
 
-    res.status(200).json({ message: 'Service deleted successfully' }); // Thêm status 200 để báo thành công
+    res.status(200).json({ message: 'Service deleted successfully' });
   } catch (error) {
     console.error('Error deleting service:', error);
     res.status(500).json({ message: 'Internal server error' });
