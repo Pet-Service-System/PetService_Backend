@@ -1,11 +1,11 @@
 const SpaBookingDetails = require('../models/SpaBookingDetails');
+const { generateSpaBookingDetailsID } = require('../utils/idGenerators');
 
 // Create a new spa booking detail
 exports.createBookingDetail = async (req, res) => {
     try {
-        const lastBookingDetails = await SpaBookingDetails.findOne().sort({ BookingDetailsID: -1 });
-    const newId = lastBookingDetails ? `SBD${String(parseInt(lastBookingDetails.BookingDetailsID.substring(2)) + 1).padStart(3, '0')}` : 'SBD001';
-        const newBookingDetail = new SpaBookingDetails({...req.body, BookingDetailsID: newId});
+        const newId = await generateSpaBookingDetailsID();
+        const newBookingDetail = new SpaBookingDetails({ ...req.body, BookingDetailsID: newId });
         await newBookingDetail.save();
         res.status(201).json(newBookingDetail);
     } catch (error) {
@@ -26,7 +26,7 @@ exports.getAllBookingDetails = async (req, res) => {
 // Get a single spa booking detail by booking details ID
 exports.getBookingDetailById = async (req, res) => {
     try {
-        const bookingDetail = await SpaBookingDetails.findOne({BookingDetailsID: req.params.id});
+        const bookingDetail = await SpaBookingDetails.findOne({ BookingDetailsID: req.params.id });
         if (bookingDetail) {
             res.status(200).json(bookingDetail);
         } else {
@@ -40,7 +40,7 @@ exports.getBookingDetailById = async (req, res) => {
 // Get a single spa booking detail by booking ID
 exports.getBookingDetailByBookingId = async (req, res) => {
     try {
-        const bookingDetail = await SpaBookingDetails.findOne({BookingID: req.params.id});
+        const bookingDetail = await SpaBookingDetails.findOne({ BookingID: req.params.id });
         if (bookingDetail) {
             res.status(200).json(bookingDetail);
         } else {
@@ -55,7 +55,7 @@ exports.getBookingDetailByBookingId = async (req, res) => {
 // Update a spa booking detail by ID
 exports.updateBookingDetailById = async (req, res) => {
     try {
-        const updatedBookingDetail = await SpaBookingDetails.findOneAndUpdate({BookingDetailsID:req.params.id}, req.body, { new: true });
+        const updatedBookingDetail = await SpaBookingDetails.findOneAndUpdate({ BookingDetailsID: req.params.id }, req.body, { new: true });
         if (updatedBookingDetail) {
             res.status(200).json(updatedBookingDetail);
         } else {
@@ -69,7 +69,7 @@ exports.updateBookingDetailById = async (req, res) => {
 // Delete a spa booking detail by ID
 exports.deleteBookingDetailById = async (req, res) => {
     try {
-        const deletedBookingDetail = await SpaBookingDetails.findOneAndDelete({BookingDetailsID: req.params.id});
+        const deletedBookingDetail = await SpaBookingDetails.findOneAndDelete({ BookingDetailsID: req.params.id });
         if (deletedBookingDetail) {
             res.status(200).json({ message: 'Booking detail deleted' });
         } else {

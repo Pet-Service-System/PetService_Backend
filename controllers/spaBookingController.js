@@ -1,10 +1,10 @@
 const SpaBooking = require('../models/SpaBooking');
-const { generateBookingDetailID } = require('../utils/idGenerators');
+const { generateSpaBookingID } = require('../utils/idGenerators');
 
 // Create a new spa booking
 exports.createSpaBooking = async (req, res) => {
   try {
-    const newId = await generateBookingDetailID(); // Generate a new unique BookingDetailID
+    const newId = await generateSpaBookingID(); // Generate a new unique BookingDetailID
     const spaBooking = new SpaBooking({ ...req.body, BookingDetailID: newId });
     await spaBooking.save();
     res.status(201).json(spaBooking);
@@ -12,6 +12,7 @@ exports.createSpaBooking = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Get all spa bookings
 exports.getSpaBookings = async (req, res) => {
