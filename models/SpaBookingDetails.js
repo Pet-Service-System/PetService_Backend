@@ -4,6 +4,10 @@ const { Schema } = mongoose;
 const spaBookingDetailsSchema = new Schema({
  BookingDetailsID: { type: String, required: true, unique: true },
  BookingID: { type: String, required: true, ref: 'SpaBooking' },
+ AccountID: { type: String, required: true, ref: 'Account' },
+ CustomerName:  { type: String, required: true },
+ Phone: { type: Number, required: true },
+ PetID: { type: String, required: true, ref: 'Pet' },
   ServiceID: { type: String, required: true, ref: 'SpaService' },
   BookingDate: {type: String, required: true},
   BookingTime: { type: String, required: true },
