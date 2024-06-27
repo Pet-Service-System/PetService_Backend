@@ -12,27 +12,7 @@ exports.getAllAccounts = async (req, res) => {
     }
   };
 
-
-// Get Account API
-exports.getAccount = async (req, res) => {
-    const accountId = req.user.id; // Assuming the user's account ID is stored in the request
-  
-    try {
-      // Find the account by ID
-      const account = await Account.findById(accountId);
-
-      if (!account) {
-        return res.status(404).json({ message: 'Account not found!' });
-      }
-  
-      res.json({ user: account });
-    } catch (error) {
-      console.error('Error getting account information:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  };
-  
-  // Get Account by ID (admin)
+  // Get Account by ID 
   exports.getAccountById = async (req, res) => {
     const accountId = req.params.id; // Assuming the account ID is provided in the request params
   
