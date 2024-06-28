@@ -27,7 +27,6 @@ exports.login = async (req, res) => {
           JWT_SECRET,
           { expiresIn: JWT_EXPIRES_IN }
         );
-        console.log(token); // Log the token
         return res.json({ message: 'Login successful', user: { id: account.AccountID, email: account.email, role: account.role, fullname: account.fullname,  phone: account.phone, 
           address: account.address }, token });
       } else {
@@ -96,7 +95,6 @@ exports.register = async (req, res) => {
         console.error('Error sending email:', error); // Error sending email
         return res.status(500).json({ message: 'Error sending email' }); // Error sending email
       }
-      console.log('Email sent:', info.response); // Email sent successfully
       res.json({ message: 'Email sent successfully' }); // Email sent successfully
     });
   } catch (error) {
@@ -113,14 +111,12 @@ exports.changePassword = async (req, res) => {
     // Find account by _id
     const account = await Account.findOne({ AccountID: AccountID }); // Find account by AccountID
     if (!account) {
-      console.log('User not found'); // User not found
       return res.status(404).json({ message: 'User not found' }); // User not found
     }
 
     // Compare current password with the hashed password in the database
     const isMatch = await bcrypt.compare(currentPassword, account.password); // Compare passwords
     if (!isMatch) {
-      console.log('Incorrect current password'); // Incorrect current password
       return res.status(400).json({ message: 'Incorrect current password' }); // Incorrect current password
     }
 
@@ -128,7 +124,6 @@ exports.changePassword = async (req, res) => {
     account.password = await bcrypt.hash(newPassword, 10); // Hash new password
     await account.save(); // Save new password
 
-    console.log('Password changed successfully'); // Password changed successfully
     res.json({ message: 'Password changed successfully' }); // Password changed successfully
   } catch (error) {
     console.error('Error changing password:', error); // Error changing password
@@ -178,7 +173,6 @@ exports.forgotPassword = async (req, res) => {
         console.error('Error sending email:', error); // Error sending email
         return res.status(500).json({ message: 'Errors when sending emails' }); // Errors when sending emails
       }
-      console.log('Email sent:', info.response); // Email sent successfully
       res.json({ message: 'Email sent successfully' }); // Email sent successfully
     });
   } catch (error) {
@@ -251,7 +245,6 @@ exports.googleAuth = async (req, res) => {
         status: 1,
         role: 'Customer',
       });
-      console.log(account);
       await account.save(); // Save new Google account
     }
 
