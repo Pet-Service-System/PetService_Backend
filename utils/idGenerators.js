@@ -189,8 +189,5 @@ const idGenerators = {
     }
 
   }
-
-
 };
-
 module.exports = idGenerators;
