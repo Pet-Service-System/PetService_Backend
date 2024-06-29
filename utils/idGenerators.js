@@ -49,16 +49,6 @@ const idGenerators = {
     }
   },
 
-  generateBookingDetailID: async () => {
-    const lastBooking = await HotelBooking.findOne().sort({ BookingDetailID: -1 }).exec();
-    if (lastBooking) {
-      const lastIdNum = parseInt(lastBooking.BookingDetailID.substring(2), 10);
-      const newIdNum = lastIdNum + 1;
-      return `HB${newIdNum.toString().padStart(3, '0')}`;
-    }
-    return 'HB001';
-  },
-
   generateOrderID: async () => {
     const lastOrder = await Order.findOne().sort({ OrderID: -1 });
     if (lastOrder) {
@@ -134,18 +124,18 @@ const idGenerators = {
     let newId;
 
     while (!isUnique) {
-      // Generate a new BookingDetailID
-      const lastBooking = await SpaBooking.findOne().sort({ BookingDetailID: -1 });
+      // Generate a new BookingID
+      const lastBooking = await SpaBooking.findOne().sort({ BookingID: -1 });
 
-      if (lastBooking && lastBooking.BookingDetailID) {
-        const lastId = parseInt(lastBooking.BookingDetailID.slice(2));
+      if (lastBooking && lastBooking.BookingID) {
+        const lastId = parseInt(lastBooking.BookingID.slice(2));
         newId = `SB${("000" + (lastId + 1)).slice(-3)}`;
       } else {
         newId = 'SB001'; // Starting ID if there are no bookings
       }
 
-      // Check if the generated BookingDetailID already exists
-      const existingBooking = await SpaBooking.findOne({ BookingDetailID: newId });
+      // Check if the generated BookingID already exists
+      const existingBooking = await SpaBooking.findOne({ BookingID: newId });
       if (!existingBooking) {
         isUnique = true;
       }
