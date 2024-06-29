@@ -186,8 +186,11 @@ const idGenerators = {
         isUnique = true;
       }
     }
+    
+    return newId;
 
-  }
+  },
+
 
 
 };
