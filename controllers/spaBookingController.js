@@ -4,8 +4,8 @@ const { generateSpaBookingID } = require('../utils/idGenerators');
 // Create a new spa booking
 exports.createSpaBooking = async (req, res) => {
   try {
-    const newId = await generateSpaBookingID(); // Generate a new unique BookingDetailID
-    const spaBooking = new SpaBooking({ ...req.body, BookingDetailID: newId });
+    const newId = await generateSpaBookingID();
+    const spaBooking = new SpaBooking({ ...req.body, BookingID: newId });
     await spaBooking.save();
     res.status(201).json(spaBooking);
   } catch (err) {
