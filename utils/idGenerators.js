@@ -6,7 +6,8 @@ const Product = require('../models/Product');
 const SpaService = require('../models/SpaService');
 const OrderDetails = require('../models/OrderDetails');
 const SpaBookingDetails = require('../models/SpaBookingDetails');
-const SpaBooking = require('../models/SpaBooking')
+const SpaBooking = require('../models/SpaBooking');
+const Comment = require('../models/Comment');
 
 const idGenerators = {
   generateAccountID: async () => {
@@ -189,10 +190,6 @@ const idGenerators = {
     
     return newId;
 
-  },
-
-
-
+  }
 };
-
 module.exports = idGenerators;
