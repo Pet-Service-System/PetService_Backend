@@ -26,7 +26,6 @@ exports.getScheduleByRole = async (req, res) => {
 exports.assignEmployeeToSlots = async (req, res) => {
   try {
     const { day, slots, accountId , fullname, role} = req.body; 
-    console.log(req.body);
 
     // Find the schedule for the specified day
     let schedule = await Schedule.findOne({ day: day });
@@ -51,7 +50,6 @@ exports.assignEmployeeToSlots = async (req, res) => {
       const employee = {AccountID: accountId, fullname: fullname, role: role};
       // Assign the employee to the slot
       existingSlot.employees.push(employee); 
-      console.log(existingSlot.employees);
     }
 
     // Save the updated schedule

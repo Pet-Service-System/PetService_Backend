@@ -21,4 +21,3 @@ const spaBookingDetailsSchema = new Schema({
 
 const SpaBooking = mongoose.model('SpaBookingDetails', spaBookingDetailsSchema, 'SpaBookingDetails');
 module.exports = SpaBooking;
-

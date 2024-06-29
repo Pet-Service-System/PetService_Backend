@@ -4,7 +4,7 @@ const { generateSpaBookingID } = require('../utils/idGenerators');
 // Create a new spa booking
 exports.createSpaBooking = async (req, res) => {
   try {
-    const newId = await generateSpaBookingID();
+    const newId = await generateSpaBookingID(); // Generate a new unique BookingID
     const spaBooking = new SpaBooking({ ...req.body, BookingID: newId });
     await spaBooking.save();
     res.status(201).json(spaBooking);
@@ -29,7 +29,7 @@ exports.getSpaBookings = async (req, res) => {
 exports.getSpaBookingById = async (req, res) => {
   try {
     // Populate references
-    const spaBooking = await SpaBooking.findOne({ BookingDetailID: req.params.id });
+    const spaBooking = await SpaBooking.findOne({ BookingID: req.params.id });
     if (!spaBooking) {
       return res.status(404).json({ error: 'Spa Booking not found' });
     }
@@ -56,12 +56,12 @@ exports.getSpaBookingsByAccountID = async (req, res) => {
 // Update spa booking
 exports.updateSpaBooking = async (req, res) => {
   try {
-    // Create an object that excludes BookingDetailID
-    const { BookingDetailID, ...updateData } = req.body;
+    // Create an object that excludes BookingID
+    const { BookingID, ...updateData } = req.body;
 
-    // Perform the update without BookingDetailID
+    // Perform the update without BookingID
     const spaBooking = await SpaBooking.findOneAndUpdate(
-      { BookingDetailID: req.params.id },
+      { BookingID: req.params.id },
       { $set: req.body },
       { new: true }
     );

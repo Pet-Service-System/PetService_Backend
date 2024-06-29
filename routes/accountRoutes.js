@@ -6,7 +6,6 @@ const {getAllAccounts, getAccount, getAccountById, getAccountByRole, updateAccou
 
 router.get('/role/:role?', getAccountByRole);
 router.get('/all', authMiddleware, getAllAccounts);
-router.get('/me', authMiddleware, getAccount);
 router.get('/:id/', authMiddleware, getAccountById);
 router.patch('/:id', authMiddleware, updateAccountById);
 router.delete('/me', authMiddleware, deleteAccount);
