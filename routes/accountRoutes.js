@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {authMiddleware} = require('../middlewares/authMiddleware');
 
-const {getAllAccounts, getAccount, getAccountById, getAccountByRole, updateAccountById, deleteAccount} = require('../controllers/accountController');
+const {getAllAccounts, getAccountById, getAccountByRole, updateAccountById, deleteAccount} = require('../controllers/accountController');
 
 router.get('/role/:role?', getAccountByRole);
 router.get('/all', authMiddleware, getAllAccounts);
