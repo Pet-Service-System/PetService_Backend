@@ -40,7 +40,7 @@ exports.getBookingDetailById = async (req, res) => {
 // Get a single spa booking detail by booking ID
 exports.getBookingDetailByBookingId = async (req, res) => {
     try {
-        const bookingDetail = await SpaBookingDetails.findOne({ BookingID: req.params.id });
+        const bookingDetail = await SpaBookingDetails.findOne({ BookingID: req.params.bookingId });
         if (bookingDetail) {
             res.status(200).json(bookingDetail);
         } else {

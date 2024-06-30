@@ -18,7 +18,7 @@ exports.createSpaBooking = async (req, res) => {
 exports.getSpaBookings = async (req, res) => {
   try {
     // Populate references
-    const spaBookings = await SpaBooking.find().populate('AccountID PetID BookingDetails.ServiceID');
+    const spaBookings = await SpaBooking.find();
     res.status(200).json(spaBookings);
   } catch (err) {
     res.status(500).json({ error: err.message });
