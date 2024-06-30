@@ -12,8 +12,9 @@ exports.createSpaBooking = async (req, res) => {
       BookingTime: BookingTime,
       status: { $ne: 'Cancelled' } 
   });
+  console.log(existingOrdersCount);
     const maxOrdersPerSlot = 4;
-    if (existingOrdersCount < maxOrdersPerSlot) {
+    if (existingOrdersCount <= maxOrdersPerSlot) {
     const newId = await generateSpaBookingID(); // Generate a new unique BookingDetailID
     const spaBooking = new SpaBooking({ ...req.body, BookingID: newId });
     await spaBooking.save();
