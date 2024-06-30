@@ -1,13 +1,26 @@
+const OrderDetails = require('../models/OrderDetails');
 const SpaBooking = require('../models/SpaBooking');
+const SpaBookingDetails = require('../models/SpaBookingDetails');
 const { generateSpaBookingID } = require('../utils/idGenerators');
 
 // Create a new spa booking
 exports.createSpaBooking = async (req, res) => {
+  const { BookingDate, BookingTime } = req.body;
   try {
+    const existingOrdersCount = await SpaBookingDetails.countDocuments({
+      BookingDate: BookingDate,
+      BookingTime: BookingTime,
+      status: { $ne: 'Cancelled' } 
+  });
+    const maxOrdersPerSlot = 4;
+    if (existingOrdersCount < maxOrdersPerSlot) {
     const newId = await generateSpaBookingID(); // Generate a new unique BookingDetailID
     const spaBooking = new SpaBooking({ ...req.body, BookingID: newId });
     await spaBooking.save();
     res.status(201).json(spaBooking);
+} else {
+  res.status(400).json({ message: 'Maximum number of orders per slot reached' });
+}
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
