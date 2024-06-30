@@ -4,7 +4,7 @@ const cartItemSchema = new mongoose.Schema();
 
 const CartSchema = new mongoose.Schema({ 
   AccountID: { type: String, ref: 'Account', required: true },
-  items: [{
+  Items: [{
     ProductID: { type: String, required: true, ref: 'Product' },
     ProductName: { type: String, required: true },
     Price: { type: Number, required: true },

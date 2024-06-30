@@ -79,19 +79,8 @@ app.use('/api/cart', cartRoutes);
 // Apply authMiddleware to protected routes
 app.use('/protected', authMiddleware);
 
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Catch-all handler for any request that doesn't match an API route
-app.get('*', (req, res) => {
-  if (!req.url.startsWith('/api')) {
-    res.redirect('/main.jsx'); // Redirect to main.jsx
-  }
-});
-
 // Error handling middleware
 app.use(errorMiddleware); // Apply errorMiddleware
-
 
 const PORT = process.env.PORT;
 
