@@ -9,7 +9,7 @@ const petSchema = new mongoose.Schema({
     PetTypeID: { type: mongoose.Schema.Types.String, ref: 'PetType', required: true },
     Weight: { type: Number, required: true },
     Age: { type: Number, required: true }
-});
+} , { versionKey: false });
 
 const Pet = mongoose.model('Pet', petSchema, 'Pets');
 

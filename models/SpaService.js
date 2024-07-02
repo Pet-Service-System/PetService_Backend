@@ -8,7 +8,7 @@ const serviceSchema = new mongoose.Schema({
     PetTypeID : { type: String, required: true, ref: 'PetType' },
     Price: { type: Number, required: true },
     Status: { type: String }
-});
+} , { versionKey: false });
 
 const SpaService = mongoose.model('SpaService', serviceSchema, 'SpaServices');
 

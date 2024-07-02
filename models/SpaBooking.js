@@ -7,7 +7,7 @@ const spaBookingSchema = new Schema({
   CreateDate: { type: Date, required: true },
   AccountID: { type: String, required: true, ref: 'Account' },
   isReviewed: {type: Boolean, default: false},
-});
+}, { versionKey: false });
 
 const SpaBooking = mongoose.model('SpaBooking', spaBookingSchema, 'SpaBookings');
 module.exports = SpaBooking;
