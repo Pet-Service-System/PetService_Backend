@@ -16,6 +16,7 @@ const commentRoutes = require('./routes/commentRoutes');
 const orderDetailsRoutes = require('./routes/orderDetailsRoutes');
 const SpaBookingDetailsRoutes = require('./routes/spaBookingDetailsRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 
 const dotenv = require('dotenv');
@@ -75,6 +76,9 @@ app.use('/api/spa-booking-details', SpaBookingDetailsRoutes);
 
 // cart Routes
 app.use('/api/cart', cartRoutes);
+
+// dashboard Routes
+app.use('/api/dashboard', dashboardRoutes);
 
 // Apply authMiddleware to protected routes
 app.use('/protected', authMiddleware);
