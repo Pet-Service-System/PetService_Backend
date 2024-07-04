@@ -2,12 +2,14 @@ const Order = require('../models/Order');
 PAYPAL_CLIENT_ID=process.env.PAYPAL_CLIENT_ID;
 PAYPAL_SECRET=process.env.PAYPAL_SECRET;
 const { generateOrderID } = require('../utils/idGenerators');
+const crypto = require('crypto-js');
 
 // Create a new order
 exports.createOrder = async (req, res) => {
   try {
     const newOrderID = await generateOrderID();
-    const newOrder = new Order({ ...req.body, OrderID: newOrderID });
+    const paypalOrderID = crypto.AES.encrypt(req.body.PaypalOrderID, process.env.PAYPAL_CLIENT_SECRET).toString();
+    const newOrder = new Order({ ...req.body, PaypalOrderID: paypalOrderID, OrderID: newOrderID });
     const savedOrder = await newOrder.save();
     res.status(201).json(savedOrder);
   } catch (error) {
@@ -30,6 +32,10 @@ exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findOne({ OrderID: req.params.id });
     if (order) {
+      if (order.PaypalOrderID) {
+        const decryptedOrderID = crypto.AES.decrypt(order.PaypalOrderID, process.env.PAYPAL_CLIENT_SECRET).toString(crypto.enc.Utf8);
+        order.PaypalOrderID = decryptedOrderID;
+      }
       res.status(200).json(order);
     } else {
       res.status(404).json({ message: 'Order not found' });
