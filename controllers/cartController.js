@@ -24,7 +24,7 @@ exports.addToCart = async (req, res) => {
       const existingItem = cart.Items.find(item => item.ProductID === ProductID);
       if (existingItem) {
         existingItem.Quantity = Quantity;
-        existingItem.Status = Status; // Update status if existing
+        existingItem.Status = Status;
       } else {
         cart.Items.push({ ProductID, ProductName, Price, Quantity, ImageURL, Status });
       }
@@ -39,8 +39,8 @@ exports.addToCart = async (req, res) => {
 
 // Update item Quantity in cart
 exports.updateCartItem = async (req, res) => {
-  const { AccountID, ProductID, Quantity, Status } = req.body; // Include Status
-
+  const { AccountID, ProductID, Quantity, Status } = req.body; 
+  console.log(req.body)
   try {
     const cart = await Cart.findOne({ AccountID });
 
@@ -51,7 +51,7 @@ exports.updateCartItem = async (req, res) => {
     if (!item) return res.status(404).json({ message: 'Item not found in cart' });
 
     item.Quantity = Quantity;
-    item.Status = Status; // Update status
+    item.Status = Status;
 
     await cart.save();
     res.json(cart);
