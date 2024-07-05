@@ -1,4 +1,5 @@
 const Cart = require('../models/Cart');
+
 // Get cart by AccountID
 exports.getCart = async (req, res) => {
   try {
@@ -13,18 +14,19 @@ exports.getCart = async (req, res) => {
 exports.addToCart = async (req, res) => {
   const { AccountID, Items } = req.body;
   try {
-    let cart = await Cart.findOne({ AccountID: AccountID });
+    let cart = await Cart.findOne({ AccountID });
 
     if (!cart) {
-      cart = new Cart({ AccountID: AccountID, Items: [] });
+      cart = new Cart({ AccountID, Items: [] });
     }
 
-    Items.forEach(({ ProductID, ProductName, Price, Quantity, ImageURL }) => {
+    Items.forEach(({ ProductID, ProductName, Price, Quantity, ImageURL, Status }) => {
       const existingItem = cart.Items.find(item => item.ProductID === ProductID);
       if (existingItem) {
         existingItem.Quantity = Quantity;
+        existingItem.Status = Status; // Update status if existing
       } else {
-        cart.Items.push({ ProductID: ProductID, ProductName: ProductName, Price: Price, Quantity: Quantity, ImageURL: ImageURL });
+        cart.Items.push({ ProductID, ProductName, Price, Quantity, ImageURL, Status });
       }
     });
 
@@ -35,21 +37,21 @@ exports.addToCart = async (req, res) => {
   }
 };
 
-
 // Update item Quantity in cart
 exports.updateCartItem = async (req, res) => {
-  const { AccountID, ProductID, Quantity } = req.body;
+  const { AccountID, ProductID, Quantity, Status } = req.body; // Include Status
 
   try {
-    const cart = await Cart.findOne({ AccountID: AccountID });
+    const cart = await Cart.findOne({ AccountID });
 
     if (!cart) return res.status(404).json({ message: 'Cart not found' });
 
-    const item = cart.items.find(item => item.ProductID === ProductID);
+    const item = cart.Items.find(item => item.ProductID === ProductID);
 
     if (!item) return res.status(404).json({ message: 'Item not found in cart' });
 
     item.Quantity = Quantity;
+    item.Status = Status; // Update status
 
     await cart.save();
     res.json(cart);
@@ -63,24 +65,21 @@ exports.removeCartItem = async (req, res) => {
   const { AccountID, ProductID } = req.body;
 
   try {
-    const cart = await Cart.findOne({ AccountID: AccountID });
+    const cart = await Cart.findOne({ AccountID });
     console.log('Cart found:', cart);
 
     if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
     }
 
-    console.log(cart.Items)
+    console.log(cart.Items);
 
-    // Ensure cart.items is initialized as an empty array
     if (!cart.Items) {
       cart.Items = [];
     }
 
-    // Filter items to remove the one with matching ProductID
-    cart.Items = cart.Items.filter(Items => Items.ProductID !== ProductID);
+    cart.Items = cart.Items.filter(item => item.ProductID !== ProductID);
 
-    // Save the updated cart
     await cart.save();
     res.json(cart);
   } catch (err) {
