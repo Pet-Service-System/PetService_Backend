@@ -180,6 +180,23 @@ const idGenerators = {
     
     return newId;
 
-  }
+  },
+
+   getStartOfWeek: () => {
+    const now = new Date();
+    const firstDay = now.getDate() - now.getDay() + 1; 
+    const startOfWeek = new Date(now.setDate(firstDay));
+    startOfWeek.setHours(0, 0, 0, 0);
+    return startOfWeek;
+  },
+  
+   getEndOfWeek: () => {
+    const now = new Date();
+    const lastDay = now.getDate() - now.getDay() + 7; 
+    const endOfWeek = new Date(now.setDate(lastDay));
+    endOfWeek.setHours(23, 59, 59, 999);
+    return endOfWeek;
+  },
+
 };
 module.exports = idGenerators;

@@ -3,6 +3,7 @@ const Order = require('../models/Order');
 const SpaBooking = require('../models/SpaBooking');
 const OrderDetails = require('../models/OrderDetails');
 const Product = require('../models/Product');
+const { getStartOfWeek, getEndOfWeek } = require('../utils/idGenerators'); 
 
 exports.countAvailableAccounts = async (req, res) => {
     try {
@@ -67,6 +68,92 @@ exports.countAvailableAccounts = async (req, res) => {
     }
   };
   
+  exports.deleteOrderById = async (req, res) => {
+    try {
+      const deletedOrder = await Order.findOneAndDelete({ OrderID: req.params.id });
+      if (deletedOrder) {
+        res.status(200).json({ message: 'Order deleted' });
+      } else {
+        res.status(404).json({ message: 'Order not found' });
+      }
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+  
+  exports.countOrdersAndBookingsByDayInWeek = async (req, res) => {
+    try {
+      const startOfWeek = getStartOfWeek();
+      const endOfWeek = getEndOfWeek();
+  
+      const orders = await Order.aggregate([
+        {
+          $match: {
+            OrderDate: {
+              $gte: startOfWeek,
+              $lte: endOfWeek,
+            },
+            Status: { $ne: 'Canceled' }, 
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: "%Y-%m-%d", date: "$OrderDate" },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $sort: { "_id": 1 },
+        },
+      ]);
+  
+      const bookings = await SpaBooking.aggregate([
+        {
+          $match: {
+            CreateDate: {
+              $gte: startOfWeek,
+              $lte: endOfWeek,
+            },
+            Status: { $ne: 'Canceled' },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: "%Y-%m-%d", date: "$CreateDate" },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $sort: { "_id": 1 },
+        },
+      ]);
+  
+      const mergedResults = {};
+      orders.forEach(order => {
+        mergedResults[order._id] = { orders: order.count, bookings: 0 };
+      });
+      bookings.forEach(booking => {
+        if (mergedResults[booking._id]) {
+          mergedResults[booking._id].bookings = booking.count;
+        } else {
+          mergedResults[booking._id] = { orders: 0, bookings: booking.count };
+        }
+      });
+  
+      const resultsArray = [["Day of week", "Total Services Booked", "Total Ordered"]];
+      for (const [date, counts] of Object.entries(mergedResults)) {
+        resultsArray.push([date, counts.bookings, counts.orders]);
+      }
+  
+      res.status(200).json(resultsArray);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
   
 
   

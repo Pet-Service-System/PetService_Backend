@@ -66,8 +66,10 @@ exports.removeCartItem = async (req, res) => {
     const cart = await Cart.findOne({ AccountID: AccountID });
 
     if (!cart) return res.status(404).json({ message: 'Cart not found' });
-
-    cart.items = cart.items.filter(item => item.ProductID !== ProductID);
+    if (!cart.Items) {
+      cart.Items = [];
+    }
+    cart.Items = cart.Items.filter(Items => Items.ProductID !== ProductID);
 
     await cart.save();
     res.json(cart);
