@@ -64,13 +64,23 @@ exports.removeCartItem = async (req, res) => {
 
   try {
     const cart = await Cart.findOne({ AccountID: AccountID });
+    console.log('Cart found:', cart);
 
-    if (!cart) return res.status(404).json({ message: 'Cart not found' });
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found' });
+    }
+
+    console.log(cart.Items)
+
+    // Ensure cart.items is initialized as an empty array
     if (!cart.Items) {
       cart.Items = [];
     }
+
+    // Filter items to remove the one with matching ProductID
     cart.Items = cart.Items.filter(Items => Items.ProductID !== ProductID);
 
+    // Save the updated cart
     await cart.save();
     res.json(cart);
   } catch (err) {
