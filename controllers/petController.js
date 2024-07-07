@@ -56,7 +56,7 @@ exports.updatePet = async (req, res) => {
   delete updateData.PetID; // Ensure PetID is not updated
 
   try {
-    const pet = await Pet.findOneAndUpdate({ PetID: id }, updateData, { new: true }); // The { new: true } option returns the updated document
+    const pet = await Pet.findOneAndUpdate({ PetID: id }, updateData, { new: true }); 
 
     if (!pet) {
       return res.status(404).json({ message: 'Pet not found' });
