@@ -182,7 +182,7 @@ const idGenerators = {
 
   },
 
-   getStartOfWeek: () => {
+   getStartOfWeek: async () => {
     const now = new Date();
     const firstDay = now.getDate() - now.getDay() + 1; 
     const startOfWeek = new Date(now.setDate(firstDay));
@@ -198,5 +198,25 @@ const idGenerators = {
     return endOfWeek;
   },
 
+   generateVoucherID: async () => {
+    const lastVoucher = await Voucher.findOne().sort({ VoucherID: -1 }).exec();
+    if (lastVoucher) {
+      const lastVoucherId = parseInt(lastVoucher.VoucherID.slice(1), 10);
+      const newVoucherId = `V${("000" + (lastVoucherId + 1)).slice(-3)}`;
+      return newVoucherId;
+    } else {
+      return 'V001';
+    }
+  },
+  
+   generateVoucherPattern: async() => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let pattern = '';
+    for (let i = 0; i < 6; i++) {
+      pattern += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return pattern;
+  },
+  
 };
 module.exports = idGenerators;
