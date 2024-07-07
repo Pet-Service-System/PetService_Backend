@@ -4,11 +4,20 @@ const { generateVoucherID, generateVoucherPattern } = require('../utils/idGenera
 // Create a new voucher
 exports.createVoucher = async (req, res) => {
   try {
+    const pattern = req.body.Pattern;
+    if (pattern) {
+      const voucherID = await generateVoucherID();
+      const voucher = new Voucher({...req.body, VoucherID: voucherID, Pattern: pattern});
+      await voucher.save();
+      res.status(201).send(voucher);
+    }
+    else{
     const voucherID = await generateVoucherID();
     const voucherPattern = await generateVoucherPattern();
     const voucher = new Voucher({...req.body, VoucherID: voucherID, Pattern: voucherPattern});
     await voucher.save();
     res.status(201).send(voucher);
+    }
   } catch (error) {
     res.status(400).send(error);
   }

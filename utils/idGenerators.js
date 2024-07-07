@@ -8,6 +8,7 @@ const OrderDetails = require('../models/OrderDetails');
 const SpaBookingDetails = require('../models/SpaBookingDetails');
 const SpaBooking = require('../models/SpaBooking');
 const Comment = require('../models/Comment');
+const Voucher = require('../models/Voucher');
 
 const idGenerators = {
   generateAccountID: async () => {
@@ -210,12 +211,19 @@ const idGenerators = {
   },
   
    generateVoucherPattern: async() => {
+    let isUnique = false;
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let pattern = '';
+    while (!isUnique) {
     for (let i = 0; i < 6; i++) {
       pattern += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return pattern;
+    const existingPattern = await Voucher.findOne({ Pattern: pattern });
+    if (!existingPattern) {
+      isUnique = true;
+    }
+  }
+   return pattern;
   },
   
 };
