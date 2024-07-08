@@ -1,5 +1,5 @@
 const express = require('express');
-const {createVoucher, getAllVouchers, getVoucherById, updateVoucher, deleteVoucher, isVoucherValid} = require('../controllers/voucherController');
+const {createVoucher, getAllVouchers, getVoucherById, updateVoucher, deleteVoucher, isVoucherValid, getVoucherByPattern,updateUsageLimit } = require('../controllers/voucherController');
 
 const router = express.Router();
 
