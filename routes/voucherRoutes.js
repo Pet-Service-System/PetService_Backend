@@ -1,5 +1,5 @@
 const express = require('express');
-const {createVoucher, getAllVouchers, getVoucherById, updateVoucher, deleteVoucher} = require('../controllers/voucherController');
+const {createVoucher, getAllVouchers, getVoucherById, updateVoucher, deleteVoucher, isVoucherValid} = require('../controllers/voucherController');
 
 const router = express.Router();
 
@@ -17,5 +17,13 @@ router.put('/:id', updateVoucher);
 
 // Delete a voucher by ID
 router.delete('/:id', deleteVoucher);
+
+router.post('/validate', isVoucherValid);
+
+// Get a voucher by pattern
+router.get('/pattern/:pattern', getVoucherByPattern);
+
+// Update usage limit
+router.put('pattern/:pattern', updateUsageLimit);
 
 module.exports = router;

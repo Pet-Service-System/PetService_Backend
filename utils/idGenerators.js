@@ -183,7 +183,7 @@ const idGenerators = {
 
   },
 
-   getStartOfWeek: async () => {
+   getStartOfWeek: () => {
     const now = new Date();
     const firstDay = now.getDate() - now.getDay() + 1; 
     const startOfWeek = new Date(now.setDate(firstDay));

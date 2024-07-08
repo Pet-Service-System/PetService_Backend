@@ -77,3 +77,70 @@ exports.deleteVoucher = async (req, res) => {
     res.status(500).send(error);
   }
 };
+
+exports.isVoucherValid = async (req, res) => {
+  const { pattern, orderValue } = req.body;
+
+  try {
+    const voucher = await Voucher.findOne({ Pattern: pattern });
+
+    if (!voucher) {
+      return res.status(404).send({ isValid: false, message: 'Voucher does not exist.' });
+    }
+
+    if (voucher.Status !== 'Active') {
+      return res.status(400).send({ isValid: false, message: 'Voucher is not active.' });
+    }
+
+    if (new Date() > voucher.ExpirationDate) {
+      return res.status(400).send({ isValid: false, message: 'Voucher has expired.' });
+    }
+
+    if (voucher.MinimumOrderValue && orderValue < voucher.MinimumOrderValue) {
+      return res.status(400).send({ isValid: false, message: `Order value must be at least ${voucher.MinimumOrderValue}.` });
+    }
+
+    return res.status(200).send({ isValid: true, voucher});
+
+  } catch (error) {
+    res.status(500).send({ isValid: false, message: 'Internal server error.', error });
+  }
+};
+
+// Get a voucher by pattern
+exports.getVoucherByPattern = async (req, res) => {
+  try {
+    const pattern = req.params.pattern
+    const voucher = await Voucher.findOne({Pattern: pattern});
+    if (!voucher || voucher.Status !== 'Active')  {
+      return res.status(404).send({ message: 'Voucher not found or inactive' });
+    }
+    if (new Date(voucher.ExpirationDate) < new Date()) {
+      return res.status(400).send({ message: 'Voucher expired' });
+    }
+    res.status(200).send(voucher);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+// Update a voucher by pattern
+exports.updateUsageLimit = async (req, res) => {
+  const { pattern } = req.params; 
+
+  try {
+    const voucher = await Voucher.findOneAndUpdate(
+      { Pattern: pattern },
+      { $inc: { UsageLimit: - 1 } },
+      { new: true }
+    );
+
+    if (!voucher) {
+      return res.status(404).send({ message: 'Voucher not found' });
+    }
+
+    res.status(200).send(voucher);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+};
