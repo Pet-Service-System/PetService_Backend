@@ -9,6 +9,7 @@ const OrderDetailsSchema = new mongoose.Schema({
   Items: [{
     ProductID: { type: String, required: true, ref: 'Product' },
     Quantity: { type: Number, required: true },
+    isCommented: { type: Boolean, required: true },
   }]
 }, { versionKey: false },
 );
