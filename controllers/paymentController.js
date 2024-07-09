@@ -7,17 +7,21 @@ exports.createPaymentUrl = (req, res, next) => {
     
     const tmnCode = process.env.VNP_TMNCODE;
     const secretKey = process.env.VNP_HASHSECRET;
-    const vnpUrl = process.env.VNP_URL;
+    let vnpUrl = process.env.VNP_URL;
     const returnUrl = process.env.VNP_RETURNURL;
     
     const date = new Date();
-    const createDate = dateFormat(date, 'yyyymmddHHmmss');
-    const orderId = dateFormat(date, 'HHmmss');
-    const amount = req.body.amount;
+    const createDate = `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}${date.getHours().toString().padStart(2, '0')}${date.getMinutes().toString().padStart(2, '0')}${date.getSeconds().toString().padStart(2, '0')}`;
+    const orderId = `${date.getHours().toString().padStart(2, '0')}${date.getMinutes().toString().padStart(2, '0')}${date.getSeconds().toString().padStart(2, '0')}`;
+
+    const amount = req.body.totalAmount;
+    const accountId = req.body.AccountID;
+    const orderDate = req.body.OrderDate;
     const bankCode = req.body.bankCode;
-    const orderInfo = req.body.orderDescription;
-    const orderType = req.body.orderType;
-    const locale = req.body.language || 'vn';
+
+    const orderInfo = `Order from account ${accountId} on ${orderDate}`;
+    const orderType = 'online_payment';
+    const locale = 'vn';
     const currCode = 'VND';
     
     let vnp_Params = {
@@ -35,7 +39,7 @@ exports.createPaymentUrl = (req, res, next) => {
         'vnp_CreateDate': createDate
     };
     
-    if(bankCode) {
+    if (bankCode) {
         vnp_Params['vnp_BankCode'] = bankCode;
     }
 
@@ -44,13 +48,13 @@ exports.createPaymentUrl = (req, res, next) => {
     const hmac = crypto.createHmac("sha512", secretKey);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex"); 
     vnp_Params['vnp_SecureHash'] = signed;
-    vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
+    const paymentUrl = vnpUrl + '?' + querystring.stringify(vnp_Params, { encode: false });
 
-    res.redirect(vnpUrl);
+    res.json({ paymentUrl });
 };
 
 exports.vnpayIpn = (req, res, next) => {
-    const vnp_Params = req.query;
+    let vnp_Params = req.query;
     const secureHash = vnp_Params['vnp_SecureHash'];
 
     delete vnp_Params['vnp_SecureHash'];
@@ -62,17 +66,17 @@ exports.vnpayIpn = (req, res, next) => {
     const hmac = crypto.createHmac("sha512", secretKey);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");     
 
-    if(secureHash === signed){
+    if (secureHash === signed) {
         const orderId = vnp_Params['vnp_TxnRef'];
         const rspCode = vnp_Params['vnp_ResponseCode'];
-        res.status(200).json({RspCode: '00', Message: 'success'})
+        res.status(200).json({RspCode: '00', Message: 'success'});
     } else {
-        res.status(200).json({RspCode: '97', Message: 'Fail checksum'})
+        res.status(200).json({RspCode: '97', Message: 'Fail checksum'});
     }
 };
 
 exports.vnpayReturn = (req, res, next) => {
-    const vnp_Params = req.query;
+    let vnp_Params = req.query;
     const secureHash = vnp_Params['vnp_SecureHash'];
 
     delete vnp_Params['vnp_SecureHash'];
@@ -84,9 +88,9 @@ exports.vnpayReturn = (req, res, next) => {
     const hmac = crypto.createHmac("sha512", secretKey);
     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");     
 
-    if(secureHash === signed){
-        res.render('success', {code: vnp_Params['vnp_ResponseCode']})
-    } else{
-        res.render('success', {code: '97'})
+    if (secureHash === signed) {
+        res.render('success', {code: vnp_Params['vnp_ResponseCode']});
+    } else {
+        res.render('success', {code: '97'});
     }
 };

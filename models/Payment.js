@@ -13,4 +13,4 @@ const PaymentSchema = new Schema({
     responseCode: { type: String }
 });
 
-module.exports = mongoose.model('Payment', PaymentSchema);
+module.exports = mongoose.model('Payment', PaymentSchema, 'Payment');
