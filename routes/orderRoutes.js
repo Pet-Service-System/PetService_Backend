@@ -1,25 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const {createOrder, getAllOrders, getOrderById, getOrderByAccountId, updateOrderById, deleteOrderById } = require('../controllers/orderController');
+const {createOrderDetail, getOrderDetails, getOrderDetailById, getOrderDetailsByOrderId, updateOrderDetail, deleteOrderDetail, updateOrderCommentStatus} = require('../controllers/orderDetailsController');
 const {authMiddleware} = require('../middlewares/authMiddleware');
 
-// Create a new order
-router.post('/', authMiddleware, createOrder);
+// Create a new order detail
+router.post('/', authMiddleware, createOrderDetail);
 
-// Get all orders
-router.get('/', authMiddleware, getAllOrders);
+// Get all order details
+router.get('/', authMiddleware, getOrderDetails);
 
-// Get an order by ID
-router.get('/:id', authMiddleware, getOrderById);
+// Get order detail by ID
+router.get('/:id', authMiddleware, getOrderDetailById);
 
-// Get an order by account ID
-router.get('/account/:accountId', authMiddleware, getOrderByAccountId);
+// Get order details by OrderID
+router.get('/order/:orderId', authMiddleware, getOrderDetailsByOrderId);
 
-// Update an order by ID 
-router.put('/:id', authMiddleware, updateOrderById);
+// Update order detail
+router.put('/:id', authMiddleware, updateOrderDetail);
 
-// Delete an order by ID
-router.delete('/:id', authMiddleware, deleteOrderById);
+// Delete order detail
+router.delete('/:id', authMiddleware, deleteOrderDetail);
 
+// Route to update order detail
+router.patch('/updateOrderCommentStatus', updateOrderCommentStatus);
 
 module.exports = router;
