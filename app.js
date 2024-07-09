@@ -88,7 +88,6 @@ app.use('/api/voucher', voucherRoutes);
 // payment Routes
 app.use('/api/vnpay', paymentRoutes);
 
-
 // Apply authMiddleware to protected routes
 app.use('/protected', authMiddleware);
 
@@ -100,3 +99,4 @@ const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+  
