@@ -18,6 +18,7 @@ const SpaBookingDetailsRoutes = require('./routes/spaBookingDetailsRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const voucherRoutes = require('./routes/voucherRoutes');
+const replyRoutes = require('./routes/replyRoutes');
 
 
 const dotenv = require('dotenv');
@@ -83,6 +84,9 @@ app.use('/api/dashboard', dashboardRoutes);
 
 // voucher Routes
 app.use('/api/voucher', voucherRoutes);
+
+// reply Routes
+app.use('/api/replies', replyRoutes);
 
 // Apply authMiddleware to protected routes
 app.use('/protected', authMiddleware);

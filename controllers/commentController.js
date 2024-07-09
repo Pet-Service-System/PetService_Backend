@@ -8,7 +8,7 @@ const { generateCommentID } = require('../utils/idGenerators');
 
 // Create a new comment
 exports.createComment = async (req, res) => {
-  const { ProductID, AccountID, Rating, CommentContent } = req.body;
+  const { ProductID, AccountID, Rating, CommentContent, isReplied, CommentDate } = req.body;
   
   try {
     const comment = await Comment.findOne({ AccountID: AccountID, ProductID: ProductID });
@@ -20,6 +20,8 @@ exports.createComment = async (req, res) => {
         AccountID,
         Rating,
         CommentContent,
+        isReplied,
+        CommentDate,
       });
       await newComment.save();
 
@@ -32,6 +34,7 @@ exports.createComment = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 // Get comments by ProductID
 exports.getCommentsByProductId = async (req, res) => {
@@ -53,12 +56,12 @@ exports.getCommentsByProductId = async (req, res) => {
 // Update a comment by CommentID
 exports.updateComment = async (req, res) => {
   const { CommentID } = req.params;
-  const { ProductID, CommentContent } = req.body;
+  const { ProductID, CommentContent, isReplied } = req.body;
 
   try {
     const updatedComment = await Comment.findOneAndUpdate(
       { CommentID: CommentID },
-      { ProductID, CommentContent },
+      { ProductID, CommentContent, isReplied },
       { new: true }
     );
 
@@ -72,6 +75,7 @@ exports.updateComment = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 // Delete a comment by CommentID
 exports.deleteComment = async (req, res) => {
