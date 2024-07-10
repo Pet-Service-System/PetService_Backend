@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getReplyByCommentId, createReply, updateReply, deleteReply } = require('../controllers/replyController');
+const { getReplyByCommentId, createReply, getRepliesByComment, updateReply, deleteReply } = require('../controllers/replyController');
 
 // Create a new reply
 router.post('/', createReply);

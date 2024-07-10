@@ -226,6 +226,18 @@ const idGenerators = {
   }
    return pattern;
   },
+
+  generateReplyID: async () => {
+    const lastReply = await Reply.findOne().sort({ ReplyID: -1 }).exec();
+    if (lastReply) {
+      const lastReplyID = lastReply.ReplyID;
+      const replyNumber = parseInt(lastReplyID.replace('R', ''), 10) + 1;
+      return `R${replyNumber.toString().padStart(3, '0')}`;
+    } else {
+      return 'R001';
+    }
+  },
+
   
   generateReplyID: async () => {
     const lastReply = await Reply.findOne().sort({ ReplyID: -1 }).exec();
