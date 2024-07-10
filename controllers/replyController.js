@@ -1,5 +1,4 @@
 const Reply = require('../models/Reply');
-
 const { generateReplyID } = require('../utils/idGenerators');
 
 // Create a new reply
