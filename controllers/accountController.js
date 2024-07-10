@@ -104,3 +104,20 @@ exports.updateAccountById = async (req, res) => {
     }
   };
   
+  // Get fullname and role of an account by ID
+exports.getFullnameById = async (req, res) => {
+  const accountId = req.params.id;
+
+  try {
+      const account = await Account.findOne({ AccountID: accountId }, 'fullname');
+
+      if (!account) {
+          return res.status(404).json({ message: 'Account not found!' });
+      }
+
+      res.json({ fullname: account.fullname, role: account.role });
+  } catch (error) {
+      console.error('Error getting fullname and role of account by ID:', error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
+};

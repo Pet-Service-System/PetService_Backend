@@ -20,6 +20,7 @@ exports.createComment = async (req, res) => {
         AccountID,
         Rating,
         CommentContent,
+        isReplied,
       });
       await newComment.save();
 
@@ -58,7 +59,7 @@ exports.updateComment = async (req, res) => {
   try {
     const updatedComment = await Comment.findOneAndUpdate(
       { CommentID: CommentID },
-      { ProductID, CommentContent },
+      { ProductID, CommentContent,  isReplied },
       { new: true }
     );
 
