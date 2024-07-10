@@ -1,59 +1,77 @@
-const sortObject = require('../utils/sortObject');
+// File: controllers/paymentController.js
+
+require('dotenv').config();
 const querystring = require('qs');
 const crypto = require("crypto");
 
-exports.createPaymentUrl = (req, res, next) => {
-    const ipAddr = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+// Function to sort object by keys
+const sortObject = (obj) => {
+    const sorted = {};
+    const keys = Object.keys(obj).sort();
+    keys.forEach((key) => {
+        sorted[key] = obj[key];
+    });
+    return sorted;
+};
+
+// Create Payment URL
+exports.createPaymentUrl = async (req, res) => {
+    const { default: dateFormat } = await import('dateformat');
     
+    const ipAddr = req.headers['x-forwarded-for'] ||
+        req.connection.remoteAddress ||
+        req.socket.remoteAddress ||
+        req.connection.socket.remoteAddress;
+
     const tmnCode = process.env.VNP_TMNCODE;
     const secretKey = process.env.VNP_HASHSECRET;
-    let vnpUrl = process.env.VNP_URL;
+    const vnpUrl = process.env.VNP_URL;
     const returnUrl = process.env.VNP_RETURNURL;
-    
+
     const date = new Date();
-    const createDate = `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}${date.getHours().toString().padStart(2, '0')}${date.getMinutes().toString().padStart(2, '0')}${date.getSeconds().toString().padStart(2, '0')}`;
-    const orderId = `${date.getHours().toString().padStart(2, '0')}${date.getMinutes().toString().padStart(2, '0')}${date.getSeconds().toString().padStart(2, '0')}`;
-
-    const amount = req.body.totalAmount;
-    const accountId = req.body.AccountID;
-    const orderDate = req.body.OrderDate;
+    const createDate = dateFormat(date, 'yyyyMMddHHmmss');
+    const expireDate = dateFormat(new Date(date.getTime() + 60 * 60 * 1000), 'yyyymmddHHmmss');
+    const orderId = dateFormat(date, 'DDHHmmss');
+    const amount = req.body.totalAmount * 100; // Convert to integer without decimal part
     const bankCode = req.body.bankCode;
-
-    const orderInfo = `Order from account ${accountId} on ${orderDate}`;
-    const orderType = 'online_payment';
-    const locale = 'vn';
+    const orderInfo = req.body.orderDescription;
+    const orderType = req.body.orderType;
+    let locale = req.body.language || 'vn'; // Default to 'vn' if language not provided
     const currCode = 'VND';
-    
-    let vnp_Params = {
+
+    const vnp_Params = {
         'vnp_Version': '2.1.0',
         'vnp_Command': 'pay',
         'vnp_TmnCode': tmnCode,
         'vnp_Locale': locale,
         'vnp_CurrCode': currCode,
         'vnp_TxnRef': orderId,
-        'vnp_OrderInfo': orderInfo,
-        'vnp_OrderType': orderType,
-        'vnp_Amount': amount * 100,
+        'vnp_OrderInfo': decodeURIComponent('Thanh toan cho ma GD:' + orderId),
+        'vnp_OrderType': 'other',
+        'vnp_Amount': amount,
         'vnp_ReturnUrl': returnUrl,
-        'vnp_IpAddr': ipAddr,
-        'vnp_CreateDate': createDate
+        'vnp_IpAddr': decodeURIComponent(ipAddr),
+        'vnp_CreateDate': createDate,
+        'vnp_ExpireDate': expireDate
     };
-    
+    console.log(vnp_Params);
     if (bankCode) {
         vnp_Params['vnp_BankCode'] = bankCode;
     }
 
-    vnp_Params = sortObject(vnp_Params);
-    const signData = querystring.stringify(vnp_Params, { encode: false });
+    const sortedParams = sortObject(vnp_Params);
+    const signData = querystring.stringify(sortedParams, { encode: false });
     const hmac = crypto.createHmac("sha512", secretKey);
-    const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex"); 
-    vnp_Params['vnp_SecureHash'] = signed;
-    const paymentUrl = vnpUrl + '?' + querystring.stringify(vnp_Params, { encode: false });
+    const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
+    sortedParams['vnp_SecureHash'] = signed;
+
+    const paymentUrl = `${vnpUrl}?${querystring.stringify(sortedParams)}`;
 
     res.json({ paymentUrl });
 };
 
-exports.vnpayIpn = (req, res, next) => {
+// Handle IPN URL
+exports.handleIpnUrl = (req, res) => {
     let vnp_Params = req.query;
     const secureHash = vnp_Params['vnp_SecureHash'];
 
@@ -64,18 +82,19 @@ exports.vnpayIpn = (req, res, next) => {
     const secretKey = process.env.VNP_HASHSECRET;
     const signData = querystring.stringify(vnp_Params, { encode: false });
     const hmac = crypto.createHmac("sha512", secretKey);
-    const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");     
+    const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
 
     if (secureHash === signed) {
-        const orderId = vnp_Params['vnp_TxnRef'];
         const rspCode = vnp_Params['vnp_ResponseCode'];
-        res.status(200).json({RspCode: '00', Message: 'success'});
+        // Update order status based on vnp_Params
+        res.status(200).json({ RspCode: '00', Message: 'Success' });
     } else {
-        res.status(200).json({RspCode: '97', Message: 'Fail checksum'});
+        res.status(200).json({ RspCode: '97', Message: 'Fail checksum' });
     }
 };
 
-exports.vnpayReturn = (req, res, next) => {
+// Handle Return URL
+exports.handleReturnUrl = (req, res) => {
     let vnp_Params = req.query;
     const secureHash = vnp_Params['vnp_SecureHash'];
 
@@ -83,14 +102,16 @@ exports.vnpayReturn = (req, res, next) => {
     delete vnp_Params['vnp_SecureHashType'];
 
     vnp_Params = sortObject(vnp_Params);
+
     const secretKey = process.env.VNP_HASHSECRET;
     const signData = querystring.stringify(vnp_Params, { encode: false });
     const hmac = crypto.createHmac("sha512", secretKey);
-    const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");     
+    const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
 
     if (secureHash === signed) {
-        res.render('success', {code: vnp_Params['vnp_ResponseCode']});
+        // Validate order in the database
+        res.render('success', { code: vnp_Params['vnp_ResponseCode'] });
     } else {
-        res.render('success', {code: '97'});
+        res.render('success', { code: '97' });
     }
 };
