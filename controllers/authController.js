@@ -46,7 +46,7 @@ exports.register = async (req, res) => {
   try {
     const existingAccount = await Account.findOne({ email }); // Check if the email exists
     if (existingAccount) {
-      return res.status(400).json({ message: 'Email đã tồn tại!' }); // Email already exists
+      return res.status(400).json({ message: 'Email already in use' }); // Email already exists
     }
     // Generate accountID using idGenerators
     const accountID = await generateAccountID(); // Generate unique accountID
@@ -258,5 +258,20 @@ exports.googleAuth = async (req, res) => {
   } catch (error) {
     console.error(error); // Error during authentication
     res.status(400).json({ message: 'Error during authentication', error });
+  }
+};
+
+// Check if email exists
+exports.checkEmail = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const account = await Account.findOne({ email });
+    if (account) {
+      return res.status(200).json({ exists: true, message: 'Email already in use' });
+    }
+    return res.status(200).json({ exists: false, message: 'Email is available' });
+  } catch (error) {
+    console.error('Error checking email:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
