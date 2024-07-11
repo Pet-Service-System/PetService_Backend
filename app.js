@@ -19,6 +19,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const voucherRoutes = require('./routes/voucherRoutes');
 const replyRoutes = require('./routes/replyRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
 
 
 const dotenv = require('dotenv');
@@ -87,6 +88,9 @@ app.use('/api/voucher', voucherRoutes);
 
 // reply Routes
 app.use('/api/replies', replyRoutes);
+
+// categories Routes
+app.use('/api/categories', categoryRoutes);
 
 // Apply authMiddleware to protected routes
 app.use('/protected', authMiddleware);

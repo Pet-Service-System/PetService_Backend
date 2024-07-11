@@ -10,6 +10,7 @@ const SpaBooking = require('../models/SpaBooking');
 const Comment = require('../models/Comment');
 const Voucher = require('../models/Voucher');
 const Reply = require("../models/Reply");
+const Category = require('../models/Category');
 
 const idGenerators = {
   generateAccountID: async () => {
@@ -250,5 +251,17 @@ const idGenerators = {
     }
   },
 };
+
+const generateCategoryID = async () => {
+  const lastCategory = await Category.findOne().sort({ categoryID: -1 }).exec();
+  if (lastCategory) {
+    const lastCategoryID = lastCategory.categoryID;
+    const categoryNumber = parseInt(lastCategoryID.replace('CAT', ''), 10) + 1;
+    return `CAT${categoryNumber.toString().padStart(3, '0')}`;
+  } else {
+    return 'CAT001';
+  }
+};
+
 module.exports = idGenerators;
 
