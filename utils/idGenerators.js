@@ -250,18 +250,21 @@ const idGenerators = {
       return 'R001';
     }
   },
+
+  generateCategoryID: async () => {
+    const lastCategory = await Category.findOne().sort({ CategoryID: -1 }).exec();
+    if (lastCategory) {
+      const lastCategoryID = lastCategory.CategoryID;
+      const categoryNumber = parseInt(lastCategoryID.replace('CAT', ''), 10) + 1;
+      return `CAT${categoryNumber.toString().padStart(3, '0')}`;
+    } else {
+      return 'CAT001';
+    }
+  },
+  
+
 };
 
-const generateCategoryID = async () => {
-  const lastCategory = await Category.findOne().sort({ categoryID: -1 }).exec();
-  if (lastCategory) {
-    const lastCategoryID = lastCategory.categoryID;
-    const categoryNumber = parseInt(lastCategoryID.replace('CAT', ''), 10) + 1;
-    return `CAT${categoryNumber.toString().padStart(3, '0')}`;
-  } else {
-    return 'CAT001';
-  }
-};
 
 module.exports = idGenerators;
 

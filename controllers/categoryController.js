@@ -5,7 +5,7 @@ const { generateCategoryID } = require('../utils/idGenerators');
 exports.createCategory = async (req, res) => {
   try {
     const categoryData = req.body;
-    categoryData.categoryID = await generateCategoryID();
+    categoryData.CategoryID = await generateCategoryID();
     const category = new Category(categoryData);
     await category.save();
     res.status(201).json(category);
