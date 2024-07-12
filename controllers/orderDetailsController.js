@@ -30,7 +30,7 @@ exports.getOrderDetails = async (req, res) => {
 // Get order detail by ID
 exports.getOrderDetailById = async (req, res) => {
   try {
-    const orderDetail = await OrderDetails.findOne({ OrderDetailsID: req.params.id }).populate('Products.ProductID', 'ProductName Price');
+    const orderDetail = await OrderDetails.findOne({ OrderDetailsID: req.params.id });
     if (!orderDetail) {
       return res.status(404).json({ error: 'Order Detail not found' });
     }

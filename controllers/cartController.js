@@ -10,6 +10,11 @@ exports.getCart = async (req, res) => {
   }
 };
 
+const calculateTotalPrice = (items) => {
+  return items.reduce((total, item) => total + item.Price * item.Quantity, 0);
+};
+
+
 // Add item to cart
 exports.addToCart = async (req, res) => {
   const { AccountID, Items } = req.body;
@@ -17,7 +22,7 @@ exports.addToCart = async (req, res) => {
     let cart = await Cart.findOne({ AccountID });
 
     if (!cart) {
-      cart = new Cart({ AccountID, Items: [] });
+      cart = new Cart({ AccountID, Items: [], TotalPrice: 0 });
     }
 
     Items.forEach(({ ProductID, ProductName, Price, Quantity, ImageURL, Status }) => {
@@ -30,6 +35,7 @@ exports.addToCart = async (req, res) => {
       }
     });
 
+    cart.TotalPrice = calculateTotalPrice(cart.Items);
     await cart.save();
     res.status(201).json(cart);
   } catch (err) {
@@ -52,6 +58,8 @@ exports.updateCartItem = async (req, res) => {
 
     item.Quantity = Quantity;
     item.Status = Status;
+
+    cart.TotalPrice = calculateTotalPrice(cart.Items);
 
     await cart.save();
     res.json(cart);
@@ -79,6 +87,7 @@ exports.removeCartItem = async (req, res) => {
     }
 
     cart.Items = cart.Items.filter(item => item.ProductID !== ProductID);
+    cart.TotalPrice = calculateTotalPrice(cart.Items);
 
     await cart.save();
     res.json(cart);
