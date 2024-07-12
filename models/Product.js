@@ -8,7 +8,8 @@ const productSchema = new mongoose.Schema({
   Description: { type: String, required: true },
   Quantity: {type: Number, required: true},
   ImageURL: { type: String, required: false },
-  Status: { type: String, required: true }
+  Status: { type: String, required: true },
+  CategoryID: { type: String, required: true, ref: 'Category' },
 }, { versionKey: false });
 
 const Product = mongoose.model('Product', productSchema, 'Products');

@@ -6,7 +6,7 @@ const { generateProductId } = require('../utils/idGenerators');
 exports.createProduct = async (req, res) => {
   try {
     const ProductID = await generateProductId(); // Generate a new unique ProductID
-    const { ProductName, Price, Quantity, PetTypeID, Description, Status } = req.body;
+    const { ProductName, Price, Quantity, PetTypeID, Description, Status, CategoryID } = req.body;
 
     let productData = {
       ProductID: ProductID,
@@ -16,6 +16,7 @@ exports.createProduct = async (req, res) => {
       Description: Description,
       Quantity: Quantity,
       Status: Status,
+      CategoryID: CategoryID
     };
 
     if (req.file && req.file.path) {
