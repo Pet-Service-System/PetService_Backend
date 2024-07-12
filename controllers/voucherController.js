@@ -144,3 +144,24 @@ exports.updateUsageLimit = async (req, res) => {
     res.status(400).send(error);
   }
 };
+
+const checkAndUpdateExpiredVouchers = async () => {
+  try {
+    const expiredVouchers = await Voucher.find({
+      Status: 'Active',
+      ExpirationDate: { $lt: new Date() }
+    });
+
+    // Update the status of expired vouchers
+    const updatePromises = expiredVouchers.map(voucher => {
+      voucher.Status = 'Inactive';
+      return voucher.save();
+    });
+
+    await Promise.all(updatePromises);
+
+    console.log('Expired vouchers updated successfully');
+  } catch (error) {
+    console.error('Error updating expired vouchers:', error);
+  }
+};

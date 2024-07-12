@@ -7,6 +7,7 @@ const orderSchema = new mongoose.Schema({
   TotalPrice: { type: Number, required: true },
   AccountID: { type: String, required: true, ref: 'Account' },
   PaypalOrderID: { type: String, required: true },
+  Pattern: { type: String, required: true },
 }, { versionKey: false },);
 
 

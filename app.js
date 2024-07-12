@@ -20,6 +20,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const voucherRoutes = require('./routes/voucherRoutes');
 const replyRoutes = require('./routes/replyRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const { checkAndUpdateExpiredVouchers } = require('./controllers/voucherController');
 
 
 const dotenv = require('dotenv');
@@ -41,6 +42,10 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
+app.use(async (req, res, next) => {
+  await checkAndUpdateExpiredVouchers();
+  next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -91,6 +96,7 @@ app.use('/api/replies', replyRoutes);
 
 // categories Routes
 app.use('/api/categories', categoryRoutes);
+
 
 // Apply authMiddleware to protected routes
 app.use('/protected', authMiddleware);
