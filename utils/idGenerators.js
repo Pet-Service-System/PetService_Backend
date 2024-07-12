@@ -252,7 +252,7 @@ const idGenerators = {
   },
 };
 
-const generateCategoryID = async () => {
+generateCategoryID = async () => {
   const lastCategory = await Category.findOne().sort({ categoryID: -1 }).exec();
   if (lastCategory) {
     const lastCategoryID = lastCategory.categoryID;
