@@ -78,35 +78,6 @@ exports.deleteVoucher = async (req, res) => {
   }
 };
 
-exports.isVoucherValid = async (req, res) => {
-  const { pattern, orderValue } = req.body;
-
-  try {
-    const voucher = await Voucher.findOne({ Pattern: pattern });
-
-    if (!voucher) {
-      return res.status(404).send({ isValid: false, message: 'Voucher does not exist.' });
-    }
-
-    if (voucher.Status !== 'Active') {
-      return res.status(400).send({ isValid: false, message: 'Voucher is not active.' });
-    }
-
-    if (new Date() > voucher.ExpirationDate) {
-      return res.status(400).send({ isValid: false, message: 'Voucher has expired.' });
-    }
-
-    if (voucher.MinimumOrderValue && orderValue < voucher.MinimumOrderValue) {
-      return res.status(400).send({ isValid: false, message: `Order value must be at least ${voucher.MinimumOrderValue}.` });
-    }
-
-    return res.status(200).send({ isValid: true, voucher});
-
-  } catch (error) {
-    res.status(500).send({ isValid: false, message: 'Internal server error.', error });
-  }
-};
-
 // Get a voucher by pattern
 exports.getVoucherByPattern = async (req, res) => {
   try {
@@ -118,6 +89,9 @@ exports.getVoucherByPattern = async (req, res) => {
     if (new Date(voucher.ExpirationDate) < new Date()) {
       return res.status(400).send({ message: 'Voucher expired' });
     }
+    if (voucher.MinimumOrderValue && orderValue < voucher.MinimumOrderValue) {
+      return res.status(400).send({ isValid: false, message: `Order value must be at least ${voucher.MinimumOrderValue}.` });
+    }
     res.status(200).send(voucher);
   } catch (error) {
     res.status(500).send(error);
@@ -127,23 +101,27 @@ exports.getVoucherByPattern = async (req, res) => {
 // Update a voucher by pattern
 exports.updateUsageLimit = async (req, res) => {
   const { pattern } = req.params; 
+try {
+  const voucher = await Voucher.findOne({ Pattern: pattern });
 
-  try {
-    const voucher = await Voucher.findOneAndUpdate(
-      { Pattern: pattern },
-      { $inc: { UsageLimit: - 1 } },
-      { new: true }
-    );
-
-    if (!voucher) {
-      return res.status(404).send({ message: 'Voucher not found' });
-    }
-
-    res.status(200).send(voucher);
-  } catch (error) {
-    res.status(400).send(error);
+  if (!voucher) {
+    return res.status(404).send({ message: 'Voucher not found' });
   }
-};
+
+  if (voucher.Status !== 'Active') {
+    return res.status(400).send({ message: 'Voucher is not active' });
+  }
+
+  if (voucher.UsageLimit <= 0) {
+    return res.status(400).send({ message: 'Voucher usage limit reached' });
+  }
+
+  voucher.UsageLimit -= 1;
+  await voucher.save();
+  res.status(200).send({ message: 'Voucher usage limit updated successfully' });
+} catch (error) {
+  res.status(500).send(error);
+}};
 
 const checkAndUpdateExpiredVouchers = async () => {
   try {
