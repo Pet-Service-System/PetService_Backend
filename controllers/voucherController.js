@@ -89,9 +89,6 @@ exports.getVoucherByPattern = async (req, res) => {
     if (new Date(voucher.ExpirationDate) < new Date()) {
       return res.status(400).send({ message: 'Voucher expired' });
     }
-    if (voucher.MinimumOrderValue && orderValue < voucher.MinimumOrderValue) {
-      return res.status(400).send({ isValid: false, message: `Order value must be at least ${voucher.MinimumOrderValue}.` });
-    }
     res.status(200).send(voucher);
   } catch (error) {
     res.status(500).send(error);
