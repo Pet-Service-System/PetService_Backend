@@ -123,7 +123,7 @@ try {
   res.status(500).send(error);
 }};
 
-const checkAndUpdateExpiredVouchers = async () => {
+ exports.checkAndUpdateExpiredVouchers = async () => {
   try {
     const expiredVouchers = await Voucher.find({
       Status: 'Active',
