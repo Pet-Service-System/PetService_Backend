@@ -7,7 +7,7 @@ const orderSchema = new mongoose.Schema({
   TotalPrice: { type: Number, required: true },
   AccountID: { type: String, required: true, ref: 'Account' },
   PaypalOrderID: { type: String, required: true },
-  VoucherID: { type: String, required: true, ref: 'Voucher' },
+  VoucherID: { type: String, required: false, ref: 'Voucher' },
 }, { versionKey: false },);
 
 

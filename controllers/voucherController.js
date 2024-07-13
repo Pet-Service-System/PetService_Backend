@@ -137,8 +137,6 @@ try {
     });
 
     await Promise.all(updatePromises);
-
-    console.log('Expired vouchers updated successfully');
   } catch (error) {
     console.error('Error updating expired vouchers:', error);
   }

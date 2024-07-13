@@ -3,6 +3,7 @@ PAYPAL_CLIENT_ID=process.env.PAYPAL_CLIENT_ID;
 PAYPAL_SECRET=process.env.PAYPAL_SECRET;
 const { generateOrderID } = require('../utils/idGenerators');
 const crypto = require('crypto-js');
+const Voucher = require('../models/Voucher');
 
 // Create a new order
 exports.createOrder = async (req, res) => {
@@ -10,6 +11,11 @@ exports.createOrder = async (req, res) => {
     const newOrderID = await generateOrderID();
     const paypalOrderID = crypto.AES.encrypt(req.body.PaypalOrderID, process.env.PAYPAL_CLIENT_SECRET).toString();
     const newOrder = new Order({ ...req.body, PaypalOrderID: paypalOrderID, OrderID: newOrderID });
+    if (req.body.VoucherID){
+      const voucher = await Voucher.findOne({ VoucherID: req.body.VoucherID });
+         voucher.UsageLimit -= 1;
+         await voucher.save();
+   }
     const savedOrder = await newOrder.save();
     res.status(201).json(savedOrder);
   } catch (error) {
