@@ -17,7 +17,7 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const account = await Account.findOne({ email }); // Login API to check if the email exists
-    if (account) {
+    if (account & account.status === 1) {
       const isMatch = await bcrypt.compare(password, account.password); // Check if the password is matched
       if (isMatch) {
         // Create JWT token with unique payload
