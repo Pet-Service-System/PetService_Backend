@@ -46,7 +46,6 @@ exports.addToCart = async (req, res) => {
 // Update item Quantity in cart
 exports.updateCartItem = async (req, res) => {
   const { AccountID, ProductID, Quantity, Status } = req.body; 
-  console.log(req.body)
   try {
     const cart = await Cart.findOne({ AccountID });
 
@@ -74,13 +73,10 @@ exports.removeCartItem = async (req, res) => {
 
   try {
     const cart = await Cart.findOne({ AccountID });
-    console.log('Cart found:', cart);
 
     if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
     }
-
-    console.log(cart.Items);
 
     if (!cart.Items) {
       cart.Items = [];

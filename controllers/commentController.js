@@ -88,39 +88,9 @@ exports.deleteComment = async (req, res) => {
       return res.status(404).json({ message: 'Comment not found' });
     }
 
-    // Update average rating for the product
-    await updateAverageRating(comment.ProductID);
-
     res.json({ message: 'Comment deleted successfully' });
   } catch (error) {
     console.error('Error deleting comment:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-// Add a new comment detail
-exports.addCommentDetail = async (req, res) => {
-  const { ProductID } = req.params;
-  const { AccountID, Rating, Comment } = req.body;
-
-  if (!AccountID || !Rating || !Comment) {
-    return res.status(400).json({ message: 'Invalid input data' });
-  }
-
-  try {
-    const comment = await Comment.findOne({ ProductID: ProductID });
-
-    if (!comment) {
-      return res.status(404).json({ message: 'Comment not found' });
-    }
-
-    const newCommentDetail = { AccountID, Rating, Comment };
-    comment.CommentDetails.push(newCommentDetail);
-    await comment.save();
-
-    res.status(201).json({ message: 'Comment detail added successfully', comment });
-  } catch (error) {
-    console.error('Error adding comment detail:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

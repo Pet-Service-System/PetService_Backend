@@ -8,6 +8,7 @@ const EMAIL_USERNAME = process.env.EMAIL_USERNAME;
 const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const FRONTEND_API = process.env.FRONTEND_API;
 
 // Import idGenerators from utils
 const { generateAccountID } = require('../utils/idGenerators');
@@ -143,7 +144,7 @@ exports.forgotPassword = async (req, res) => {
     const token = jwt.sign({ email: account.email, id: account.AccountID }, secret, {
       expiresIn: "5m",
     });
-    const resetLink = `http://localhost:5173/reset-password/${account.AccountID}/${token}`; // Generate reset password link
+    const resetLink = `${FRONTEND_API}/reset-password/${account.AccountID}/${token}`; // Generate reset password link
     
     // Tạo nội dung email
     const transporter = nodemailer.createTransport({
