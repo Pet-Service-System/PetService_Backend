@@ -18,7 +18,8 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const account = await Account.findOne({ email }); // Login API to check if the email exists
-    if (account & account.status === 1) {
+    if (account ) {
+      if (account.status === 1){
       const isMatch = await bcrypt.compare(password, account.password); // Check if the password is matched
       if (isMatch) {
         // Create JWT token with unique payload
@@ -32,7 +33,8 @@ exports.login = async (req, res) => {
       } else {
         return res.status(401).json({ message: 'Invalid credentials' }); // Invalid password
       }
-    } else {
+    } 
+  }else {
       return res.status(401).json({ message: 'Cannot find account' }); // Cannot find account
     }
   } catch (error) {
