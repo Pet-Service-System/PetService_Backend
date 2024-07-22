@@ -34,7 +34,7 @@ connectDB();
 
 // Middleware
 var corsOptions = {
-  origin: 'http://localhost:5173',
+  origin: 'https://petbro.netlify.app',
   optionsSuccessStatus: 200 
 }
 app.use(cors(corsOptions));
