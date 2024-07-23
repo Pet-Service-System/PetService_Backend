@@ -5,39 +5,62 @@ const { generateSpaBookingID } = require('../utils/idGenerators');
 
 // Create a new spa booking
 exports.createSpaBooking = async (req, res) => {
-  const { BookingDate, BookingTime } = req.body;
   try {
-    // Check for existing booking with the same date, time, and pet ID
-        const existingBooking = await SpaBookingDetails.findOne({
-          BookingDate,
-          BookingTime,
-          PetID
-      });
-      if (existingBooking) {
-        return res.status(409).json({
-            message: 'Booking conflict: The selected pet is already booked at this time and date. Please choose a different time slot.',
-        });
-      } 
-        const existingOrdersCount = await SpaBookingDetails.countDocuments({
-      BookingDate: BookingDate,
-      BookingTime: BookingTime,
-      status: { $ne: 'Cancelled' } 
-  });
-  console.log(existingOrdersCount);
-    const maxOrdersPerSlot = 4;
-    if (existingOrdersCount <= maxOrdersPerSlot) {
     const newId = await generateSpaBookingID(); // Generate a new unique BookingDetailID
     const spaBooking = new SpaBooking({ ...req.body, BookingID: newId });
     await spaBooking.save();
     res.status(201).json(spaBooking);
-} else {
-  res.status(400).json({ message: 'Maximum number of orders per slot reached' });
-}
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
+// Check if booking can be made
+exports.checkBooking = async (req, res) => {
+  const { BookingDate, BookingTime, PetID } = req.body;
+  
+  try {
+    // Check if there is an existing booking with the same date, time, and pet ID
+    const existingBookingDetail = await SpaBookingDetails.findOne({
+      BookingDate,
+      BookingTime,
+      PetID
+    });
+
+    if (existingBookingDetail) {
+      // If found, get the BookingID and check the status in the SpaBooking collection
+      const { BookingID } = existingBookingDetail;
+      const existingBooking = await SpaBooking.findOne({ BookingID });
+      // If the status is 'Cancelled', the slot can be booked
+      if (existingBooking && existingBooking.Status == 'Pending') {
+        return res.status(409).json({
+          canBook: false,
+          message: 'Booking conflict: The selected pet is already booked at this time and date. Please choose a different time slot.',
+        });
+      }
+    }
+
+    // Count existing orders for the given date and time
+    const existingOrdersCount = await SpaBookingDetails.countDocuments({
+      BookingDate,
+      BookingTime,
+      status: { $ne: 'Cancelled' }
+    });
+
+    const maxOrdersPerSlot = 4;
+    if (existingOrdersCount >= maxOrdersPerSlot) {
+      return res.status(400).json({
+        canBook: false,
+        message: 'Maximum number of orders per slot reached',
+      });
+    }
+
+    // If both checks pass
+    res.status(200).json({ canBook: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 // Get all spa bookings
 exports.getSpaBookings = async (req, res) => {
