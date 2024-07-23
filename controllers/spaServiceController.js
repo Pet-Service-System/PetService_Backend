@@ -6,13 +6,12 @@ const cloudinary = require('../config/cloudinary');
 exports.createService = async (req, res) => {
   try {
     const serviceID = await generateServiceID();
-    const { ServiceName, Description, PetTypeID, Price, Status } = req.body;
+    const { ServiceName, Description, PetTypeID, Status } = req.body;
     let newService = new SpaService({
       ServiceID: serviceID,
       ServiceName: ServiceName,
       Description: Description,
       PetTypeID: PetTypeID,
-      Price: Price,
       Status: Status,
     });
 
