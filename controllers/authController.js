@@ -13,28 +13,40 @@ const FRONTEND_API = process.env.FRONTEND_API;
 // Import idGenerators from utils
 const { generateAccountID } = require('../utils/idGenerators');
 
-// Login api to authenticate the user and provide a JWT token
+// Login API to authenticate the user and provide a JWT token
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const account = await Account.findOne({ email }); // Login API to check if the email exists
-    if (account ) {
-      if (account.status === 1){
-      const isMatch = await bcrypt.compare(password, account.password); // Check if the password is matched
-      if (isMatch) {
-        // Create JWT token with unique payload
-        const token = jwt.sign(
-          { id: account.AccountID, email: account.email, fullname: account.fullname, role: account.role },
-          JWT_SECRET,
-          { expiresIn: JWT_EXPIRES_IN }
-        );
-        return res.json({ message: 'Login successful', user: { id: account.AccountID, email: account.email, role: account.role, fullname: account.fullname,  phone: account.phone, 
-          address: account.address }, token });
+    const account = await Account.findOne({ email }); // Check if the email exists
+    if (account) {
+      if (account.status === 1) { // Check if account status is active
+        const isMatch = await bcrypt.compare(password, account.password); // Check if the password is matched
+        if (isMatch) {
+          // Create JWT token with unique payload
+          const token = jwt.sign(
+            { id: account.AccountID, email: account.email, fullname: account.fullname, role: account.role },
+            JWT_SECRET,
+            { expiresIn: JWT_EXPIRES_IN }
+          );
+          return res.json({ 
+            message: 'Login successful', 
+            user: { 
+              id: account.AccountID, 
+              email: account.email, 
+              role: account.role, 
+              fullname: account.fullname,  
+              phone: account.phone, 
+              address: account.address 
+            }, 
+            token 
+          });
+        } else {
+          return res.status(401).json({ message: 'Invalid credentials' }); // Invalid password
+        }
       } else {
-        return res.status(401).json({ message: 'Invalid credentials' }); // Invalid password
+        return res.status(401).json({ message: 'Account is inactive' }); // Account is inactive
       }
-    } 
-  }else {
+    } else {
       return res.status(401).json({ message: 'Cannot find account' }); // Cannot find account
     }
   } catch (error) {

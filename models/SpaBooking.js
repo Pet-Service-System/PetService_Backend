@@ -7,7 +7,8 @@ const spaBookingSchema = new Schema({
   CreateDate: { type: Date, required: true },
   AccountID: { type: String, required: true, ref: 'Account' },
   isReviewed: {type: Boolean, default: false},
-  TotalPrice: {type: Number, default: true},
+  TotalPrice: {type: Number, required: true},
+  PaypalOrderID: { type: String, required: true },
   CaretakerName: { type: String, required: false },
 }, { versionKey: false });
 
