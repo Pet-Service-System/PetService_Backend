@@ -7,7 +7,18 @@ const { generateSpaBookingID } = require('../utils/idGenerators');
 exports.createSpaBooking = async (req, res) => {
   const { BookingDate, BookingTime } = req.body;
   try {
-    const existingOrdersCount = await SpaBookingDetails.countDocuments({
+    // Check for existing booking with the same date, time, and pet ID
+        const existingBooking = await SpaBookingDetails.findOne({
+          BookingDate,
+          BookingTime,
+          PetID
+      });
+      if (existingBooking) {
+        return res.status(409).json({
+            message: 'Booking conflict: The selected pet is already booked at this time and date. Please choose a different time slot.',
+        });
+      } 
+        const existingOrdersCount = await SpaBookingDetails.countDocuments({
       BookingDate: BookingDate,
       BookingTime: BookingTime,
       status: { $ne: 'Cancelled' } 

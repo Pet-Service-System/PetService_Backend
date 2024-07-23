@@ -4,29 +4,10 @@ const { generateSpaBookingDetailsID } = require('../utils/idGenerators');
 // Create a new spa booking detail
 exports.createBookingDetail = async (req, res) => {
     try {
-        const { BookingDate, BookingTime, PetID } = req.body;
-        const existingBooking = await SpaBookingDetails.findOne({
-            BookingDate,
-            BookingTime,
-            PetID
-        });
-
-        if (existingBooking) {
-            return res.status(409).json({
-                message: 'Booking conflict: The selected pet is already booked at this time and date. Please choose a different time slot.',
-            });
-        }
-
         const newId = await generateSpaBookingDetailsID();
-
-        const newBookingDetail = new SpaBookingDetails({
-            ...req.body,
-            BookingDetailsID: newId
-        });
-
+        const newBookingDetail = new SpaBookingDetails({ ...req.body, BookingDetailsID: newId });
         await newBookingDetail.save();
         res.status(201).json(newBookingDetail);
-
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
