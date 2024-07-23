@@ -1,17 +1,17 @@
 const Account = require('../models/Account');
 
 
-// Get all accounts API (admin)
-exports.getAllAccounts = async (req, res) => {
+  // Get all accounts API (admin)
+  exports.getAllAccounts = async (req, res) => {
     try {
-      const accounts = await Account.find();
+      const accounts = await Account.find().select('-password'); // Exclude password field
       res.json({ accounts });
     } catch (error) {
       console.error('Error getting all accounts:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   };
-
+  
   // Get Account by ID 
   exports.getAccountById = async (req, res) => {
     const accountId = req.params.id;

@@ -9,6 +9,7 @@ const spaBookingSchema = new Schema({
   isReviewed: {type: Boolean, default: false},
   TotalPrice: {type: Number, required: true},
   PaypalOrderID: { type: String, required: true },
+  CancelReason: { type: String, required: false },
   CaretakerNote: { type: String, required: false },
   CaretakerID: { type: String, required: false, ref: 'Account' },
 }, { versionKey: false });

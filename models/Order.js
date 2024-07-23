@@ -8,6 +8,7 @@ const orderSchema = new mongoose.Schema({
   AccountID: { type: String, required: true, ref: 'Account' },
   PaypalOrderID: { type: String, required: true },
   VoucherID: { type: String, required: false, ref: 'Voucher' },
+  CancelReason: { type: String, required: false },
 }, { versionKey: false },);
 
 
