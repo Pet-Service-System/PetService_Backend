@@ -23,21 +23,35 @@ exports.createSpaBooking = async (req, res) => {
 // Check if booking can be made
 exports.checkBooking = async (req, res) => {
   const { BookingDate, BookingTime, PetID } = req.body;
-  console.log(req.body)
   try {
-    // Check if there is an existing booking with the same date, time, and pet ID
-    const existingBookingDetail = await SpaBookingDetails.findOne({
+    // Find all existing booking details with the same date, time, and pet ID
+    const existingBookingDetails = await SpaBookingDetails.find({
       BookingDate,
       BookingTime,
       PetID
     });
-    if (existingBookingDetail) {
-      // If found, get the BookingID and check the status in the SpaBooking collection
-      const { BookingID } = existingBookingDetail;
-      const existingBooking = await SpaBooking.findOne({ BookingID });
-      console.log(existingBooking)
-      // If the status is 'Cancelled', the slot can be booked
-      if (existingBooking && existingBooking.CurrentStatus != 'Canceled') {
+
+    console.log("Existing Booking Details:", existingBookingDetails);
+
+    // If there are existing bookings for this pet at this time
+    if (existingBookingDetails.length > 0) {
+      // Extract BookingIDs from the existing details
+      const bookingIds = existingBookingDetails.map(detail => detail.BookingID);
+      console.log("Booking IDs:", bookingIds);
+
+      // Find all bookings with these BookingIDs
+      const existingBookings = await SpaBooking.find({
+        BookingID: { $in: bookingIds }
+      });
+
+      console.log("Existing Bookings:", existingBookings);
+
+      // Check if any of these bookings have a status other than 'Cancelled'
+      const activeBookings = existingBookings.filter(booking =>
+        booking.CurrentStatus !== 'Canceled'
+      );
+
+      if (activeBookings.length > 0) {
         return res.status(409).json({
           canBook: false,
           message: 'Booking conflict: The selected pet is already booked at this time and date. Please choose a different time slot.',
@@ -45,7 +59,7 @@ exports.checkBooking = async (req, res) => {
       }
     }
 
-    // Count existing orders for the given date and time
+    // Count existing orders for the given date and time, excluding 'Cancelled'
     const existingOrdersCount = await SpaBookingDetails.countDocuments({
       BookingDate,
       BookingTime,
@@ -66,6 +80,7 @@ exports.checkBooking = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Get all spa bookings
 exports.getSpaBookings = async (req, res) => {
