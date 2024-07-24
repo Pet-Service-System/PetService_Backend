@@ -7,7 +7,12 @@ const { generateSpaBookingID } = require('../utils/idGenerators');
 exports.createSpaBooking = async (req, res) => {
   try {
     const newId = await generateSpaBookingID(); // Generate a new unique BookingDetailID
-    const spaBooking = new SpaBooking({ ...req.body, BookingID: newId,  StatusChanges: [{ Status: req.body.Status, ChangeTime: new Date() }] });
+    const spaBooking = new SpaBooking({
+      ...req.body,
+      BookingID: newId,
+      CurrentStatus: req.body.Status,
+      StatusChanges: [{ Status: req.body.Status, ChangeTime: new Date() }]
+    });
     await spaBooking.save();
     res.status(201).json(spaBooking);
   } catch (err) {
@@ -18,7 +23,7 @@ exports.createSpaBooking = async (req, res) => {
 // Check if booking can be made
 exports.checkBooking = async (req, res) => {
   const { BookingDate, BookingTime, PetID } = req.body;
-  
+  console.log(req.body)
   try {
     // Check if there is an existing booking with the same date, time, and pet ID
     const existingBookingDetail = await SpaBookingDetails.findOne({
@@ -26,13 +31,13 @@ exports.checkBooking = async (req, res) => {
       BookingTime,
       PetID
     });
-
     if (existingBookingDetail) {
       // If found, get the BookingID and check the status in the SpaBooking collection
       const { BookingID } = existingBookingDetail;
       const existingBooking = await SpaBooking.findOne({ BookingID });
+      console.log(existingBooking)
       // If the status is 'Cancelled', the slot can be booked
-      if (existingBooking && existingBooking.Status == 'Pending') {
+      if (existingBooking && existingBooking.CurrentStatus != 'Canceled') {
         return res.status(409).json({
           canBook: false,
           message: 'Booking conflict: The selected pet is already booked at this time and date. Please choose a different time slot.',
@@ -103,24 +108,27 @@ exports.getSpaBookingsByAccountID = async (req, res) => {
 // Update spa booking
 exports.updateSpaBooking = async (req, res) => {
   try {
-    // Create an object that excludes BookingDetailID
-    const { BookingID, Status, ...updateData } = req.body;
-    
-    // Perform the update without BookingDetailID
+    const { Status, StatusChanges, ...updateData } = req.body;
+
+    const updateOptions = {
+      $set: { ...updateData }, 
+    };
+
+    if (Status) {
+      updateOptions.$set.CurrentStatus = Status; 
+      updateOptions.$push = {
+        StatusChanges: { Status, ChangeTime: new Date() }, 
+      };
+    }
+
     const spaBooking = await SpaBooking.findOneAndUpdate(
       { BookingID: req.params.id },
-      { $set: req.body },
-      { new: true }
+      updateOptions,
+      { new: true, runValidators: true } 
     );
 
     if (!spaBooking) {
       return res.status(404).json({ error: 'Spa Booking not found' });
-    }
-
-    if (Status) {
-      spaBooking.CurrentStatus = Status;
-      spaBooking.StatusChanges.push({ Status: Status, ChangeTime: new Date() });
-      await spaBooking.save();
     }
 
     res.status(200).json(spaBooking);
@@ -128,4 +136,6 @@ exports.updateSpaBooking = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
 
