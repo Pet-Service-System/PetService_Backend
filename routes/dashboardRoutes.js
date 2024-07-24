@@ -5,7 +5,10 @@ const {
   countCompletedBookings,
   countTopThreeProducts,
   countOrdersAndBookingsByDayInWeek,
-  calculateEarnings
+  calculateEarnings,
+  getWeeklyEarningsData,
+  getMonthlyEarningsData,
+  getYearlyEarningsData,
 } = require("../controllers/dashboardController");
 
 const { authMiddleware } = require("../middlewares/authMiddleware");
@@ -17,5 +20,8 @@ router.get("/count-completed-bookings", countCompletedBookings);
 router.get("/most-ordered-products", countTopThreeProducts);
 router.get("/count-orders-bookings-by-day", countOrdersAndBookingsByDayInWeek);
 router.get("/calculate-earnings", calculateEarnings);
+router.get("/earnings/weekly", getWeeklyEarningsData);
+router.get("/earnings/monthly", getMonthlyEarningsData);
+router.get("/earnings/yearly", getYearlyEarningsData);
 
 module.exports = router;

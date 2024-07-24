@@ -185,20 +185,48 @@ const idGenerators = {
 
   },
 
-   getStartOfWeek: () => {
+  getStartOfWeek: () => {
     const now = new Date();
-    const firstDay = now.getDate() - now.getDay() + 1; 
+    const firstDay = now.getDate() - now.getDay() + 1; // Monday as the first day
     const startOfWeek = new Date(now.setDate(firstDay));
     startOfWeek.setHours(0, 0, 0, 0);
     return startOfWeek;
   },
-  
-   getEndOfWeek: () => {
+
+  getEndOfWeek: () => {
     const now = new Date();
-    const lastDay = now.getDate() - now.getDay() + 7; 
+    const lastDay = now.getDate() - now.getDay() + 7; // Sunday as the last day
     const endOfWeek = new Date(now.setDate(lastDay));
     endOfWeek.setHours(23, 59, 59, 999);
     return endOfWeek;
+  },
+
+  getStartOfMonth: () => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    return startOfMonth;
+  },
+
+  getEndOfMonth: () => {
+    const now = new Date();
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    endOfMonth.setHours(23, 59, 59, 999);
+    return endOfMonth;
+  },
+
+  getStartOfYear: () => {
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    startOfYear.setHours(0, 0, 0, 0);
+    return startOfYear;
+  },
+
+  getEndOfYear: () => {
+    const now = new Date();
+    const endOfYear = new Date(now.getFullYear(), 11, 31);
+    endOfYear.setHours(23, 59, 59, 999);
+    return endOfYear;
   },
 
    generateVoucherID: async () => {

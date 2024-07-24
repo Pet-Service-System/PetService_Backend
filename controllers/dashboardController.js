@@ -3,7 +3,14 @@ const Order = require("../models/Order");
 const SpaBooking = require("../models/SpaBooking");
 const OrderDetails = require("../models/OrderDetails");
 const Product = require("../models/Product");
-const { getStartOfWeek, getEndOfWeek } = require("../utils/idGenerators");
+const {
+  getStartOfWeek,
+  getEndOfWeek,
+  getStartOfMonth,
+  getEndOfMonth,
+  getStartOfYear,
+  getEndOfYear
+} = require("../utils/idGenerators");
 
 exports.countAvailableAccounts = async (req, res) => {
   try {
@@ -197,7 +204,7 @@ exports.calculateEarnings = async (req, res) => {
       {
         $group: {
           _id: null,
-          totalEarnings: { $sum: "$Price" },
+          totalEarnings: { $sum: "$TotalPrice" },
         },
       },
     ]);
@@ -211,6 +218,111 @@ exports.calculateEarnings = async (req, res) => {
     res.status(200).json({ totalEarnings });
   } catch (error) {
     console.error("Error calculating weekly earnings:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.getWeeklyEarningsData = async (req, res) => {
+  try {
+    const startOfWeek = getStartOfWeek();
+    const endOfWeek = getEndOfWeek();
+
+    const earningsData = await SpaBooking.aggregate([
+      {
+        $match: {
+          CreateDate: {
+            $gte: startOfWeek,
+            $lte: endOfWeek,
+          },
+          Status: "Completed",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$CreateDate" }
+          },
+          totalEarnings: { $sum: "$TotalPrice" }
+        },
+      },
+      {
+        $sort: { _id: 1 }
+      }
+    ]);
+
+    res.status(200).json(earningsData);
+  } catch (error) {
+    console.error("Error fetching weekly earnings data:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.getMonthlyEarningsData = async (req, res) => {
+  try {
+    const startOfMonth = getStartOfMonth();
+    const endOfMonth = getEndOfMonth();
+
+    const earningsData = await SpaBooking.aggregate([
+      {
+        $match: {
+          CreateDate: {
+            $gte: startOfMonth,
+            $lte: endOfMonth,
+          },
+          Status: "Completed",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$CreateDate" }
+          },
+          totalEarnings: { $sum: "$TotalPrice" }
+        },
+      },
+      {
+        $sort: { _id: 1 }
+      }
+    ]);
+
+    res.status(200).json(earningsData);
+  } catch (error) {
+    console.error("Error fetching monthly earnings data:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.getYearlyEarningsData = async (req, res) => {
+  try {
+    const startOfYear = getStartOfYear();
+    const endOfYear = getEndOfYear();
+
+    const earningsData = await SpaBooking.aggregate([
+      {
+        $match: {
+          CreateDate: {
+            $gte: startOfYear,
+            $lte: endOfYear,
+          },
+          Status: "Completed",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m", date: "$CreateDate" }
+          },
+          totalEarnings: { $sum: "$TotalPrice" }
+        },
+      },
+      {
+        $sort: { _id: 1 }
+      }
+    ]);
+
+    res.status(200).json(earningsData);
+  } catch (error) {
+    console.error("Error fetching yearly earnings data:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
