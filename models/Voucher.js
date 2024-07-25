@@ -8,7 +8,7 @@ const voucherSchema = new mongoose.Schema({
     DiscountValue: { type: Number, required: true},
     MinimumOrderValue: {type: Number, required: true, default: 0},
     Status: { type: String, required: true},
-    ExpirationDate: { type: Date, required: true}
+    ExpirationDate: { type: Date}
   }, { versionKey: false },
   );
 

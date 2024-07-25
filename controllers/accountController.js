@@ -1,5 +1,10 @@
 const Account = require('../models/Account');
-
+const nodemailer = require('nodemailer');
+const EMAIL_USERNAME = process.env.EMAIL_USERNAME;
+const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
+const Voucher = require('../models/Voucher');
+const { generateVoucherID, generateVoucherPattern } = require('../utils/idGenerators');
+const SpaBooking = require('../models/SpaBooking');
 
   // Get all accounts API (admin)
   exports.getAllAccounts = async (req, res) => {
@@ -114,5 +119,124 @@ exports.getFullnameById = async (req, res) => {
   } catch (error) {
       console.error('Error getting fullname and role of account by ID:', error);
       res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.getMembershipById = async (req, res) => {
+  const accountId = req.params.id;
+
+  try {
+    const account = await Account.findOne({ AccountID: accountId });
+
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found!' });
+    }
+
+    res.json({
+      totalSpent: account.totalSpent,
+      membershipType: account.membershipType,
+      startDate: account.startDate,
+      endDate: account.endDate,
+    });
+  } catch (error) {
+    console.error('Error getting membership details of account by ID:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// Update membership details of an account by ID
+
+exports.updateCurrentSpent = async (req, res) => {
+  let booleanUpgrade = false;
+  const accountId = req.params.id;
+  let memberStatus = 0;
+
+  try {
+    const account = await Account.findOne({ AccountID: accountId });
+    const bookings = await SpaBooking.find({ AccountID: accountId, isSpentUpdated: false });
+    console.log(bookings);
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found!' });
+    }
+
+    let updatedTotalSpent = 0;
+
+    for (const booking of bookings) {
+      updatedTotalSpent += booking.TotalPrice;
+      booking.isSpentUpdated = true;
+      await booking.save();
+    }
+
+    account.totalSpent += updatedTotalSpent;
+    await account.save();
+
+    if (account.totalSpent >= 3000000 && account.membershipType !== 'VIP') {
+      account.membershipType = 'VIP';
+      account.startDate = new Date();
+      account.endDate = new Date(account.startDate);
+      account.endDate.setMonth(account.endDate.getMonth() + 1);
+      booleanUpgrade = true;
+      memberStatus = 2;
+    } else if (account.totalSpent >= 1500000 && account.membershipType !== 'Premium') {
+      account.membershipType = 'Premium';
+      account.startDate = new Date();
+      account.endDate = new Date(account.startDate);
+      account.endDate.setMonth(account.endDate.getMonth() + 1);
+      booleanUpgrade = true;
+      memberStatus = 1;
+    }
+
+    await account.save();
+
+    if (booleanUpgrade) {
+      let discountValue = 0;
+      if (memberStatus == 1) {
+        discountValue = 500000;
+      } else if (memberStatus == 2) {
+        discountValue = 1000000;
+      }
+
+      const voucherID = await generateVoucherID();
+      const voucherPattern = await generateVoucherPattern();
+      const voucher = new Voucher({
+        VoucherID: voucherID,
+        UsageLimit: 1,
+        DiscountValue: discountValue,
+        MinimumOrderValue: 0,
+        Status: 'Active',
+        Pattern: voucherPattern,
+      });
+      await voucher.save();
+
+      const mailOptions = {
+        from: '"PetService" <petservicesswp391@gmail.com>',
+        to: account.email,
+        subject: "Chúc mừng quý khách hàng!",
+        html: `<p>Chào bạn ${account.fullname},</p>
+               <p>Xin chúc mừng bạn đã chính thức lên hạng ${account.membershipType} và nhận được voucher giảm giá ${discountValue} cho lần mua hàng tiếp theo!</p>
+               <p>Hãy tận hưởng những ưu đãi đặc biệt dành riêng cho thành viên ${account.membershipType} của chúng tôi. Đừng quên khám phá các sản phẩm và dịch vụ mới nhất tại PetService.</p>
+               <p>Voucher của bạn có mã là: ${voucherPattern}. Hãy nhập mã này khi thanh toán để được giảm giá.</p>
+               <p>Chúc bạn có những trải nghiệm mua sắm thú vị!</p>
+               <p>Thân ái,</p>
+               <p>Đội ngũ PetService</p>`,
+      };
+
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        secure: false,
+        port: 587,
+        auth: {
+          user: EMAIL_USERNAME,
+          pass: EMAIL_PASSWORD,
+        },
+      });
+
+      await transporter.sendMail(mailOptions);
+    }
+
+    res.json({ message: 'Total spent and membership updated successfully', account });
+  } catch (error) {
+    console.error('Error updating total spent:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };

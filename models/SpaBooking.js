@@ -18,6 +18,7 @@ const spaBookingSchema = new Schema({
   CancelReason: { type: String, required: false },
   CaretakerNote: { type: String, required: false },
   CaretakerID: { type: String, required: false, ref: 'Account' },
+  isSpentUpdated: { type: Boolean, default: false },
   StatusChanges: [statusChangeSchema],
 }, { versionKey: false });
 

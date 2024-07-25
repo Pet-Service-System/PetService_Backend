@@ -8,10 +8,13 @@ const accountSchema = new mongoose.Schema({
   email: { type: String, required: true },
   phone: { type: String, required: false },
   status: { type: Number, required: true },
-  role: { type: String, required: true,  default: 'Customer' }
+  role: { type: String, required: true,  default: 'Customer' },
+  totalSpent: {type: Number, default: 0},
+  membershipType: { type: String, enum: ['Basic', 'Premium', 'VIP'], required: true},
+  startDate: { type: Date},
+  endDate: { type: Date },
 }, { versionKey: false });
 
-// Specify the collection name as the third argument to mongoose.model
 const Account = mongoose.model('Account', accountSchema, 'Accounts'); 
 
 module.exports = Account;

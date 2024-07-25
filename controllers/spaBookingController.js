@@ -37,14 +37,11 @@ exports.checkBooking = async (req, res) => {
     if (existingBookingDetails.length > 0) {
       // Extract BookingIDs from the existing details
       const bookingIds = existingBookingDetails.map(detail => detail.BookingID);
-      console.log("Booking IDs:", bookingIds);
 
       // Find all bookings with these BookingIDs
       const existingBookings = await SpaBooking.find({
         BookingID: { $in: bookingIds }
       });
-
-      console.log("Existing Bookings:", existingBookings);
 
       // Check if any of these bookings have a status other than 'Cancelled'
       const activeBookings = existingBookings.filter(booking =>

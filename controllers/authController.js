@@ -24,7 +24,7 @@ exports.login = async (req, res) => {
         if (isMatch) {
           // Create JWT token with unique payload
           const token = jwt.sign(
-            { id: account.AccountID, email: account.email, fullname: account.fullname, role: account.role },
+            { id: account.AccountID, email: account.email, fullname: account.fullname, role: account.role, phone: account.phone, address: account.address, totalSpent:account.totalSpent,membershipType: account.membershipType, startDate: account.startDate, endDate: account.endDate},
             JWT_SECRET,
             { expiresIn: JWT_EXPIRES_IN }
           );
@@ -36,7 +36,11 @@ exports.login = async (req, res) => {
               role: account.role, 
               fullname: account.fullname,  
               phone: account.phone, 
-              address: account.address 
+              address: account.address,
+              totalSpent: account.totalSpent,
+              membershipType: account.membershipType,
+              startDate: account.startDate,
+              endDate: account.endDate,
             }, 
             token 
           });
@@ -57,7 +61,7 @@ exports.login = async (req, res) => {
 
 // Register API
 exports.register = async (req, res) => {
-  const { fullname, email, password, phone, address } = req.body; // Get fullname, email, password, phone, and address from request body
+  const { fullname, email, password, phone, address, totalSpent, membershipType, startDate, endDate } = req.body; 
   try {
     const existingAccount = await Account.findOne({ email }); // Check if the email exists
     if (existingAccount) {
@@ -75,11 +79,15 @@ exports.register = async (req, res) => {
       phone: phone, 
       address: address,
       status: 1, 
-      role: 'Customer' 
+      role: 'Customer',
+      totalSpent: totalSpent || 0,
+      membershipType: membershipType,
+      startDate: startDate,
+      endDate: endDate,
     });
     await newAccount.save(); // Save new account
 
-    res.json({ message: 'Registration successful', user: { accountID: newAccount.AccountID, fullname: newAccount.fullname, email: newAccount.email, phone: newAccount.phone, address: newAccount.address } }); // Registration successful
+    res.json({ message: 'Registration successful', user: { accountID: newAccount.AccountID, fullname: newAccount.fullname, email: newAccount.email, phone: newAccount.phone, address: newAccount.address, role: newAccount.role,totalSpent: newAccount.totalSpent, membershipType: newAccount.membershipType, startDate: newAccount.startDate, endDate: newAccount.endDate} }); // Registration successful
 
     // Tạo nội dung email
     const transporter = nodemailer.createTransport({
@@ -258,6 +266,10 @@ exports.googleAuth = async (req, res) => {
         phone: '',
         status: 1,
         role: 'Customer',
+        membershipType: 'Basic',
+        totalSpent: 0,
+        startDate: new Date(),
+        endDate: new Date(),
       });
       await account.save(); // Save new Google account
     }
@@ -267,7 +279,7 @@ exports.googleAuth = async (req, res) => {
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
-    return res.json({ message: 'Login successful', user: { id: account.AccountID, email: account.email, role: account.role, fullname: account.fullname, phone: account.phone, address: account.address },
+    return res.json({ message: 'Login successful', user: { id: account.AccountID, email: account.email, role: account.role, fullname: account.fullname, phone: account.phone, address: account.address, membershipType: account.membershipType, startDate: account.startDate, endDate: account.endDate, benefits: account.benefits },
       token: jwtToken
     });
   } catch (error) {
