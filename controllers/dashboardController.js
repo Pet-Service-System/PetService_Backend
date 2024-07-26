@@ -34,7 +34,7 @@ exports.countCompletedOrders = async (req, res) => {
 
 exports.countCompletedBookings = async (req, res) => {
   try {
-    const count = await SpaBooking.countDocuments({ Status: "Completed" });
+    const count = await SpaBooking.countDocuments({ CurrentStatus: "Completed" });
     res.json({ count });
   } catch (error) {
     console.error("Error counting available bookings:", error);
@@ -127,7 +127,7 @@ exports.countOrdersAndBookingsByDayInWeek = async (req, res) => {
             $gte: startOfWeek,
             $lte: endOfWeek,
           },
-          Status: { $ne: "Canceled" },
+          CurrentStatus: { $ne: "Canceled" },
         },
       },
       {
@@ -198,7 +198,7 @@ exports.calculateEarnings = async (req, res) => {
             $gte: startOfWeek,
             $lte: endOfWeek,
           },
-          Status: "Completed",
+          CurrentStatus: "Completed",
         },
       },
       {
@@ -226,7 +226,6 @@ exports.getWeeklyEarningsData = async (req, res) => {
   try {
     const startOfWeek = getStartOfWeek();
     const endOfWeek = getEndOfWeek();
-
     const earningsData = await SpaBooking.aggregate([
       {
         $match: {
@@ -234,7 +233,7 @@ exports.getWeeklyEarningsData = async (req, res) => {
             $gte: startOfWeek,
             $lte: endOfWeek,
           },
-          Status: "Completed",
+          CurrentStatus: "Completed",
         },
       },
       {
@@ -249,7 +248,6 @@ exports.getWeeklyEarningsData = async (req, res) => {
         $sort: { _id: 1 }
       }
     ]);
-
     res.status(200).json(earningsData);
   } catch (error) {
     console.error("Error fetching weekly earnings data:", error);
@@ -269,7 +267,7 @@ exports.getMonthlyEarningsData = async (req, res) => {
             $gte: startOfMonth,
             $lte: endOfMonth,
           },
-          Status: "Completed",
+          CurrentStatus: "Completed",
         },
       },
       {
@@ -304,7 +302,7 @@ exports.getYearlyEarningsData = async (req, res) => {
             $gte: startOfYear,
             $lte: endOfYear,
           },
-          Status: "Completed",
+          CurrentStatus: "Completed",
         },
       },
       {
