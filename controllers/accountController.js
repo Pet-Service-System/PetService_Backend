@@ -213,7 +213,7 @@ exports.updateCurrentSpent = async (req, res) => {
         to: account.email,
         subject: "Chúc mừng quý khách hàng!",
         html: `<p>Chào bạn ${account.fullname},</p>
-               <p>Xin chúc mừng bạn đã chính thức lên hạng ${account.membershipType} và nhận được voucher giảm giá ${discountValue} cho lần mua hàng tiếp theo!</p>
+               <p>Xin chúc mừng bạn đã chính thức lên hạng ${account.membershipType} và nhận được voucher giảm giá ${discountValue} VNĐ cho lần mua hàng tiếp theo!</p>
                <p>Hãy tận hưởng những ưu đãi đặc biệt dành riêng cho thành viên ${account.membershipType} của chúng tôi. Đừng quên khám phá các sản phẩm và dịch vụ mới nhất tại PetService.</p>
                <p>Voucher của bạn có mã là: ${voucherPattern}. Hãy nhập mã này khi thanh toán để được giảm giá.</p>
                <p>Chúc bạn có những trải nghiệm mua sắm thú vị!</p>
