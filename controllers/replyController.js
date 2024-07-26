@@ -25,7 +25,7 @@ exports.getReplyByBookingId = async (req, res) => {
     try {
         const { BookingID } = req.params;
         const replies = await Reply.find({ BookingID });
-        res.json({ replies });
+        res.status(200).json(replies);
     } catch (error) {
         console.error('Error fetching replies:', error);
         res.status(500).json({ error: 'Server error' });
