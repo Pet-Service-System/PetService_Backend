@@ -5,7 +5,7 @@ const {authMiddleware} = require('../middlewares/authMiddleware');
 const {getAllAccounts, getAccountById, getAccountByRole, updateAccountById, deleteAccount, getFullnameById, updateCurrentSpent} = require('../controllers/accountController');
 
 router.get('/role/:role?', getAccountByRole);
-router.get('/all', authMiddleware, getAllAccounts);
+router.get('/all', getAllAccounts);
 router.get('/:id/', authMiddleware, getAccountById);
 router.patch('/:id', authMiddleware, updateAccountById);
 router.delete('/me', authMiddleware, deleteAccount);
