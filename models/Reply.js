@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const replySchema = new Schema({
     ReplyID: { type: String, required: true, unique: true },
-    CommentID: { type: String, required: true },
+    BookingID: { type: String, required: true, ref: 'SpaBooking' },
     AccountID: { type: String, required: true, ref: 'Account' },
     ReplyDate: { type: Date, required: true},
     ReplyContent: { type: String, required: true },
