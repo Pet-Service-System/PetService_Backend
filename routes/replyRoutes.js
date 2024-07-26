@@ -6,7 +6,7 @@ const { getReplyByBookingId, createReply, updateReply, deleteReply } = require('
 router.post('/', createReply);
 
 // Get all replies for a specific comment by CommentID
-router.get('/comment/:CommentID', getReplyByBookingId);
+router.get('/feedback/:BookingID', getReplyByBookingId);
 
 // Update a reply
 router.patch('/:id', updateReply);
