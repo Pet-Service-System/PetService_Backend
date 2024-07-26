@@ -204,7 +204,7 @@ exports.calculateEarnings = async (req, res) => {
       {
         $group: {
           _id: null,
-          totalEarnings: { $sum: "$TotalPrice" },
+          totalEarnings: { $sum: "$FinalPrice" },
         },
       },
     ]);
@@ -241,7 +241,7 @@ exports.getWeeklyEarningsData = async (req, res) => {
           _id: {
             $dateToString: { format: "%Y-%m-%d", date: "$CreateDate" }
           },
-          totalEarnings: { $sum: "$TotalPrice" }
+          totalEarnings: { $sum: "$FinalPrice" }
         },
       },
       {
@@ -275,7 +275,7 @@ exports.getMonthlyEarningsData = async (req, res) => {
           _id: {
             $dateToString: { format: "%Y-%m-%d", date: "$CreateDate" }
           },
-          totalEarnings: { $sum: "$TotalPrice" }
+          totalEarnings: { $sum: "$FinalPrice" }
         },
       },
       {
@@ -310,7 +310,7 @@ exports.getYearlyEarningsData = async (req, res) => {
           _id: {
             $dateToString: { format: "%Y-%m", date: "$CreateDate" }
           },
-          totalEarnings: { $sum: "$TotalPrice" }
+          totalEarnings: { $sum: "$FinalPrice" }
         },
       },
       {

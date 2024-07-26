@@ -12,6 +12,7 @@ const spaBookingDetailsSchema = new Schema({
   PetStatus: { type: String, required: true },
   PetTypeID: { type: String, ref: 'PetType', required: true },
   PetWeight: { type: Number, required: true },
+  ActualWeight: { type: Number, required: false },
   PetAge: { type: Number, required: true },
   BookingDate: {type: String, required: true},
   BookingTime: { type: String, required: true },
