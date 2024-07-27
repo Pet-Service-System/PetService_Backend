@@ -154,7 +154,6 @@ exports.updateCurrentSpent = async (req, res) => {
   try {
     const account = await Account.findOne({ AccountID: accountId });
     const bookings = await SpaBooking.find({ AccountID: accountId, isSpentUpdated: false });
-    console.log(bookings);
     if (!account) {
       return res.status(404).json({ message: 'Account not found!' });
     }

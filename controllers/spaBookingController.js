@@ -31,8 +31,6 @@ exports.checkBooking = async (req, res) => {
       PetID
     });
 
-    console.log("Existing Booking Details:", existingBookingDetails);
-
     // If there are existing bookings for this pet at this time
     if (existingBookingDetails.length > 0) {
       // Extract BookingIDs from the existing details

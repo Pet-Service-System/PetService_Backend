@@ -15,7 +15,7 @@ router.get('/:id', authMiddleware, getBookingDetailById);
 router.get('/booking/:bookingId', authMiddleware, getBookingDetailByBookingId);
 
 // Update a spa booking detail by ID
-router.put('/:id', authMiddleware, updateBookingDetailById);
+router.patch('/:id', authMiddleware, updateBookingDetailById);
 
 // Delete a spa booking detail by ID
 router.delete('/:id', authMiddleware, deleteBookingDetailById);
