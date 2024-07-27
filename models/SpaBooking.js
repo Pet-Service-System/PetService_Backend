@@ -24,6 +24,7 @@ const spaBookingSchema = new Schema({
   isSpentUpdated: { type: Boolean, default: false },
   StatusChanges: [statusChangeSchema],
   isReplied: { type: Boolean, required: false },
+  VoucherID: { type: String, required: false },
 }, { versionKey: false });
 
 const SpaBooking = mongoose.model('SpaBooking', spaBookingSchema, 'SpaBookings');
