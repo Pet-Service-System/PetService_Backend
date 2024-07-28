@@ -167,7 +167,6 @@ exports.updateCurrentSpent = async (req, res) => {
     }
 
     account.totalSpent += updatedTotalSpent;
-    await account.save();
 
     if (account.totalSpent >= 3000000 && account.membershipType !== 'VIP') {
       account.membershipType = 'VIP';
@@ -176,7 +175,7 @@ exports.updateCurrentSpent = async (req, res) => {
       account.endDate.setMonth(account.endDate.getMonth() + 1);
       booleanUpgrade = true;
       memberStatus = 2;
-    } else if (account.totalSpent >= 1500000 && account.membershipType !== 'Premium') {
+    } else if (account.totalSpent >= 1500000 && account.totalSpent < 3000000 && account.membershipType !== 'Premium') {
       account.membershipType = 'Premium';
       account.startDate = new Date();
       account.endDate = new Date(account.startDate);
@@ -230,6 +229,9 @@ exports.updateCurrentSpent = async (req, res) => {
       });
 
       await transporter.sendMail(mailOptions);
+    }
+    else {
+      await account.save();
     }
 
     res.json({ message: 'Total spent and membership updated successfully', account });
