@@ -185,9 +185,8 @@ exports.updateCurrentSpent = async (req, res) => {
       memberStatus = 1;
     }
 
-    await account.save();
-
     if (booleanUpgrade) {
+      await account.save();
       let discountValue = 0;
       if (memberStatus == 1) {
         discountValue = 500000;
