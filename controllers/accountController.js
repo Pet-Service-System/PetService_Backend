@@ -161,7 +161,7 @@ exports.updateCurrentSpent = async (req, res) => {
     let updatedTotalSpent = 0;
 
     for (const booking of bookings) {
-      updatedTotalSpent += booking.TotalPrice;
+      updatedTotalSpent += booking.FinalPrice;
       booking.isSpentUpdated = true;
       await booking.save();
     }
