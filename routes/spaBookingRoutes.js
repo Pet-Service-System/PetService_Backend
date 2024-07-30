@@ -1,13 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const {createSpaBooking, getSpaBookings, getSpaBookingById, getSpaBookingsByAccountID, updateSpaBooking, checkBooking} = require('../controllers/spaBookingController');
+const { createBooking, getSpaBookings, getBookingById, checkBooking, getSpaBookingsByAccountID, updateBooking } = require('../controllers/spaBookingController');
 
-router.post('/', createSpaBooking);
-router.post('/check', checkBooking);
+
+router.post('/', createBooking);
+
+
 router.get('/', getSpaBookings);
-router.get('/:id', getSpaBookingById);
+
+
+router.get('/:id', getBookingById);
+
+
+router.post('/check', checkBooking);
+
+
 router.get('/account/:accountId', getSpaBookingsByAccountID);
-router.patch('/:id', updateSpaBooking);
+
+
+router.put('/:id', updateBooking);
 
 
 module.exports = router;

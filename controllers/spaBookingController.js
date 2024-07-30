@@ -1,26 +1,119 @@
 
 const SpaBooking = require('../models/SpaBooking');
 const SpaBookingDetails = require('../models/SpaBookingDetails');
-const { generateSpaBookingID } = require('../utils/idGenerators');
+const PaymentDetails = require('../models/PaymentDetails');
+PAYPAL_CLIENT_ID=process.env.PAYPAL_CLIENT_ID;
+PAYPAL_SECRET=process.env.PAYPAL_SECRET;
 
-// Create a new spa booking
-exports.createSpaBooking = async (req, res) => {
+const { generateSpaBookingID, generateSpaBookingDetailsID, generateAdditionalID } = require('../utils/idGenerators');
+
+// Create a new booking
+exports.createBooking = async (req, res) => {
   try {
-    const newId = await generateSpaBookingID(); // Generate a new unique BookingDetailID
-    const spaBooking = new SpaBooking({
-      ...req.body,
-      BookingID: newId,
-      CurrentStatus: req.body.Status,
+    const bookingData = req.body;
+    const BookingID = await generateSpaBookingID();
+    const PaymentDetailsID = await generatePaymentDetailsID();
+    const BookingDetailsID = await generateSpaBookingDetailsID();
+    const PaypalOrderID = crypto.AES.encrypt(req.body.PaypalOrderID, process.env.PAYPAL_CLIENT_SECRET).toString();
+
+    const paymentDetails = new PaymentDetails({
+      PaymentDetailsID,
+      BookingID,
+      PaypalOrderID,
+      ExtraCharge: bookingData.ExtraCharge,
+      FinalPrice: bookingData.FinalPrice
+    });
+    
+    const SpabookingDetails = new SpaBookingDetails({
+      BookingDetailsID,
+      BookingID,
+      CustomerName: bookingData.CustomerName,
+      Phone: bookingData.Phone,
+      PetID: bookingData.PetID,
+      PetName: bookingData.PetName,
+      PetGender: bookingData.PetGender,
+      PetStatus: bookingData.PetStatus,
+      PetTypeID: bookingData.PetTypeID,
+      PetWeight: bookingData.PetWeight,
+      ActualWeight: bookingData.ActualWeight,
+      PetAge: bookingData.PetAge,
+      BookingDate: bookingData.BookingDate,
+      BookingTime: bookingData.BookingTime,
+      ServiceID: bookingData.ServiceID
+    });
+
+    const SpaBooking = new SpaBooking({
+      BookingID,
+      CurrentStatus: bookingData.CurrentStatus,
+      CreateDate: bookingData.CreateDate,
+      AccountID: bookingData.AccountID,
+      TotalPrice: bookingData.TotalPrice,
+      PaymentDetailsID,
+      BookingDetailsID,
       StatusChanges: [{ Status: req.body.Status, ChangeTime: new Date() }]
     });
-    await spaBooking.save();
-    res.status(201).json(spaBooking);
+
+
+    const AdditionalInfo = new AdditionalInfo({
+      AdditionalInfoID: await generateAdditionalID(),
+      BookingID,
+      CancelReason: bookingData.CancelReason,
+      CaretakerNote: bookingData.CaretakerNote,
+      CaretakerID: bookingData.CaretakerID,
+      Feedback: bookingData.Feedback,
+      isReplied: bookingData.isReplied
+    });
+
+    await paymentDetails.save();
+    await SpabookingDetails.save();
+    await SpaBooking.save();
+    await AdditionalInfo.save();
+  
+
+    res.status(201).json(SpaBooking);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+// Get all spa bookings
+exports.getSpaBookings = async (req, res) => {
+  try {
+    const spaBookings = await SpaBooking.find()
+      .populate('AccountID') 
+      .populate('PaymentDetailsID')  
+      .populate('BookingDetailsID')
+      .populate('AdditionalInfoID'); 
+
+    res.status(200).json(spaBookings);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Check if booking can be made
+
+// Get a booking by ID
+exports.getBookingById = async (req, res) => {
+  try {
+    const bookingID = req.params.id;
+    const booking = await SpaBooking.findOne({ BookingID: bookingID })
+      .populate('PaymentDetailsID')
+      .populate('BookingDetailsID')
+      .populate('StatusChanges')
+      .populate('AdditionalInfoID');
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    res.status(200).json(booking);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 exports.checkBooking = async (req, res) => {
   const { BookingDate, BookingTime, PetID } = req.body;
   try {
@@ -31,19 +124,17 @@ exports.checkBooking = async (req, res) => {
       PetID
     });
 
-    // If there are existing bookings for this pet at this time
     if (existingBookingDetails.length > 0) {
       // Extract BookingIDs from the existing details
       const bookingIds = existingBookingDetails.map(detail => detail.BookingID);
 
-      // Find all bookings with these BookingIDs
+
       const existingBookings = await SpaBooking.find({
         BookingID: { $in: bookingIds }
       });
 
-      // Check if any of these bookings have a status other than 'Cancelled'
       const activeBookings = existingBookings.filter(booking =>
-        booking.CurrentStatus !== 'Canceled'
+        booking.CurrentStatus !== 'Cancelled'
       );
 
       if (activeBookings.length > 0) {
@@ -53,12 +144,10 @@ exports.checkBooking = async (req, res) => {
         });
       }
     }
-
-    // Count existing orders for the given date and time, excluding 'Cancelled'
-    const existingOrdersCount = await SpaBookingDetails.countDocuments({
+    const existingOrdersCount = await SpaBooking.countDocuments({
       BookingDate,
       BookingTime,
-      status: { $ne: 'Cancelled' }
+      CurrentStatus: { $ne: 'Cancelled' }
     });
 
     const maxOrdersPerSlot = 4;
@@ -76,76 +165,46 @@ exports.checkBooking = async (req, res) => {
   }
 };
 
-
-// Get all spa bookings
-exports.getSpaBookings = async (req, res) => {
-  try {
-    // Populate references
-    const spaBookings = await SpaBooking.find();
-    res.status(200).json(spaBookings);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Get spa booking by ID
-exports.getSpaBookingById = async (req, res) => {
-  try {
-    const spaBooking = await SpaBooking.findOne({ BookingID: req.params.id });
-    if (!spaBooking) {
-      return res.status(404).json({ error: 'Spa Booking not found' });
-    }
-    res.status(200).json(spaBooking);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Get spa bookings by Account ID
 exports.getSpaBookingsByAccountID = async (req, res) => {
   try {
-    // Populate references
-    const spaBookings = await SpaBooking.find({ AccountID: req.params.accountId });
+    const accountId = req.params.accountId;
+
+    // Find spa bookings by AccountID and populate references if needed
+    const spaBookings = await SpaBooking.find({ AccountID: accountId })
+      .populate('AccountID') 
+      .populate('PaymentDetailsID') 
+      .populate('BookingDetailsID')
+      .populate('AdditionalInfoID');
+
     if (spaBookings.length === 0) {
       return res.status(404).json({ error: 'No Spa Bookings found for this AccountID' });
     }
+
     res.status(200).json(spaBookings);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Update spa booking
-exports.updateSpaBooking = async (req, res) => {
+// Update a booking
+exports.updateBooking = async (req, res) => {
   try {
-    const { Status, StatusChanges, ...updateData } = req.body;
+    const bookingID = req.params.id;
+    const bookingData = req.body;
 
-    const updateOptions = {
-      $set: { ...updateData }, 
-    };
-
-    if (Status) {
-      updateOptions.$set.CurrentStatus = Status; 
-      updateOptions.$push = {
-        StatusChanges: { Status, ChangeTime: new Date() }, 
-      };
-    }
-
-    const spaBooking = await SpaBooking.findOneAndUpdate(
-      { BookingID: req.params.id },
-      updateOptions,
-      { new: true, runValidators: true } 
+    const SpaBooking = await SpaBooking.findOneAndUpdate(
+      { BookingID: bookingID },
+      bookingData,
+      { new: true }
     );
 
-    if (!spaBooking) {
-      return res.status(404).json({ error: 'Spa Booking not found' });
+    if (!SpaBooking) {
+      return res.status(404).json({ message: 'Booking not found' });
     }
 
-    res.status(200).json(spaBooking);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(200).json(SpaBooking);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
-
-
 

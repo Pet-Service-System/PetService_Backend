@@ -11,6 +11,9 @@ const Comment = require('../models/Comment');
 const Voucher = require('../models/Voucher');
 const Reply = require("../models/Reply");
 const Category = require('../models/Category');
+const PaymentDetails = require('../models/PaymentDetails');
+const AdditionalInfo = require('../models/AdditionalInfo');
+
 
 const idGenerators = {
   generateAccountID: async () => {
@@ -290,7 +293,27 @@ const idGenerators = {
     }
   },
   
+  generatePaymentID: async () => {
+    const lastPayment = await PaymentDetails.findOne().sort({ PaymentID: -1 }).exec();
+    if (lastPayment) {
+      const lastPaymentID = lastPayment.PaymentID;
+      const paymentNumber = parseInt(lastPaymentID.replace('PM', ''), 10) + 1;
+      return `P${paymentNumber.toString().padStart(3, '0')}`;
+    } else {
+      return 'PM001';
+}
+  },
 
+  generateAdditionalID: async () => {
+    const lastAdditional = await Additional.findOne().sort({ AdditionalID: -1 }).exec();
+    if (lastAdditional) {
+      const lastAdditionalID = lastAdditional.AdditionalID;
+      const additionalNumber = parseInt(lastAdditionalID.replace('AD', ''), 10) + 1;
+      return `AD${additionalNumber.toString().padStart(3, '0')}`;
+    } else {
+      return 'AD001';
+    }
+  },
 };
 
 

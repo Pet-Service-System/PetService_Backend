@@ -14,7 +14,6 @@ const orderRoutes = require('./routes/orderRoutes');
 const spaBookingRoutes = require('./routes/spaBookingRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const orderDetailsRoutes = require('./routes/orderDetailsRoutes');
-const SpaBookingDetailsRoutes = require('./routes/spaBookingDetailsRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const voucherRoutes = require('./routes/voucherRoutes');
@@ -74,13 +73,10 @@ app.use('/api/order-details', orderDetailsRoutes);
 
 
 // Spa booking Routes
-app.use('/api/Spa-bookings', spaBookingRoutes);
+app.use('/api/spa-bookings', spaBookingRoutes);
 
 // Comment Routes
 app.use('/api/comments', commentRoutes);
-
-// Spa Booking Details Routes
-app.use('/api/spa-booking-details', SpaBookingDetailsRoutes);
 
 // cart Routes
 app.use('/api/cart', cartRoutes);
