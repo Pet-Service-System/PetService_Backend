@@ -15,6 +15,7 @@ const spaBookingSchema = new Schema({
   isReviewed: {type: Boolean, default: false},
   TotalPrice: {type: Number, required: true},
   ExtraCharge: {type: Number, required: false},
+  FinalPrice: {type: Number, required: false},
   PaypalOrderID: { type: String, required: true },
   CancelReason: { type: String, required: false },
   CaretakerNote: { type: String, required: false },
