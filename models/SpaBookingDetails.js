@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const spaBookingDetailsSchema = new Schema({
-  BookingDetailsID: { type: String, required: true, unique: true },
-  BookingID: { type: String, required: true, ref: 'SpaBooking' },
+  BookingID: { type: Schema.Types.ObjectId, required: true, ref: 'SpaBooking' },
   CustomerName:  { type: String, required: true },
   Phone: { type: String, required: true },
   PetID: { type: String, required: true, ref: 'Pet' },

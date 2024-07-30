@@ -7,36 +7,41 @@ PAYPAL_CLIENT_ID=process.env.PAYPAL_CLIENT_ID;
 PAYPAL_SECRET=process.env.PAYPAL_SECRET;
 const crypto = require('crypto-js');
 
-const { generateSpaBookingID, generateSpaBookingDetailsID, generatePaymentDetailsID, generateAdditionalInfoID } = require('../utils/idGenerators');
+
 
 // Create a new booking
 exports.createBooking = async (req, res) => {
   try {
     const bookingData = req.body;
 
-    // Generate unique IDs
-    const BookingID = await generateSpaBookingID();
-    const PaymentDetailsID = await generatePaymentDetailsID();
-    const BookingDetailsID = await generateSpaBookingDetailsID();
-    const AdditionalInfoID = await generateAdditionalInfoID();
+    let encryptedPaypalOrderID;
+    try {
+      encryptedPaypalOrderID = crypto.AES.encrypt(bookingData.PaypalOrderID, process.env.PAYPAL_CLIENT_SECRET).toString();
+    } catch (err) {
+      throw new Error('Failed to encrypt PaypalOrderID');
+    }
 
-  
-    const PaypalOrderID = crypto.AES.encrypt(req.body.PaypalOrderID, process.env.PAYPAL_CLIENT_SECRET).toString();
-
+    const spaBooking = new SpaBooking({
+      CurrentStatus: bookingData.CurrentStatus,
+      CreateDate: bookingData.CreateDate,
+      AccountID: bookingData.AccountID,
+      TotalPrice: bookingData.TotalPrice,
+      StatusChanges: [{ Status: bookingData.CurrentStatus, ChangeTime: new Date() }],
+      isSpentUpdated: bookingData.isSpentUpdated,
+      VoucherID: bookingData.VoucherID
+    });
+    const savedSpaBooking = await spaBooking.save();
 
     const paymentDetails = new PaymentDetails({
-      PaymentDetailsID,
-      BookingID,
-      PaypalOrderID,
+      BookingID: savedSpaBooking._id,
+      PaypalOrderID: encryptedPaypalOrderID,
       ExtraCharge: bookingData.ExtraCharge,
       TotalPrice: bookingData.TotalPrice
     });
-
     await paymentDetails.save();
 
     const spaBookingDetails = new SpaBookingDetails({
-      BookingDetailsID,
-      BookingID,
+      BookingID: savedSpaBooking._id,
       CustomerName: bookingData.CustomerName,
       Phone: bookingData.Phone,
       PetID: bookingData.PetID,
@@ -51,40 +56,25 @@ exports.createBooking = async (req, res) => {
       BookingTime: bookingData.BookingTime,
       ServiceID: bookingData.ServiceID
     });
-    console.log(spaBookingDetails);
     await spaBookingDetails.save();
 
-   
-    const spaBooking = new SpaBooking({
-      BookingID,
-      CurrentStatus: bookingData.CurrentStatus,
-      CreateDate: bookingData.CreateDate,
-      AccountID: bookingData.AccountID,
-      TotalPrice: bookingData.TotalPrice,
-      PaymentDetailsID,
-      BookingDetailsID,
-      StatusChanges: [{ Status: bookingData.CurrentStatus, ChangeTime: new Date() }],
-      isSpentUpdated: bookingData.isSpentUpdated,
-      VoucherID: bookingData.VoucherID
-    });
-
-    await spaBooking.save();
-
-    // Create and save AdditionalInfo
     const additionalInfo = new AdditionalInfo({
-      AdditionalInfoID,
-      BookingID,
+      BookingID: savedSpaBooking._id,
       CancelReason: bookingData.CancelReason,
       CaretakerNote: bookingData.CaretakerNote,
       CaretakerID: bookingData.CaretakerID,
       Feedback: bookingData.Feedback,
       isReplied: bookingData.isReplied
     });
-
     await additionalInfo.save();
 
+    savedSpaBooking.PaymentDetailsID = paymentDetails._id;
+    savedSpaBooking.BookingDetailsID = spaBookingDetails._id;
+    savedSpaBooking.AdditionalInfoID = additionalInfo._id;
+    await savedSpaBooking.save();
+
     // Send response
-    res.status(201).json(spaBooking);
+    res.status(201).json(savedSpaBooking);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -95,7 +85,6 @@ exports.createBooking = async (req, res) => {
 exports.getSpaBookings = async (req, res) => {
   try {
     const spaBookings = await SpaBooking.find()
-      .populate('AccountID') 
       .populate('PaymentDetailsID')  
       .populate('BookingDetailsID')
       .populate('AdditionalInfoID'); 
@@ -111,7 +100,7 @@ exports.getSpaBookings = async (req, res) => {
 exports.getBookingById = async (req, res) => {
   try {
     const bookingID = req.params.id;
-    const booking = await SpaBooking.findOne({ BookingID: bookingID })
+    const booking = await SpaBooking.findById(bookingID)
       .populate('PaymentDetailsID')
       .populate('BookingDetailsID')
       .populate('StatusChanges')
@@ -145,11 +134,10 @@ exports.checkBooking = async (req, res) => {
 
     if (existingBookingDetails.length > 0) {
       // Extract BookingIDs from the existing details
-      const bookingIds = existingBookingDetails.map(detail => detail.BookingID);
-
+      const bookingIds = existingBookingDetails.map(detail => detail._id);
 
       const existingBookings = await SpaBooking.find({
-        BookingID: { $in: bookingIds }
+        _id: { $in: bookingIds }
       });
 
       const activeBookings = existingBookings.filter(booking =>
@@ -184,24 +172,19 @@ exports.checkBooking = async (req, res) => {
   }
 };
 
+
 exports.getSpaBookingsByAccountID = async (req, res) => {
   try {
     const accountId = req.params.accountId;
 
     // Find spa bookings by AccountID and populate references if needed
     const spaBookings = await SpaBooking.find({ AccountID: accountId })
-      .populate('AccountID') 
-      .populate('PaymentDetailsID') 
+      .populate('PaymentDetailsID')
       .populate('BookingDetailsID')
       .populate('AdditionalInfoID');
 
     if (spaBookings.length === 0) {
       return res.status(404).json({ error: 'No Spa Bookings found for this AccountID' });
-    }
-
-    if (booking.PaypalOrderID) {
-      const decryptedPaypalOrderID = crypto.AES.decrypt(booking.PaypalOrderID, process.env.PAYPAL_CLIENT_SECRET).toString(crypto.enc.Utf8);
-      booking.PaypalOrderID = decryptedPaypalOrderID;
     }
 
     res.status(200).json(spaBookings);
@@ -210,23 +193,24 @@ exports.getSpaBookingsByAccountID = async (req, res) => {
   }
 };
 
+
 // Update a booking
 exports.updateBooking = async (req, res) => {
   try {
     const bookingID = req.params.id;
     const bookingData = req.body;
 
-    const SpaBooking = await SpaBooking.findOneAndUpdate(
-      { BookingID: bookingID },
+    const updatedBooking = await SpaBooking.findByIdAndUpdate(
+      bookingID,
       bookingData,
       { new: true }
     );
 
-    if (!SpaBooking) {
+    if (!updatedBooking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-    res.status(200).json(SpaBooking);
+    res.status(200).json(updatedBooking);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

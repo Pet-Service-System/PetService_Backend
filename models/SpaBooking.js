@@ -7,15 +7,13 @@ const statusChangeSchema = new Schema({
 }, { _id: false });
 
 const spaBookingSchema = new Schema({
-  BookingID: { type: String, required: true, unique: true },
   CurrentStatus: { type: String, required: true },
   CreateDate: { type: Date, required: true },
   AccountID: { type: String, required: true, ref: 'Account' },
   TotalPrice: { type: Number, required: true },
-  PaymentDetailsID: { type: String, ref: 'PaymentDetails' },
-  BookingDetailsID: { type: String, ref: 'BookingDetails' },
-  AdditionalInfoID: { type: String, ref: 'AdditionalInfo' },
-  PaymentDetailsID: { type: String, ref: 'PaymentDetails' },
+  PaymentDetailsID: { type: Schema.Types.ObjectId, ref: 'PaymentDetails' },
+  BookingDetailsID: { type: Schema.Types.ObjectId, ref: 'SpaBookingDetails' },
+  AdditionalInfoID: { type: Schema.Types.ObjectId, ref: 'AdditionalInfo' },
   StatusChanges: [statusChangeSchema],
   isSpentUpdated: { type: Boolean, default: false },
   VoucherID: { type: String },
