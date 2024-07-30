@@ -107,6 +107,11 @@ exports.getBookingById = async (req, res) => {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
+    if (booking.PaypalOrderID) {
+      const decryptedPaypalOrderID = crypto.AES.decrypt(booking.PaypalOrderID, process.env.PAYPAL_CLIENT_SECRET).toString(crypto.enc.Utf8);
+      booking.PaypalOrderID = decryptedPaypalOrderID;
+    }
+
     res.status(200).json(booking);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -178,6 +183,11 @@ exports.getSpaBookingsByAccountID = async (req, res) => {
 
     if (spaBookings.length === 0) {
       return res.status(404).json({ error: 'No Spa Bookings found for this AccountID' });
+    }
+
+    if (booking.PaypalOrderID) {
+      const decryptedPaypalOrderID = crypto.AES.decrypt(booking.PaypalOrderID, process.env.PAYPAL_CLIENT_SECRET).toString(crypto.enc.Utf8);
+      booking.PaypalOrderID = decryptedPaypalOrderID;
     }
 
     res.status(200).json(spaBookings);
