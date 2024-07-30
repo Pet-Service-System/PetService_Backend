@@ -19,5 +19,6 @@ const spaBookingDetailsSchema = new Schema({
   ServiceID: {type : String, required: true, ref: 'SpaService'},
 } , { versionKey: false });
 
+
 const SpaBooking = mongoose.model('SpaBookingDetails', spaBookingDetailsSchema, 'SpaBookingDetails');
 module.exports = SpaBooking;

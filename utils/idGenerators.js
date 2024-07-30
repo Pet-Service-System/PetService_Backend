@@ -15,6 +15,7 @@ const PaymentDetails = require('../models/PaymentDetails');
 const AdditionalInfo = require('../models/AdditionalInfo');
 
 
+
 const idGenerators = {
   generateAccountID: async () => {
     const session = await mongoose.startSession();
@@ -304,14 +305,25 @@ const idGenerators = {
 }
   },
 
-  generateAdditionalID: async () => {
-    const lastAdditional = await Additional.findOne().sort({ AdditionalID: -1 }).exec();
-    if (lastAdditional) {
-      const lastAdditionalID = lastAdditional.AdditionalID;
-      const additionalNumber = parseInt(lastAdditionalID.replace('AD', ''), 10) + 1;
-      return `AD${additionalNumber.toString().padStart(3, '0')}`;
+  generateAdditionalInfoID: async () => {
+    const lastAdditionalInfo = await AdditionalInfo.findOne().sort({ AdditionalInfoID: -1 }).exec();
+    if (lastAdditionalInfo) {  
+      const lastAdditionalInfoID = lastAdditionalInfo.AdditionalInfoID;
+      const additionalInfoNumber = parseInt(lastAdditionalInfoID.replace('AI', ''), 10) + 1;
+      return `AI${additionalInfoNumber.toString().padStart(3, '0')}`;
+    } else {  
+      return 'AI001';
+    }
+  },
+
+  generatePaymentDetailsID: async () => { 
+    const lastPayment = await PaymentDetails.findOne().sort({ PaymentDetailsID: -1 }).exec();
+    if (lastPayment) {
+      const lastPaymentID = lastPayment.PaymentDetailsID;
+      const paymentNumber = parseInt(lastPaymentID.replace('PD', ''), 10) + 1;
+      return `PD${paymentNumber.toString().padStart(3, '0')}`;
     } else {
-      return 'AD001';
+      return 'PD001';
     }
   },
 };

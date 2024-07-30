@@ -2,29 +2,39 @@
 const SpaBooking = require('../models/SpaBooking');
 const SpaBookingDetails = require('../models/SpaBookingDetails');
 const PaymentDetails = require('../models/PaymentDetails');
+const AdditionalInfo = require('../models/AdditionalInfo');
 PAYPAL_CLIENT_ID=process.env.PAYPAL_CLIENT_ID;
 PAYPAL_SECRET=process.env.PAYPAL_SECRET;
+const crypto = require('crypto-js');
 
-const { generateSpaBookingID, generateSpaBookingDetailsID, generateAdditionalID } = require('../utils/idGenerators');
+const { generateSpaBookingID, generateSpaBookingDetailsID, generatePaymentDetailsID, generateAdditionalInfoID } = require('../utils/idGenerators');
 
 // Create a new booking
 exports.createBooking = async (req, res) => {
   try {
     const bookingData = req.body;
+
+    // Generate unique IDs
     const BookingID = await generateSpaBookingID();
     const PaymentDetailsID = await generatePaymentDetailsID();
     const BookingDetailsID = await generateSpaBookingDetailsID();
+    const AdditionalInfoID = await generateAdditionalInfoID();
+
+  
     const PaypalOrderID = crypto.AES.encrypt(req.body.PaypalOrderID, process.env.PAYPAL_CLIENT_SECRET).toString();
+
 
     const paymentDetails = new PaymentDetails({
       PaymentDetailsID,
       BookingID,
       PaypalOrderID,
       ExtraCharge: bookingData.ExtraCharge,
-      FinalPrice: bookingData.FinalPrice
+      TotalPrice: bookingData.TotalPrice
     });
-    
-    const SpabookingDetails = new SpaBookingDetails({
+
+    await paymentDetails.save();
+
+    const spaBookingDetails = new SpaBookingDetails({
       BookingDetailsID,
       BookingID,
       CustomerName: bookingData.CustomerName,
@@ -41,8 +51,11 @@ exports.createBooking = async (req, res) => {
       BookingTime: bookingData.BookingTime,
       ServiceID: bookingData.ServiceID
     });
+    console.log(spaBookingDetails);
+    await spaBookingDetails.save();
 
-    const SpaBooking = new SpaBooking({
+   
+    const spaBooking = new SpaBooking({
       BookingID,
       CurrentStatus: bookingData.CurrentStatus,
       CreateDate: bookingData.CreateDate,
@@ -50,12 +63,16 @@ exports.createBooking = async (req, res) => {
       TotalPrice: bookingData.TotalPrice,
       PaymentDetailsID,
       BookingDetailsID,
-      StatusChanges: [{ Status: req.body.Status, ChangeTime: new Date() }]
+      StatusChanges: [{ Status: bookingData.CurrentStatus, ChangeTime: new Date() }],
+      isSpentUpdated: bookingData.isSpentUpdated,
+      VoucherID: bookingData.VoucherID
     });
 
+    await spaBooking.save();
 
-    const AdditionalInfo = new AdditionalInfo({
-      AdditionalInfoID: await generateAdditionalID(),
+    // Create and save AdditionalInfo
+    const additionalInfo = new AdditionalInfo({
+      AdditionalInfoID,
       BookingID,
       CancelReason: bookingData.CancelReason,
       CaretakerNote: bookingData.CaretakerNote,
@@ -64,13 +81,10 @@ exports.createBooking = async (req, res) => {
       isReplied: bookingData.isReplied
     });
 
-    await paymentDetails.save();
-    await SpabookingDetails.save();
-    await SpaBooking.save();
-    await AdditionalInfo.save();
-  
+    await additionalInfo.save();
 
-    res.status(201).json(SpaBooking);
+    // Send response
+    res.status(201).json(spaBooking);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
