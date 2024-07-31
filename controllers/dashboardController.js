@@ -173,24 +173,6 @@ exports.calculateEarnings = async (req, res) => {
     const startOfWeek = getStartOfWeek();
     const endOfWeek = getEndOfWeek();
 
-    const orders = await Order.aggregate([
-      {
-        $match: {
-          OrderDate: {
-            $gte: startOfWeek,
-            $lte: endOfWeek,
-          },
-          Status: "Shipped",
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalEarnings: { $sum: "$TotalPrice" },
-        },
-      },
-    ]);
-
     const bookings = await SpaBooking.aggregate([
       {
         $match: {
@@ -204,15 +186,14 @@ exports.calculateEarnings = async (req, res) => {
       {
         $group: {
           _id: null,
-          totalEarnings: { $sum: "$FinalPrice" },
+          totalEarnings: { $sum: "$TotalPrice" },
         },
       },
     ]);
-    const totalOrderEarnings = orders.length > 0 ? orders[0].totalEarnings : 0;
     const totalBookingEarnings =
       bookings.length > 0 ? bookings[0].totalEarnings : 0;
 
-    const totalEarnings = totalOrderEarnings + totalBookingEarnings;
+    const totalEarnings = totalBookingEarnings;
     res.status(200).json({ totalEarnings });
   } catch (error) {
     console.error("Error calculating weekly earnings:", error);
@@ -239,7 +220,7 @@ exports.getWeeklyEarningsData = async (req, res) => {
           _id: {
             $dateToString: { format: "%Y-%m-%d", date: "$CreateDate" }
           },
-          totalEarnings: { $sum: "$FinalPrice" }
+          totalEarnings: { $sum: "$TotalPrice" }
         },
       },
       {
@@ -273,7 +254,7 @@ exports.getMonthlyEarningsData = async (req, res) => {
           _id: {
             $dateToString: { format: "%Y-%m-%d", date: "$CreateDate" }
           },
-          totalEarnings: { $sum: "$FinalPrice" }
+          totalEarnings: { $sum: "$TotalPrice" }
         },
       },
       {
@@ -308,7 +289,7 @@ exports.getYearlyEarningsData = async (req, res) => {
           _id: {
             $dateToString: { format: "%Y-%m", date: "$CreateDate" }
           },
-          totalEarnings: { $sum: "$FinalPrice" }
+          totalEarnings: { $sum: "$TotalPrice" }
         },
       },
       {
