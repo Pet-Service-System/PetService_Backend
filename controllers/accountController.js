@@ -188,9 +188,9 @@ exports.updateCurrentSpent = async (req, res) => {
       await account.save();
       let discountValue = 0;
       if (memberStatus == 1) {
-        discountValue = 500000;
+        discountValue = 100000;
       } else if (memberStatus == 2) {
-        discountValue = 1000000;
+        discountValue = 500000;
       }
 
       const voucherID = await generateVoucherID();
@@ -199,7 +199,7 @@ exports.updateCurrentSpent = async (req, res) => {
         VoucherID: voucherID,
         UsageLimit: 1,
         DiscountValue: discountValue,
-        MinimumOrderValue: 0,
+        MinimumOrderValue: 400000,
         Status: 'Active',
         Pattern: voucherPattern,
       });
