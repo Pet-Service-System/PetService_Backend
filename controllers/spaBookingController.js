@@ -204,46 +204,49 @@ exports.updateBooking = async (req, res) => {
   try {
     const bookingID = req.params.id;
     const bookingData = req.body;
-
-    const currentBooking = await SpaBooking.findById(bookingID);
-    if (!currentBooking) {
+    console.log(bookingData)
+    const spaBooking = await SpaBooking.findById(bookingID);
+    if (!spaBooking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-
-    if (bookingData.PaymentDetails) {
-      await PaymentDetails.findByIdAndUpdate(
-        currentBooking.PaymentDetailsID,
-        bookingData.PaymentDetails,
-        { new: true }
-      );
+    if (bookingData.CurrentStatus || bookingData.isSpentUpdated || bookingData.VoucherID) {
+      spaBooking.CurrentStatus = bookingData.CurrentStatus || spaBooking.CurrentStatus;
+      spaBooking.isSpentUpdated = bookingData.isSpentUpdated || spaBooking.isSpentUpdated;
+      spaBooking.VoucherID = bookingData.VoucherID || spaBooking.VoucherID;
+      await spaBooking.save();
     }
 
-    if (bookingData.BookingDetails) {
-      await SpaBookingDetails.findByIdAndUpdate(
-        currentBooking.BookingDetailsID,
-        bookingData.BookingDetails,
-        { new: true }
-      );
+    if (bookingData.BookingDate || bookingData.BookingTime || bookingData.CustomerName) {
+      const spaBookingDetails = await SpaBookingDetails.findOne({ BookingID: bookingID });
+      if (spaBookingDetails) {
+        spaBookingDetails.BookingDate = bookingData.BookingDate || spaBookingDetails.BookingDate;
+        spaBookingDetails.BookingTime = bookingData.BookingTime || spaBookingDetails.BookingTime;
+        spaBookingDetails.CustomerName = bookingData.CustomerName || spaBookingDetails.CustomerName;
+        await spaBookingDetails.save();
+      }
     }
 
-    if (bookingData.AdditionalInfo) {
-      await AdditionalInfo.findByIdAndUpdate(
-        currentBooking.AdditionalInfoID,
-        bookingData.AdditionalInfo,
-        { new: true }
-      );
+    if (bookingData.CaretakerNote || bookingData.CaretakerID || bookingData.Feedback) {
+      const additionalInfo = await AdditionalInfo.findOne({ BookingID: bookingID });
+      if (additionalInfo) {
+        additionalInfo.CaretakerNote = bookingData.CaretakerNote || additionalInfo.CaretakerNote;
+        additionalInfo.CaretakerID = bookingData.CaretakerID || additionalInfo.CaretakerID;
+        additionalInfo.Feedback = bookingData.Feedback || additionalInfo.Feedback;
+        await additionalInfo.save();
+      }
+    }
+    if (bookingData.ExtraCharge || bookingData.TotalPrice) {
+      const paymentDetails = await PaymentDetails.findOne({ BookingID: bookingID });
+      if (paymentDetails) {
+        paymentDetails.ExtraCharge = bookingData.ExtraCharge || paymentDetails.ExtraCharge;
+        paymentDetails.TotalPrice = bookingData.TotalPrice || paymentDetails.TotalPrice;
+        await paymentDetails.save();
+      }
     }
 
-    const updatedBooking = await SpaBooking.findByIdAndUpdate(
-      bookingID,
-      bookingData,
-      { new: true }
-    );
-
-    res.status(200).json(updatedBooking);
+    res.status(200).json({ message: 'Booking updated successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
