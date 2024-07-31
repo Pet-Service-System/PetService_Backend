@@ -97,29 +97,6 @@ exports.countOrdersAndBookingsByDayInWeek = async (req, res) => {
     const startOfWeek = getStartOfWeek();
     const endOfWeek = getEndOfWeek();
 
-    const orders = await Order.aggregate([
-      {
-        $match: {
-          OrderDate: {
-            $gte: startOfWeek,
-            $lte: endOfWeek,
-          },
-          Status: { $ne: "Canceled" },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: "%Y-%m-%d", date: "$OrderDate" },
-          },
-          count: { $sum: 1 },
-        },
-      },
-      {
-        $sort: { _id: 1 },
-      },
-    ]);
-
     const bookings = await SpaBooking.aggregate([
       {
         $match: {
@@ -144,9 +121,6 @@ exports.countOrdersAndBookingsByDayInWeek = async (req, res) => {
     ]);
 
     const mergedResults = {};
-    orders.forEach((order) => {
-      mergedResults[order._id] = { orders: order.count, bookings: 0 };
-    });
     bookings.forEach((booking) => {
       if (mergedResults[booking._id]) {
         mergedResults[booking._id].bookings = booking.count;
@@ -156,10 +130,10 @@ exports.countOrdersAndBookingsByDayInWeek = async (req, res) => {
     });
 
     const resultsArray = [
-      ["Day of week", "Total Services Booked", "Total Ordered"],
+      ["Day of week", "Total Services Booked"],
     ];
     for (const [date, counts] of Object.entries(mergedResults)) {
-      resultsArray.push([date, counts.bookings, counts.orders]);
+      resultsArray.push([date, counts.bookings]);
     }
 
     res.status(200).json(resultsArray);
