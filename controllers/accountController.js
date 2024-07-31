@@ -190,7 +190,7 @@ exports.updateCurrentSpent = async (req, res) => {
       if (memberStatus == 1) {
         discountValue = 100000;
       } else if (memberStatus == 2) {
-        discountValue = 500000;
+        discountValue = 300000;
       }
 
       const voucherID = await generateVoucherID();
