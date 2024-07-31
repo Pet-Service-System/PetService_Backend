@@ -3,6 +3,7 @@ const SpaBooking = require('../models/SpaBooking');
 const SpaBookingDetails = require('../models/SpaBookingDetails');
 const PaymentDetails = require('../models/PaymentDetails');
 const AdditionalInfo = require('../models/AdditionalInfo');
+const Voucher = require('../models/Voucher');
 PAYPAL_CLIENT_ID=process.env.PAYPAL_CLIENT_ID;
 PAYPAL_SECRET=process.env.PAYPAL_SECRET;
 const crypto = require('crypto-js');
@@ -30,6 +31,13 @@ exports.createBooking = async (req, res) => {
       isSpentUpdated: bookingData.isSpentUpdated,
       VoucherID: bookingData.VoucherID
     });
+    if (bookingData.VoucherID) {
+      const voucher = await Voucher.findOne({ VoucherID: bookingData.VoucherID });
+      if (voucher) {
+        voucher.UsageLimit -= 1;
+        await voucher.save();
+      }
+    }
     const savedSpaBooking = await spaBooking.save();
 
     const paymentDetails = new PaymentDetails({
@@ -88,6 +96,17 @@ exports.getSpaBookings = async (req, res) => {
       .populate('PaymentDetailsID')  
       .populate('BookingDetailsID')
       .populate('AdditionalInfoID'); 
+
+      spaBookings.forEach(booking => {
+        if (booking.PaymentDetailsID && booking.PaymentDetailsID.PaypalOrderID) {
+          const decryptedPaypalOrderID = crypto.AES.decrypt(
+            booking.PaymentDetailsID.PaypalOrderID, 
+            process.env.PAYPAL_CLIENT_SECRET
+          ).toString(crypto.enc.Utf8);
+  
+          booking.PaymentDetailsID.PaypalOrderID = decryptedPaypalOrderID;
+        }
+      });
 
     res.status(200).json(spaBookings);
   } catch (err) {
