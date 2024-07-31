@@ -18,7 +18,7 @@ router.post('/check', checkBooking);
 router.get('/account/:accountId', getSpaBookingsByAccountID);
 
 
-router.put('/:id', updateBooking);
+router.patch('/:id', updateBooking);
 
 
 module.exports = router;
