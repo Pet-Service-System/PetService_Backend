@@ -109,12 +109,11 @@ exports.getBookingById = async (req, res) => {
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
-
-    if (booking.PaypalOrderID) {
-      const decryptedPaypalOrderID = crypto.AES.decrypt(booking.PaypalOrderID, process.env.PAYPAL_CLIENT_SECRET).toString(crypto.enc.Utf8);
-      booking.PaypalOrderID = decryptedPaypalOrderID;
+    if (booking.PaymentDetailsID.PaypalOrderID) {
+      const decryptedPaypalOrderID = crypto.AES.decrypt(booking.PaymentDetailsID.PaypalOrderID, process.env.PAYPAL_CLIENT_SECRET).toString(crypto.enc.Utf8);
+      booking.PaymentDetailsID.PaypalOrderID = decryptedPaypalOrderID;
     }
-
+    
     res.status(200).json(booking);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -200,47 +199,67 @@ exports.getSpaBookingsByAccountID = async (req, res) => {
 
 
 // Update a booking
+// Update a booking
 exports.updateBooking = async (req, res) => {
   try {
     const bookingID = req.params.id;
     const bookingData = req.body;
-    console.log(bookingData)
+
     const spaBooking = await SpaBooking.findById(bookingID);
     if (!spaBooking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-    if (bookingData.CurrentStatus || bookingData.isSpentUpdated || bookingData.VoucherID) {
-      spaBooking.CurrentStatus = bookingData.CurrentStatus || spaBooking.CurrentStatus;
-      spaBooking.isSpentUpdated = bookingData.isSpentUpdated || spaBooking.isSpentUpdated;
-      spaBooking.VoucherID = bookingData.VoucherID || spaBooking.VoucherID;
-      await spaBooking.save();
+    if (bookingData.CurrentStatus) {
+      spaBooking.CurrentStatus = bookingData.CurrentStatus;
+      spaBooking.StatusChanges.push({
+        Status: bookingData.CurrentStatus,
+        ChangeTime: new Date()
+      });
     }
 
-    if (bookingData.BookingDate || bookingData.BookingTime || bookingData.CustomerName) {
+    spaBooking.isSpentUpdated = bookingData.isSpentUpdated !== undefined ? bookingData.isSpentUpdated : spaBooking.isSpentUpdated;
+    spaBooking.TotalPrice = bookingData.TotalPrice !== undefined ? bookingData.TotalPrice : spaBooking.TotalPrice;
+    spaBooking.VoucherID = bookingData.VoucherID !== undefined ? bookingData.VoucherID : spaBooking.VoucherID;
+    await spaBooking.save();
+
+    if (bookingData.BookingDate || bookingData.BookingTime || bookingData.CustomerName || bookingData.Phone || bookingData.PetID || bookingData.PetName || bookingData.PetGender || bookingData.PetStatus || bookingData.PetTypeID || bookingData.PetWeight || bookingData.ActualWeight || bookingData.PetAge || bookingData.ServiceID) {
       const spaBookingDetails = await SpaBookingDetails.findOne({ BookingID: bookingID });
       if (spaBookingDetails) {
-        spaBookingDetails.BookingDate = bookingData.BookingDate || spaBookingDetails.BookingDate;
-        spaBookingDetails.BookingTime = bookingData.BookingTime || spaBookingDetails.BookingTime;
-        spaBookingDetails.CustomerName = bookingData.CustomerName || spaBookingDetails.CustomerName;
+        spaBookingDetails.BookingDate = bookingData.BookingDate !== undefined ? bookingData.BookingDate : spaBookingDetails.BookingDate;
+        spaBookingDetails.BookingTime = bookingData.BookingTime !== undefined ? bookingData.BookingTime : spaBookingDetails.BookingTime;
+        spaBookingDetails.CustomerName = bookingData.CustomerName !== undefined ? bookingData.CustomerName : spaBookingDetails.CustomerName;
+        spaBookingDetails.Phone = bookingData.Phone !== undefined ? bookingData.Phone : spaBookingDetails.Phone;
+        spaBookingDetails.PetID = bookingData.PetID !== undefined ? bookingData.PetID : spaBookingDetails.PetID;
+        spaBookingDetails.PetName = bookingData.PetName !== undefined ? bookingData.PetName : spaBookingDetails.PetName;
+        spaBookingDetails.PetGender = bookingData.PetGender !== undefined ? bookingData.PetGender : spaBookingDetails.PetGender;
+        spaBookingDetails.PetStatus = bookingData.PetStatus !== undefined ? bookingData.PetStatus : spaBookingDetails.PetStatus;
+        spaBookingDetails.PetTypeID = bookingData.PetTypeID !== undefined ? bookingData.PetTypeID : spaBookingDetails.PetTypeID;
+        spaBookingDetails.PetWeight = bookingData.PetWeight !== undefined ? bookingData.PetWeight : spaBookingDetails.PetWeight;
+        spaBookingDetails.ActualWeight = bookingData.ActualWeight !== undefined ? bookingData.ActualWeight : spaBookingDetails.ActualWeight;
+spaBookingDetails.PetAge = bookingData.PetAge !== undefined ? bookingData.PetAge : spaBookingDetails.PetAge;
+        spaBookingDetails.ServiceID = bookingData.ServiceID !== undefined ? bookingData.ServiceID : spaBookingDetails.ServiceID;
         await spaBookingDetails.save();
       }
     }
 
-    if (bookingData.CaretakerNote || bookingData.CaretakerID || bookingData.Feedback) {
+    if (bookingData.CaretakerNote !== undefined || bookingData.CaretakerID !== undefined || bookingData.Feedback !== undefined || bookingData.isReplied !== undefined || bookingData.CancelReason !== undefined) {
       const additionalInfo = await AdditionalInfo.findOne({ BookingID: bookingID });
       if (additionalInfo) {
-        additionalInfo.CaretakerNote = bookingData.CaretakerNote || additionalInfo.CaretakerNote;
-        additionalInfo.CaretakerID = bookingData.CaretakerID || additionalInfo.CaretakerID;
-        additionalInfo.Feedback = bookingData.Feedback || additionalInfo.Feedback;
+        additionalInfo.CaretakerNote = bookingData.CaretakerNote !== undefined ? bookingData.CaretakerNote : additionalInfo.CaretakerNote;
+        additionalInfo.CaretakerID = bookingData.CaretakerID !== undefined ? bookingData.CaretakerID : additionalInfo.CaretakerID;
+        additionalInfo.Feedback = bookingData.Feedback !== undefined ? bookingData.Feedback : additionalInfo.Feedback;
+        additionalInfo.isReplied = bookingData.isReplied !== undefined ? bookingData.isReplied : additionalInfo.isReplied;
+        additionalInfo.CancelReason = bookingData.CancelReason !== undefined ? bookingData.CancelReason : additionalInfo.CancelReason;
         await additionalInfo.save();
       }
     }
-    if (bookingData.ExtraCharge || bookingData.TotalPrice) {
+
+    if (bookingData.ExtraCharge !== undefined || bookingData.TotalPrice !== undefined) {
       const paymentDetails = await PaymentDetails.findOne({ BookingID: bookingID });
       if (paymentDetails) {
-        paymentDetails.ExtraCharge = bookingData.ExtraCharge || paymentDetails.ExtraCharge;
-        paymentDetails.TotalPrice = bookingData.TotalPrice || paymentDetails.TotalPrice;
+        paymentDetails.ExtraCharge = bookingData.ExtraCharge !== undefined ? bookingData.ExtraCharge : paymentDetails.ExtraCharge;
+        paymentDetails.TotalPrice = bookingData.TotalPrice !== undefined ? bookingData.TotalPrice : paymentDetails.TotalPrice;
         await paymentDetails.save();
       }
     }
