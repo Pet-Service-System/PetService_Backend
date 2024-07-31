@@ -134,28 +134,33 @@ exports.checkBooking = async (req, res) => {
 
     if (existingBookingDetails.length > 0) {
       // Extract BookingIDs from the existing details
-      const bookingIds = existingBookingDetails.map(detail => detail._id);
+      const bookingIds = existingBookingDetails.map(detail => detail.BookingID);
 
+      // Find all bookings with the extracted BookingIDs
       const existingBookings = await SpaBooking.find({
-        _id: { $in: bookingIds }
+        _id: { $in: bookingIds },
+        CurrentStatus: { $ne: 'Cancelled' } // Filter out cancelled bookings
       });
 
-      const activeBookings = existingBookings.filter(booking =>
-        booking.CurrentStatus !== 'Cancelled'
-      );
+      console.log(existingBookings);
 
-      if (activeBookings.length > 0) {
+      // If any active bookings exist
+      if (existingBookings.length > 0) {
         return res.status(409).json({
           canBook: false,
           message: 'Booking conflict: The selected pet is already booked at this time and date. Please choose a different time slot.',
         });
       }
     }
-    const existingOrdersCount = await SpaBooking.countDocuments({
+
+    // Check for the maximum number of orders per slot
+    const existingOrdersCount = await SpaBookingDetails.countDocuments({
       BookingDate,
       BookingTime,
       CurrentStatus: { $ne: 'Cancelled' }
     });
+
+    console.log(existingOrdersCount)
 
     const maxOrdersPerSlot = 4;
     if (existingOrdersCount >= maxOrdersPerSlot) {
@@ -200,15 +205,41 @@ exports.updateBooking = async (req, res) => {
     const bookingID = req.params.id;
     const bookingData = req.body;
 
+    const currentBooking = await SpaBooking.findById(bookingID);
+    if (!currentBooking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+
+    if (bookingData.PaymentDetails) {
+      await PaymentDetails.findByIdAndUpdate(
+        currentBooking.PaymentDetailsID,
+        bookingData.PaymentDetails,
+        { new: true }
+      );
+    }
+
+    if (bookingData.BookingDetails) {
+      await SpaBookingDetails.findByIdAndUpdate(
+        currentBooking.BookingDetailsID,
+        bookingData.BookingDetails,
+        { new: true }
+      );
+    }
+
+    if (bookingData.AdditionalInfo) {
+      await AdditionalInfo.findByIdAndUpdate(
+        currentBooking.AdditionalInfoID,
+        bookingData.AdditionalInfo,
+        { new: true }
+      );
+    }
+
     const updatedBooking = await SpaBooking.findByIdAndUpdate(
       bookingID,
       bookingData,
       { new: true }
     );
-
-    if (!updatedBooking) {
-      return res.status(404).json({ message: 'Booking not found' });
-    }
 
     res.status(200).json(updatedBooking);
   } catch (error) {
