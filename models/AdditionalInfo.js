@@ -8,6 +8,7 @@ const additionalInfoSchema = new Schema({
   CaretakerID: { type: String, ref: 'Account' },
   Feedback: { type: String },
   isReplied: { type: Boolean },
+  isReviewed: { type: Boolean, default: false },
 }, { versionKey: false });
 
 const AdditionalInfo = mongoose.model('AdditionalInfo', additionalInfoSchema, 'AdditionalInfos');
