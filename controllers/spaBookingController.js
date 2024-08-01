@@ -167,7 +167,7 @@ exports.checkBooking = async (req, res) => {
       if (existingBookings.length > 0) {
         return res.status(409).json({
           canBook: false,
-          message: 'Booking conflict: The selected pet is already booked at this time and date. Please choose a different time slot.',
+          message: 'Bạn không thể đặt chỗ do thú cưng được chọn đã đặt dịch vụ vào ngày và giờ này. Vui lòng chọn một khung thời gian khác hoặc 1 dịch vụ khác.',
         });
       }
     }
