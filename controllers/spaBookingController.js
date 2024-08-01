@@ -72,7 +72,8 @@ exports.createBooking = async (req, res) => {
       CaretakerNote: bookingData.CaretakerNote,
       CaretakerID: bookingData.CaretakerID,
       Feedback: bookingData.Feedback,
-      isReplied: bookingData.isReplied
+      isReplied: bookingData.isReplied,
+      isReviewed: bookingData.isReviewed,
     });
     await additionalInfo.save();
 
@@ -218,7 +219,6 @@ exports.getSpaBookingsByAccountID = async (req, res) => {
 
 
 // Update a booking
-// Update a booking
 exports.updateBooking = async (req, res) => {
   try {
     const bookingID = req.params.id;
@@ -256,13 +256,13 @@ exports.updateBooking = async (req, res) => {
         spaBookingDetails.PetTypeID = bookingData.PetTypeID !== undefined ? bookingData.PetTypeID : spaBookingDetails.PetTypeID;
         spaBookingDetails.PetWeight = bookingData.PetWeight !== undefined ? bookingData.PetWeight : spaBookingDetails.PetWeight;
         spaBookingDetails.ActualWeight = bookingData.ActualWeight !== undefined ? bookingData.ActualWeight : spaBookingDetails.ActualWeight;
-spaBookingDetails.PetAge = bookingData.PetAge !== undefined ? bookingData.PetAge : spaBookingDetails.PetAge;
+        spaBookingDetails.PetAge = bookingData.PetAge !== undefined ? bookingData.PetAge : spaBookingDetails.PetAge;
         spaBookingDetails.ServiceID = bookingData.ServiceID !== undefined ? bookingData.ServiceID : spaBookingDetails.ServiceID;
         await spaBookingDetails.save();
       }
     }
 
-    if (bookingData.CaretakerNote !== undefined || bookingData.CaretakerID !== undefined || bookingData.Feedback !== undefined || bookingData.isReplied !== undefined || bookingData.CancelReason !== undefined) {
+    if (bookingData.CaretakerNote !== undefined || bookingData.CaretakerID !== undefined || bookingData.Feedback !== undefined || bookingData.isReplied !== undefined || bookingData.CancelReason !== undefined || bookingData.isReviewed !== undefined) {
       const additionalInfo = await AdditionalInfo.findOne({ BookingID: bookingID });
       if (additionalInfo) {
         additionalInfo.CaretakerNote = bookingData.CaretakerNote !== undefined ? bookingData.CaretakerNote : additionalInfo.CaretakerNote;
@@ -270,6 +270,7 @@ spaBookingDetails.PetAge = bookingData.PetAge !== undefined ? bookingData.PetAge
         additionalInfo.Feedback = bookingData.Feedback !== undefined ? bookingData.Feedback : additionalInfo.Feedback;
         additionalInfo.isReplied = bookingData.isReplied !== undefined ? bookingData.isReplied : additionalInfo.isReplied;
         additionalInfo.CancelReason = bookingData.CancelReason !== undefined ? bookingData.CancelReason : additionalInfo.CancelReason;
+        additionalInfo.isReviewed = bookingData.isReviewed !== undefined ? bookingData.isReviewed : additionalInfo.isReviewed;
         await additionalInfo.save();
       }
     }
